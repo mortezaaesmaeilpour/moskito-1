@@ -21,28 +21,59 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>  */
 /**************************************************************************/
 
-#include "MoskitoApp.h"
-#include "gtest/gtest.h"
+#include "MoskitoCMass.h"
 
-// Moose includes
-#include "Moose.h"
-#include "MooseInit.h"
-#include "AppFactory.h"
+registerMooseObject("MoskitoApp", MoskitoCMass);
 
-#include <fstream>
-#include <string>
-
-PerfLog Moose::perf_log("gtest");
-
-GTEST_API_ int
-main(int argc, char ** argv)
+template <>
+InputParameters
+validParams<MoskitoCMass>()
 {
-  // gtest removes (only) its args from argc and argv - so this  must be before moose init
-  testing::InitGoogleTest(&argc, argv);
+  InputParameters params = validParams<Kernel>();
 
-  MooseInit init(argc, argv);
-  registerApp(MoskitoApp);
-  Moose::_throw_on_error = true;
+  params.addRequiredCoupledVar("vol_flow_rate", "Volumetric flow rate along x direction");
 
-  return RUN_ALL_TESTS();
+  return params;
+}
+
+MoskitoCMass::MoskitoCMass(const InputParameters & parameters)
+  : Kernel(parameters),
+  _q_vol(coupledValue("vol_flow_rate")),
+  _grad_q_vol(coupledGradient("vol_flow_rate")),
+  _q_vol_var_number(coupled("vol_flow_rate")),
+  _area(getMaterialProperty<Real>("well_area"))
+{
+}
+
+Real
+MoskitoCMass::computeQpResidual()
+{
+  Real r = 0.0;
+  r += _q_vol[_qp] * _grad_u[_qp](0) * _test[_i][_qp];
+  r += _grad_q_vol[_qp](0) * _u[_qp] * _test[_i][_qp];
+
+  return r / _area[_qp];
+}
+
+Real
+MoskitoCMass::computeQpJacobian()
+{
+  Real j = 0.0;
+  j += _q_vol[_qp] * _grad_phi[_j][_qp](0) * _test[_i][_qp];
+  j += _grad_q_vol[_qp](0) * _phi[_j][_qp] * _test[_i][_qp];
+
+  return j / _area[_qp];
+}
+
+Real
+MoskitoCMass::computeQpOffDiagJacobian(unsigned int jvar)
+{
+  Real j = 0.0;
+  if (jvar == _q_vol_var_number)
+  {
+    j += _phi[_j][_qp] * _grad_u[_qp](0) * _test[_i][_qp];
+    j += _grad_phi[_j][_qp](0) * _u[_qp] * _test[_i][_qp];
+  }
+  
+  return j / _area[_qp];
 }

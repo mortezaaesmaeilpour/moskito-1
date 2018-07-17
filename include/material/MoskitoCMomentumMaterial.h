@@ -1,11 +1,11 @@
 /**************************************************************************/
-/*  MOSKITO - Multiphysics cOupled Simulator toolKIT for wellbOres        */
+/*  TIGER - Hydro-thermal sImulator GEothermal Reservoirs                 */
 /*                                                                        */
 /*  Copyright (C) 2017 by Maziar Gholami Korzani                          */
 /*  Karlsruhe Institute of Technology, Institute of Applied Geosciences   */
 /*  Division of Geothermal Research                                       */
 /*                                                                        */
-/*  This file is part of MOSKITO App                                      */
+/*  This file is part of TIGER App                                        */
 /*                                                                        */
 /*  This program is free software: you can redistribute it and/or modify  */
 /*  it under the terms of the GNU General Public License as published by  */
@@ -21,28 +21,41 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>  */
 /**************************************************************************/
 
-#include "MoskitoApp.h"
-#include "gtest/gtest.h"
+#ifndef MOSKITOCMOMENTUMMATERIAL_H
+#define MOSKITOCMOMENTUMMATERIAL_H
 
-// Moose includes
-#include "Moose.h"
-#include "MooseInit.h"
-#include "AppFactory.h"
+#define PI 3.141592653589793238462643383279502884197169399375105820974944592308
 
-#include <fstream>
-#include <string>
+#include "Material.h"
+#include "MoskitoEOS.h"
 
-PerfLog Moose::perf_log("gtest");
+class MoskitoCMomentumMaterial;
 
-GTEST_API_ int
-main(int argc, char ** argv)
+template <>
+InputParameters validParams<MoskitoCMomentumMaterial>();
+
+class MoskitoCMomentumMaterial : public Material
 {
-  // gtest removes (only) its args from argc and argv - so this  must be before moose init
-  testing::InitGoogleTest(&argc, argv);
+public:
+  MoskitoCMomentumMaterial(const InputParameters & parameters);
+  virtual void computeQpProperties() override;
 
-  MooseInit init(argc, argv);
-  registerApp(MoskitoApp);
-  Moose::_throw_on_error = true;
+protected:
+  MaterialProperty<Real> & _dia;
+  MaterialProperty<Real> & _area;
+  MaterialProperty<Real> & _p;
+  MaterialProperty<Real> & _dp_drho;
+  MaterialProperty<Real> & _dp_dT;
+  MaterialProperty<Real> & _dp_drho_2;
+  MaterialProperty<Real> & _dp_dT_2;
+  const MoskitoEOS & _eos_UO;
+  /// Density (kg/m^3)
+  const VariableValue & _rho;
+  /// Temperature (K)
+  const VariableValue & _T;
 
-  return RUN_ALL_TESTS();
-}
+private:
+  Real _d;
+};
+
+#endif /* MOSKITOCMOMENTUMMATERIAL_H */

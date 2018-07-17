@@ -21,28 +21,35 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>  */
 /**************************************************************************/
 
-#include "MoskitoApp.h"
-#include "gtest/gtest.h"
+#ifndef MOSKITOCMASS_H
+#define MOSKITOCMASS_H
 
-// Moose includes
-#include "Moose.h"
-#include "MooseInit.h"
-#include "AppFactory.h"
+#include "Kernel.h"
 
-#include <fstream>
-#include <string>
+class MoskitoCMass;
 
-PerfLog Moose::perf_log("gtest");
+template <>
+InputParameters validParams<MoskitoCMass>();
 
-GTEST_API_ int
-main(int argc, char ** argv)
+class MoskitoCMass : public Kernel
 {
-  // gtest removes (only) its args from argc and argv - so this  must be before moose init
-  testing::InitGoogleTest(&argc, argv);
+public:
+  MoskitoCMass(const InputParameters & parameters);
 
-  MooseInit init(argc, argv);
-  registerApp(MoskitoApp);
-  Moose::_throw_on_error = true;
+protected:
+  virtual Real computeQpResidual() override;
+  virtual Real computeQpJacobian() override;
+  virtual Real computeQpOffDiagJacobian(unsigned jvar) override;
 
-  return RUN_ALL_TESTS();
-}
+  // Coupled velocities
+  const VariableValue & _q_vol;
+
+  // Gradients of coupled velocities
+  const VariableGradient & _grad_q_vol;
+
+  // Variable numberings
+  unsigned _q_vol_var_number;
+  const MaterialProperty<Real> & _area;
+};
+
+#endif // MOSKITOCMASS_H

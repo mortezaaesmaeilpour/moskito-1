@@ -21,28 +21,18 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>  */
 /**************************************************************************/
 
-#include "MoskitoApp.h"
-#include "gtest/gtest.h"
+#include "MoskitoEOS.h"
 
-// Moose includes
-#include "Moose.h"
-#include "MooseInit.h"
-#include "AppFactory.h"
-
-#include <fstream>
-#include <string>
-
-PerfLog Moose::perf_log("gtest");
-
-GTEST_API_ int
-main(int argc, char ** argv)
+template <>
+InputParameters
+validParams<MoskitoEOS>()
 {
-  // gtest removes (only) its args from argc and argv - so this  must be before moose init
-  testing::InitGoogleTest(&argc, argv);
-
-  MooseInit init(argc, argv);
-  registerApp(MoskitoApp);
-  Moose::_throw_on_error = true;
-
-  return RUN_ALL_TESTS();
+  InputParameters params = validParams<GeneralUserObject>();
+  return params;
 }
+
+MoskitoEOS::MoskitoEOS(const InputParameters & parameters) : GeneralUserObject(parameters)
+{
+}
+
+MoskitoEOS::~MoskitoEOS() {}

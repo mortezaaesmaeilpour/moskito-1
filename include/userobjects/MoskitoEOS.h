@@ -21,28 +21,35 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>  */
 /**************************************************************************/
 
-#include "MoskitoApp.h"
-#include "gtest/gtest.h"
+#ifndef MOSKITOEOS_H
+#define MOSKITOEOS_H
 
-// Moose includes
-#include "Moose.h"
-#include "MooseInit.h"
-#include "AppFactory.h"
+#include "GeneralUserObject.h"
 
-#include <fstream>
-#include <string>
+class MoskitoEOS;
 
-PerfLog Moose::perf_log("gtest");
+template <>
+InputParameters validParams<MoskitoEOS>();
 
-GTEST_API_ int
-main(int argc, char ** argv)
+class MoskitoEOS : public GeneralUserObject
 {
-  // gtest removes (only) its args from argc and argv - so this  must be before moose init
-  testing::InitGoogleTest(&argc, argv);
+public:
+  MoskitoEOS(const InputParameters & parameters);
+  virtual ~MoskitoEOS();
 
-  MooseInit init(argc, argv);
-  registerApp(MoskitoApp);
-  Moose::_throw_on_error = true;
+  virtual void execute() final {}
+  virtual void initialize() final {}
+  virtual void finalize() final {}
 
-  return RUN_ALL_TESTS();
-}
+  /// Pressure from density and temperature (Pa)
+  virtual Real p(Real density, Real temperature) const = 0;
+
+  /// Pressure from density and temperature and its derivatives wrt density and temperature
+  virtual void dp_drhoT(
+      Real density, Real temperature, Real & pressure, Real & dp_drho, Real & dp_dT) const = 0;
+
+  virtual void dp_drhoT_2(
+      Real density, Real temperature, Real & dp_drho_2, Real & dp_dT_2) const = 0;
+};
+
+#endif /* MOSKITOEOS_H */

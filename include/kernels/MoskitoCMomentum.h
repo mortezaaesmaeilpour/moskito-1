@@ -21,28 +21,50 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>  */
 /**************************************************************************/
 
-#include "MoskitoApp.h"
-#include "gtest/gtest.h"
+#ifndef MOSKITOCMOMENTUM_H
+#define MOSKITOCMOMENTUM_H
 
-// Moose includes
-#include "Moose.h"
-#include "MooseInit.h"
-#include "AppFactory.h"
+#include "Kernel.h"
 
-#include <fstream>
-#include <string>
+class MoskitoCMomentum;
 
-PerfLog Moose::perf_log("gtest");
+template <>
+InputParameters validParams<MoskitoCMomentum>();
 
-GTEST_API_ int
-main(int argc, char ** argv)
+class MoskitoCMomentum : public Kernel
 {
-  // gtest removes (only) its args from argc and argv - so this  must be before moose init
-  testing::InitGoogleTest(&argc, argv);
+public:
+  MoskitoCMomentum(const InputParameters & parameters);
 
-  MooseInit init(argc, argv);
-  registerApp(MoskitoApp);
-  Moose::_throw_on_error = true;
+protected:
+  virtual Real computeQpResidual() override;
+  virtual Real computeQpJacobian() override;
+  virtual Real computeQpOffDiagJacobian(unsigned jvar) override;
 
-  return RUN_ALL_TESTS();
-}
+  /// Coupled density (kg/m^3)
+  const VariableValue & _rho;
+
+  // Gradients of coupled temperature
+  const VariableGradient & _grad_T;
+  // Gradients of coupled density
+  const VariableGradient & _grad_rho;
+
+  // Variable numberings
+  unsigned _T_var_number;
+  unsigned _rho_var_number;
+
+  // Well diameter
+  const MaterialProperty<Real> & _d;
+  // Well area
+  const MaterialProperty<Real> & _area;
+  // The first derivative of pressure wrt temperature
+  const MaterialProperty<Real> & _dp_dT;
+  // The first derivative of pressure wrt density
+  const MaterialProperty<Real> & _dp_drho;
+  // The second derivative of pressure wrt temperature
+  const MaterialProperty<Real> & _dp_dT_2;
+  // The second derivative of pressure wrt density
+  const MaterialProperty<Real> & _dp_drho_2;
+};
+
+#endif // MOSKITOCMOMENTUM_H

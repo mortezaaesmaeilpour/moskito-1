@@ -21,28 +21,35 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>  */
 /**************************************************************************/
 
-#include "MoskitoApp.h"
-#include "gtest/gtest.h"
+#ifndef MOSKITOEOSIDEALFLUID_H
+#define MOSKITOEOSIDEALFLUID_H
 
-// Moose includes
-#include "Moose.h"
-#include "MooseInit.h"
-#include "AppFactory.h"
+#include "MoskitoEOS.h"
 
-#include <fstream>
-#include <string>
+class MoskitoEOSIdealFluid;
 
-PerfLog Moose::perf_log("gtest");
+template <>
+InputParameters validParams<MoskitoEOSIdealFluid>();
 
-GTEST_API_ int
-main(int argc, char ** argv)
+class MoskitoEOSIdealFluid : public MoskitoEOS
 {
-  // gtest removes (only) its args from argc and argv - so this  must be before moose init
-  testing::InitGoogleTest(&argc, argv);
+public:
+  MoskitoEOSIdealFluid(const InputParameters & parameters);
 
-  MooseInit init(argc, argv);
-  registerApp(MoskitoApp);
-  Moose::_throw_on_error = true;
+  virtual Real p(Real density, Real temperature) const override;
+  virtual void dp_drhoT(
+      Real density, Real temperature, Real & pressure, Real & dp_drho, Real & dp_dT) const override;
+  virtual void dp_drhoT_2(
+      Real density, Real temperature, Real & dp_drho_2, Real & dp_dT_2) const override;
+protected:
+  /// thermal expansion coefficient
+  const Real _thermal_expansion;
 
-  return RUN_ALL_TESTS();
-}
+  /// bulk modulus
+  const Real _bulk_modulus;
+
+  /// density at zero pressure and temperature
+  const Real _density0;
+};
+
+#endif /* MOSKITOEOSIDEALFLUID_H */

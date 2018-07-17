@@ -21,28 +21,51 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>  */
 /**************************************************************************/
 
-#include "MoskitoApp.h"
-#include "gtest/gtest.h"
+#include "MoskitoEOSIdealFluid.h"
 
-// Moose includes
-#include "Moose.h"
-#include "MooseInit.h"
-#include "AppFactory.h"
+registerMooseObject("MoskitoApp", MoskitoEOSIdealFluid);
 
-#include <fstream>
-#include <string>
-
-PerfLog Moose::perf_log("gtest");
-
-GTEST_API_ int
-main(int argc, char ** argv)
+template <>
+InputParameters
+validParams<MoskitoEOSIdealFluid>()
 {
-  // gtest removes (only) its args from argc and argv - so this  must be before moose init
-  testing::InitGoogleTest(&argc, argv);
+  InputParameters params = validParams<MoskitoEOS>();
+  params.addParam<Real>(
+      "thermal_expansion", 2.14E-4, "Constant coefficient of thermal expansion (1/K)");
+  params.addParam<Real>("density0", 1000.0, "Density at zero pressure and zero temperature (kg/m^3)");
+  params.addRangeCheckedParam<Real>(
+      "bulk_modulus", 2.0E9, "bulk_modulus>0", "Constant bulk modulus (Pa)");
 
-  MooseInit init(argc, argv);
-  registerApp(MoskitoApp);
-  Moose::_throw_on_error = true;
+  return params;
+}
 
-  return RUN_ALL_TESTS();
+MoskitoEOSIdealFluid::MoskitoEOSIdealFluid(const InputParameters & parameters)
+  : MoskitoEOS(parameters),
+    _thermal_expansion(getParam<Real>("thermal_expansion")),
+    _bulk_modulus(getParam<Real>("bulk_modulus")),
+    _density0(getParam<Real>("density0"))
+{
+}
+
+Real
+MoskitoEOSIdealFluid::p(Real density, Real temperature) const
+{
+  return _bulk_modulus * ( std::log(density / _density0)  + _thermal_expansion * temperature);
+}
+
+void
+MoskitoEOSIdealFluid::dp_drhoT(
+    Real density, Real temperature, Real & pressure, Real & dp_drho, Real & dp_dT) const
+{
+  pressure = this->p(density, temperature);
+  dp_drho = _bulk_modulus / density;
+  dp_dT = _bulk_modulus * _thermal_expansion;
+}
+
+void
+MoskitoEOSIdealFluid::dp_drhoT_2(
+    Real density, Real temperature, Real & dp_drho_2, Real & dp_dT_2) const
+{
+  dp_drho_2 = -_bulk_modulus / (density * density);
+  dp_dT_2 = 0.0;
 }
