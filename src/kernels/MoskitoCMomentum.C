@@ -69,7 +69,8 @@ Real
 MoskitoCMomentum::computeQpJacobian()
 {
   Real j = 0.0;
-  j += -8.0 * _rho[_qp] * _phi[_j][_qp] * _u[_qp] / (_d[_qp] * _area[_qp] * _area[_qp]) * _test[_i][_qp];
+  j += -8.0 * _rho[_qp] * _phi[_j][_qp] * _u[_qp] / (_d[_qp] * _area[_qp] * _area[_qp]) *
+       _test[_i][_qp];
 
   return j;
 }
@@ -80,9 +81,11 @@ MoskitoCMomentum::computeQpOffDiagJacobian(unsigned int jvar)
   Real j = 0.0;
   if (jvar == _rho_var_number)
   {
-    // j += 2.0e9*(_grad_phi[_j][_qp](0) * _rho[_qp] - _phi[_j][_qp] * _grad_rho[_qp](0)) / (_rho[_qp] *_rho[_qp]);
+    // j += 2.0e9*(_grad_phi[_j][_qp](0) * _rho[_qp] - _phi[_j][_qp] * _grad_rho[_qp](0)) /
+    // (_rho[_qp] *_rho[_qp]);
 
-    j += _dp_drho[_qp] * _grad_phi[_j][_qp](0) + _dp_drho_2[_qp] * _phi[_j][_qp] * _grad_rho[_qp](0);
+    j +=
+        _dp_drho[_qp] * _grad_phi[_j][_qp](0) + _dp_drho_2[_qp] * _phi[_j][_qp] * _grad_rho[_qp](0);
     j += -4.0 * _phi[_j][_qp] * _u[_qp] * _u[_qp] / (_d[_qp] * _area[_qp] * _area[_qp]);
     j *= _test[_i][_qp];
   }

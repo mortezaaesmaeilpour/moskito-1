@@ -72,5 +72,4 @@ MoskitoCMomentumMaterial::computeQpProperties()
   _eos_UO.dp_drhoT_2(_rho[_qp], _T[_qp], dp_drho, dp_dT);
   _dp_drho_2[_qp] = dp_drho;
   _dp_dT_2[_qp] = dp_dT;
-
 }

@@ -20,7 +20,11 @@
 /*  You should have received a copy of the GNU General Public License     */
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>  */
 /**************************************************************************/
+<<<<<<< HEAD
 #include "MoskitoApp.h"
+=======
+#include "MoskitoTestApp.h"
+>>>>>>> 1178ddc4ce8777b9e446c63a68beae62234dc284
 #include "MooseInit.h"
 #include "Moose.h"
 #include "MooseApp.h"

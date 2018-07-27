@@ -38,10 +38,10 @@ validParams<MoskitoCMass>()
 
 MoskitoCMass::MoskitoCMass(const InputParameters & parameters)
   : Kernel(parameters),
-  _q_vol(coupledValue("vol_flow_rate")),
-  _grad_q_vol(coupledGradient("vol_flow_rate")),
-  _q_vol_var_number(coupled("vol_flow_rate")),
-  _area(getMaterialProperty<Real>("well_area"))
+    _q_vol(coupledValue("vol_flow_rate")),
+    _grad_q_vol(coupledGradient("vol_flow_rate")),
+    _q_vol_var_number(coupled("vol_flow_rate")),
+    _area(getMaterialProperty<Real>("well_area"))
 {
 }
 
@@ -74,6 +74,6 @@ MoskitoCMass::computeQpOffDiagJacobian(unsigned int jvar)
     j += _phi[_j][_qp] * _grad_u[_qp](0) * _test[_i][_qp];
     j += _grad_phi[_j][_qp](0) * _u[_qp] * _test[_i][_qp];
   }
-  
+
   return j / _area[_qp];
 }

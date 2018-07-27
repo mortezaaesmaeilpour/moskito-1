@@ -45,11 +45,11 @@ public:
   virtual Real p(Real density, Real temperature) const = 0;
 
   /// Pressure from density and temperature and its derivatives wrt density and temperature
-  virtual void dp_drhoT(
-      Real density, Real temperature, Real & pressure, Real & dp_drho, Real & dp_dT) const = 0;
+  virtual void
+  dp_drhoT(Real density, Real temperature, Real & pressure, Real & dp_drho, Real & dp_dT) const = 0;
 
-  virtual void dp_drhoT_2(
-      Real density, Real temperature, Real & dp_drho_2, Real & dp_dT_2) const = 0;
+  virtual void
+  dp_drhoT_2(Real density, Real temperature, Real & dp_drho_2, Real & dp_dT_2) const = 0;
 };
 
 #endif /* MOSKITOEOS_H */

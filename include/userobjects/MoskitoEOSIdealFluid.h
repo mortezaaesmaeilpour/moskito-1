@@ -39,8 +39,9 @@ public:
   virtual Real p(Real density, Real temperature) const override;
   virtual void dp_drhoT(
       Real density, Real temperature, Real & pressure, Real & dp_drho, Real & dp_dT) const override;
-  virtual void dp_drhoT_2(
-      Real density, Real temperature, Real & dp_drho_2, Real & dp_dT_2) const override;
+  virtual void
+  dp_drhoT_2(Real density, Real temperature, Real & dp_drho_2, Real & dp_dT_2) const override;
+
 protected:
   /// thermal expansion coefficient
   const Real _thermal_expansion;
