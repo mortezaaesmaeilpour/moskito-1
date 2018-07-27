@@ -25,13 +25,13 @@
 =======
 #include "MoskitoTestApp.h"
 >>>>>>> 1178ddc4ce8777b9e446c63a68beae62234dc284
-#include "MooseInit.h"
+    #include "MooseInit.h"
 #include "Moose.h"
 #include "MooseApp.h"
 #include "AppFactory.h"
 
-// Create a performance log
-PerfLog Moose::perf_log("Moskito");
+    // Create a performance log
+    PerfLog Moose::perf_log("Moskito");
 
 // Begin the main program.
 int
