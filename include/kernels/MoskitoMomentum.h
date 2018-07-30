@@ -1,11 +1,11 @@
 /**************************************************************************/
-/*  TIGER - Hydro-thermal sImulator GEothermal Reservoirs                 */
+/*  MOSKITO - Multiphysics cOupled Simulator toolKIT for wellbOres        */
 /*                                                                        */
 /*  Copyright (C) 2017 by Maziar Gholami Korzani                          */
 /*  Karlsruhe Institute of Technology, Institute of Applied Geosciences   */
 /*  Division of Geothermal Research                                       */
 /*                                                                        */
-/*  This file is part of TIGER App                                        */
+/*  This file is part of MOSKITO App                                      */
 /*                                                                        */
 /*  This program is free software: you can redistribute it and/or modify  */
 /*  it under the terms of the GNU General Public License as published by  */
@@ -21,41 +21,52 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>  */
 /**************************************************************************/
 
-#ifndef MOSKITOCMOMENTUMMATERIAL_H
-#define MOSKITOCMOMENTUMMATERIAL_H
+#ifndef MOSKITOMOMENTUM_H
+#define MOSKITOMOMENTUM_H
 
-#define PI 3.141592653589793238462643383279502884197169399375105820974944592308
+#include "Kernel.h"
 
-#include "Material.h"
-#include "MoskitoEOS.h"
-
-class MoskitoCMomentumMaterial;
+class MoskitoMomentum;
 
 template <>
-InputParameters validParams<MoskitoCMomentumMaterial>();
+InputParameters validParams<MoskitoMomentum>();
 
-class MoskitoCMomentumMaterial : public Material
+class MoskitoMomentum : public Kernel
 {
 public:
-  MoskitoCMomentumMaterial(const InputParameters & parameters);
-  virtual void computeQpProperties() override;
+  MoskitoMomentum(const InputParameters & parameters);
 
 protected:
-  MaterialProperty<Real> & _dia;
-  MaterialProperty<Real> & _area;
-  MaterialProperty<Real> & _p;
-  MaterialProperty<Real> & _dp_drho;
-  MaterialProperty<Real> & _dp_dT;
-  MaterialProperty<Real> & _dp_drho_2;
-  MaterialProperty<Real> & _dp_dT_2;
-  const MoskitoEOS & _eos_UO;
-  /// Density (kg/m^3)
-  const VariableValue & _rho;
-  /// Temperature (K)
-  const VariableValue & _T;
+  virtual Real computeQpResidual() override;
+  virtual Real computeQpJacobian() override;
+  virtual Real computeQpOffDiagJacobian(unsigned jvar) override;
 
-private:
-  Real _d;
+  /// Coupled density (kg/m^3)
+  const VariableValue & _rho;
+
+  // Gradients of coupled temperature
+  const VariableGradient & _grad_T;
+  // Gradients of coupled density
+  const VariableGradient & _grad_rho;
+
+  // Variable numberings
+  unsigned _T_var_number;
+  unsigned _rho_var_number;
+
+  // Well diameter
+  const MaterialProperty<Real> & _d;
+  // Well Moody friction
+  const MaterialProperty<Real> & _f;
+  // Well area
+  const MaterialProperty<Real> & _area;
+  // The first derivative of pressure wrt temperature
+  const MaterialProperty<Real> & _dp_dT;
+  // The first derivative of pressure wrt density
+  const MaterialProperty<Real> & _dp_drho;
+  // The second derivative of pressure wrt temperature
+  const MaterialProperty<Real> & _dp_dT_2;
+  // The second derivative of pressure wrt density
+  const MaterialProperty<Real> & _dp_drho_2;
 };
 
-#endif /* MOSKITOCMOMENTUMMATERIAL_H */
+#endif // MOSKITOMOMENTUM_H

@@ -23,15 +23,17 @@
 
 [Materials]
   [./area0]
-    type = MoskitoCMomentumMaterial
+    type = MoskitoWellFluid
     density = rho
+    flow_rate = q
     eos_UO = eos
     well_diameter = 0.2
     block = 0
   [../]
   [./area1]
-    type = MoskitoCMomentumMaterial
+    type = MoskitoWellFluid
     well_diameter = 0.25
+    flow_rate = q
     density = rho
     eos_UO = eos
     block = 1
@@ -39,11 +41,15 @@
 []
 
 [AuxVariables]
-  [./p]
+  [./p_diff]
     order = CONSTANT
     family = MONOMIAL
   [../]
-  [./area]
+  [./v]
+    order = CONSTANT
+    family = MONOMIAL
+  [../]
+  [./re]
     order = CONSTANT
     family = MONOMIAL
   [../]
@@ -52,13 +58,18 @@
 [AuxKernels]
   [./pkernel]
     type = MaterialRealAux
-    variable = p
-    property = 'pressure'
+    variable = p_diff
+    property = 'pressure_difference'
   [../]
-  [./areakernel]
+  [./vkernel]
     type = MaterialRealAux
-    variable = area
-    property = 'well_area'
+    variable = v
+    property = 'well_velocity'
+  [../]
+  [./rekernel]
+    type = MaterialRealAux
+    variable = re
+    property = 'well_reynolds_no'
   [../]
 []
 
@@ -89,9 +100,9 @@
 
 [Kernels]
   [./rhokernel]
-    type = MoskitoCMass
+    type = MoskitoIMass
     variable = rho
-    vol_flow_rate = q
+    flow_rate = q
   [../]
   [./qkernel]
     type = MoskitoCMomentum
@@ -101,7 +112,7 @@
 []
 
 [Preconditioning]
-  active = 'p3'
+  active = 'p2'
   [./p1]
     type = SMP
     full = true

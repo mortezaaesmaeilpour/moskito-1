@@ -21,50 +21,35 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>  */
 /**************************************************************************/
 
-#ifndef MOSKITOCMOMENTUM_H
-#define MOSKITOCMOMENTUM_H
+#ifndef MOSKITOIMASS_H
+#define MOSKITOIMASS_H
 
 #include "Kernel.h"
 
-class MoskitoCMomentum;
+class MoskitoIMass;
 
 template <>
-InputParameters validParams<MoskitoCMomentum>();
+InputParameters validParams<MoskitoIMass>();
 
-class MoskitoCMomentum : public Kernel
+class MoskitoIMass : public Kernel
 {
 public:
-  MoskitoCMomentum(const InputParameters & parameters);
+  MoskitoIMass(const InputParameters & parameters);
 
 protected:
   virtual Real computeQpResidual() override;
   virtual Real computeQpJacobian() override;
   virtual Real computeQpOffDiagJacobian(unsigned jvar) override;
 
-  /// Coupled density (kg/m^3)
-  const VariableValue & _rho;
+  // Coupled velocities
+  const VariableValue & _q_vol;
 
-  // Gradients of coupled temperature
-  const VariableGradient & _grad_T;
-  // Gradients of coupled density
-  const VariableGradient & _grad_rho;
+  // Gradients of coupled velocities
+  const VariableGradient & _grad_q_vol;
 
   // Variable numberings
-  unsigned _T_var_number;
-  unsigned _rho_var_number;
-
-  // Well diameter
-  const MaterialProperty<Real> & _d;
-  // Well area
+  unsigned _q_vol_var_number;
   const MaterialProperty<Real> & _area;
-  // The first derivative of pressure wrt temperature
-  const MaterialProperty<Real> & _dp_dT;
-  // The first derivative of pressure wrt density
-  const MaterialProperty<Real> & _dp_drho;
-  // The second derivative of pressure wrt temperature
-  const MaterialProperty<Real> & _dp_dT_2;
-  // The second derivative of pressure wrt density
-  const MaterialProperty<Real> & _dp_drho_2;
 };
 
-#endif // MOSKITOCMOMENTUM_H
+#endif // MOSKITOIMASS_H

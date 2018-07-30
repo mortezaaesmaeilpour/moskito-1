@@ -21,13 +21,13 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>  */
 /**************************************************************************/
 
-#include "MoskitoCMass.h"
+#include "MoskitoIMass.h"
 
-registerMooseObject("MoskitoApp", MoskitoCMass);
+registerMooseObject("MoskitoApp", MoskitoIMass);
 
 template <>
 InputParameters
-validParams<MoskitoCMass>()
+validParams<MoskitoIMass>()
 {
   InputParameters params = validParams<Kernel>();
 
@@ -36,7 +36,7 @@ validParams<MoskitoCMass>()
   return params;
 }
 
-MoskitoCMass::MoskitoCMass(const InputParameters & parameters)
+MoskitoIMass::MoskitoIMass(const InputParameters & parameters)
   : Kernel(parameters),
     _q_vol(coupledValue("flow_rate")),
     _grad_q_vol(coupledGradient("flow_rate")),
@@ -46,33 +46,29 @@ MoskitoCMass::MoskitoCMass(const InputParameters & parameters)
 }
 
 Real
-MoskitoCMass::computeQpResidual()
+MoskitoIMass::computeQpResidual()
 {
   Real r = 0.0;
-  r += _q_vol[_qp] * _grad_u[_qp](0) * _test[_i][_qp];
-  r += _grad_q_vol[_qp](0) * _u[_qp] * _test[_i][_qp];
+  r += _grad_q_vol[_qp](0) * _test[_i][_qp];
 
   return r / _area[_qp];
 }
 
 Real
-MoskitoCMass::computeQpJacobian()
+MoskitoIMass::computeQpJacobian()
 {
   Real j = 0.0;
-  j += _q_vol[_qp] * _grad_phi[_j][_qp](0) * _test[_i][_qp];
-  j += _grad_q_vol[_qp](0) * _phi[_j][_qp] * _test[_i][_qp];
 
-  return j / _area[_qp];
+  return j;
 }
 
 Real
-MoskitoCMass::computeQpOffDiagJacobian(unsigned int jvar)
+MoskitoIMass::computeQpOffDiagJacobian(unsigned int jvar)
 {
   Real j = 0.0;
   if (jvar == _q_vol_var_number)
   {
-    j += _phi[_j][_qp] * _grad_u[_qp](0) * _test[_i][_qp];
-    j += _grad_phi[_j][_qp](0) * _u[_qp] * _test[_i][_qp];
+    j += _grad_phi[_j][_qp](0) * _test[_i][_qp];
   }
 
   return j / _area[_qp];

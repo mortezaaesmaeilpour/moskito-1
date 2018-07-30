@@ -21,13 +21,13 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>  */
 /**************************************************************************/
 
-#include "MoskitoCMomentum.h"
+#include "MoskitoMomentum.h"
 
-registerMooseObject("MoskitoApp", MoskitoCMomentum);
+registerMooseObject("MoskitoApp", MoskitoMomentum);
 
 template <>
 InputParameters
-validParams<MoskitoCMomentum>()
+validParams<MoskitoMomentum>()
 {
   InputParameters params = validParams<Kernel>();
 
@@ -37,7 +37,7 @@ validParams<MoskitoCMomentum>()
   return params;
 }
 
-MoskitoCMomentum::MoskitoCMomentum(const InputParameters & parameters)
+MoskitoMomentum::MoskitoMomentum(const InputParameters & parameters)
   : Kernel(parameters),
     _rho(coupledValue("density")),
     _grad_T(coupledGradient("temperature")),
@@ -45,6 +45,7 @@ MoskitoCMomentum::MoskitoCMomentum(const InputParameters & parameters)
     _T_var_number(coupled("temperature")),
     _rho_var_number(coupled("density")),
     _d(getMaterialProperty<Real>("well_diameter")),
+    _f(getMaterialProperty<Real>("well_moody_friction")),
     _area(getMaterialProperty<Real>("well_area")),
     _dp_dT(getMaterialProperty<Real>("dp_dT")),
     _dp_drho(getMaterialProperty<Real>("dp_drho")),
@@ -54,29 +55,29 @@ MoskitoCMomentum::MoskitoCMomentum(const InputParameters & parameters)
 }
 
 Real
-MoskitoCMomentum::computeQpResidual()
+MoskitoMomentum::computeQpResidual()
 {
   Real r = 0.0;
   r += _dp_drho[_qp] * _grad_rho[_qp](0);
   r += _dp_dT[_qp] * _grad_T[_qp](0);
-  r += -4.0 * _rho[_qp] * _u[_qp] * _u[_qp] / (_d[_qp] * _area[_qp] * _area[_qp]);
+  r += -_f[_qp] * _rho[_qp] * _u[_qp] * _u[_qp] / (2.0 * _d[_qp] * _area[_qp] * _area[_qp]);
   r *= _test[_i][_qp];
 
   return r;
 }
 
 Real
-MoskitoCMomentum::computeQpJacobian()
+MoskitoMomentum::computeQpJacobian()
 {
   Real j = 0.0;
-  j += -8.0 * _rho[_qp] * _phi[_j][_qp] * _u[_qp] / (_d[_qp] * _area[_qp] * _area[_qp]) *
+  j += -2.0 * _f[_qp] * _rho[_qp] * _phi[_j][_qp] * _u[_qp] / (2.0 * _d[_qp] * _area[_qp] * _area[_qp]) *
        _test[_i][_qp];
 
   return j;
 }
 
 Real
-MoskitoCMomentum::computeQpOffDiagJacobian(unsigned int jvar)
+MoskitoMomentum::computeQpOffDiagJacobian(unsigned int jvar)
 {
   Real j = 0.0;
   if (jvar == _rho_var_number)
@@ -86,7 +87,7 @@ MoskitoCMomentum::computeQpOffDiagJacobian(unsigned int jvar)
 
     j +=
         _dp_drho[_qp] * _grad_phi[_j][_qp](0) + _dp_drho_2[_qp] * _phi[_j][_qp] * _grad_rho[_qp](0);
-    j += -4.0 * _phi[_j][_qp] * _u[_qp] * _u[_qp] / (_d[_qp] * _area[_qp] * _area[_qp]);
+    j += -_f[_qp] * _phi[_j][_qp] * _u[_qp] * _u[_qp] / (2.0 * _d[_qp] * _area[_qp] * _area[_qp]);
     j *= _test[_i][_qp];
   }
 
