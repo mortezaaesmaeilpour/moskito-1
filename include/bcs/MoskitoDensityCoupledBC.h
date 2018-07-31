@@ -21,43 +21,38 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>  */
 /**************************************************************************/
 
-#ifndef MOSKITOEOS_H
-#define MOSKITOEOS_H
+#ifndef MOSKITODENSITYCOUPLEDBC_H
+#define MOSKITODENSITYCOUPLEDBC_H
 
-#include "GeneralUserObject.h"
+#include "NodalBC.h"
+#include "MoskitoEOS.h"
+#include "Function.h"
 
-class MoskitoEOS;
+class MoskitoDensityCoupledBC;
 
 template <>
-InputParameters validParams<MoskitoEOS>();
+InputParameters validParams<MoskitoDensityCoupledBC>();
 
-class MoskitoEOS : public GeneralUserObject
+class MoskitoDensityCoupledBC : public NodalBC
 {
 public:
-  MoskitoEOS(const InputParameters & parameters);
-  virtual ~MoskitoEOS();
+  MoskitoDensityCoupledBC(const InputParameters & parameters);
 
-  virtual void execute() final {}
-  virtual void initialize() final {}
-  virtual void finalize() final {}
+protected:
+  virtual Real computeQpResidual() override;
+  virtual Real computeQpOffDiagJacobian(unsigned int jvar) override;
 
-  // Density from pressure and temperature (kg/m^3)
-  virtual Real rho(Real pressure, Real temperature) const = 0;
+  // Coupeled temperature
+  const VariableValue & _T;
 
-  // Density from pressure and temperature and its derivatives wrt pressure and temperature
-  virtual void
-  drho_dpT(Real pressure, Real temperature, Real & rho, Real & drho_dp, Real & drho_dT) const = 0;
+  // Variable numberings
+  unsigned _T_var_number;
 
-  // Pressure from density and temperature (Pa)
-  virtual Real p(Real density, Real temperature) const = 0;
+  // Pressure function
+  Function & _p_func;
 
-  // Pressure from density and temperature and its derivatives wrt density and temperature
-  virtual void
-  dp_drhoT(Real density, Real temperature, Real & pressure, Real & dp_drho, Real & dp_dT) const = 0;
-
-  // The second derivatives of pressure wrt density and temperature
-  virtual void
-  dp_drhoT_2(Real density, Real temperature, Real & dp_drho_2, Real & dp_dT_2) const = 0;
+  // Userobject to equation of state
+  const MoskitoEOS & _eos_UO;
 };
 
-#endif /* MOSKITOEOS_H */
+#endif // MOSKITODENSITYCOUPLEDBC_H

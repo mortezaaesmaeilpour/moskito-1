@@ -41,7 +41,7 @@ protected:
   virtual Real computeQpJacobian() override;
   virtual Real computeQpOffDiagJacobian(unsigned jvar) override;
 
-  /// Coupled density (kg/m^3)
+  // Coupled density
   const VariableValue & _rho;
 
   // Gradients of coupled temperature

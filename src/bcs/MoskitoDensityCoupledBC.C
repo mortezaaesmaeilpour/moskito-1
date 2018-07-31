@@ -21,43 +21,45 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>  */
 /**************************************************************************/
 
-#ifndef MOSKITOEOS_H
-#define MOSKITOEOS_H
+#include "MoskitoDensityCoupledBC.h"
 
-#include "GeneralUserObject.h"
-
-class MoskitoEOS;
+registerMooseObject("MoskitoApp", MoskitoDensityCoupledBC);
 
 template <>
-InputParameters validParams<MoskitoEOS>();
-
-class MoskitoEOS : public GeneralUserObject
+InputParameters
+validParams<MoskitoDensityCoupledBC>()
 {
-public:
-  MoskitoEOS(const InputParameters & parameters);
-  virtual ~MoskitoEOS();
+  InputParameters params = validParams<NodalBC>();
+  params.addRequiredParam<FunctionName>("pressure", "Pressure nonlinear function");
+  params.addRequiredParam<UserObjectName>("eos_UO", "The name of the userobject for EOS");
+  params.addRequiredCoupledVar("temperature", "Temperature nonlinear variable");
+  params.addClassDescription("Implements a NodalBC which calculate density based on EOS using the "
+                             "coupled temperature variable and given pressure function");
+  return params;
+}
 
-  virtual void execute() final {}
-  virtual void initialize() final {}
-  virtual void finalize() final {}
+MoskitoDensityCoupledBC::MoskitoDensityCoupledBC(const InputParameters & parameters)
+  : NodalBC(parameters),
+    _T(coupledValue("temperature")),
+    _T_var_number(coupled("temperature")),
+    _p_func(getFunction("pressure")),
+    _eos_UO(getUserObject<MoskitoEOS>("eos_UO"))
+{
+}
 
-  // Density from pressure and temperature (kg/m^3)
-  virtual Real rho(Real pressure, Real temperature) const = 0;
+Real
+MoskitoDensityCoupledBC::computeQpResidual()
+{
+  return _u[_qp] - _eos_UO.rho(_p_func.value(_t, *_current_node), _T[_qp]);
+}
 
-  // Density from pressure and temperature and its derivatives wrt pressure and temperature
-  virtual void
-  drho_dpT(Real pressure, Real temperature, Real & rho, Real & drho_dp, Real & drho_dT) const = 0;
-
-  // Pressure from density and temperature (Pa)
-  virtual Real p(Real density, Real temperature) const = 0;
-
-  // Pressure from density and temperature and its derivatives wrt density and temperature
-  virtual void
-  dp_drhoT(Real density, Real temperature, Real & pressure, Real & dp_drho, Real & dp_dT) const = 0;
-
-  // The second derivatives of pressure wrt density and temperature
-  virtual void
-  dp_drhoT_2(Real density, Real temperature, Real & dp_drho_2, Real & dp_dT_2) const = 0;
-};
-
-#endif /* MOSKITOEOS_H */
+Real
+MoskitoDensityCoupledBC::computeQpOffDiagJacobian(unsigned int jvar)
+{
+  Real rho, drho_dp, drho_dT;
+  _eos_UO.drho_dpT(_p_func.value(_t, *_current_node), _T[_qp], rho, drho_dp, drho_dT);
+  if (jvar == _T_var_number)
+    return -drho_dT;
+  else
+    return 0.0;
+}
