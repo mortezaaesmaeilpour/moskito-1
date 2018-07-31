@@ -21,23 +21,23 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>  */
 /**************************************************************************/
 
-#ifndef MOSKITOWELLFLUID_H
-#define MOSKITOWELLFLUID_H
+#ifndef MOSKITOSINGLEPHASEFLUIDWELL_H
+#define MOSKITOSINGLEPHASEFLUIDWELL_H
 
 #define PI 3.141592653589793238462643383279502884197169399375105820974944592308
 
 #include "Material.h"
 #include "MoskitoEOS.h"
 
-class MoskitoWellFluid;
+class MoskitoSinglePhaseFluidWell;
 
 template <>
-InputParameters validParams<MoskitoWellFluid>();
+InputParameters validParams<MoskitoSinglePhaseFluidWell>();
 
-class MoskitoWellFluid : public Material
+class MoskitoSinglePhaseFluidWell : public Material
 {
 public:
-  MoskitoWellFluid(const InputParameters & parameters);
+  MoskitoSinglePhaseFluidWell(const InputParameters & parameters);
   virtual void computeQpProperties() override;
 
 protected:
@@ -78,4 +78,4 @@ private:
   MooseEnum _roughness_type;
 };
 
-#endif /* MOSKITOWELLFLUID_H */
+#endif /* MOSKITOSINGLEPHASEFLUIDWELL_H */

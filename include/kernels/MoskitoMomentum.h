@@ -67,6 +67,8 @@ protected:
   const MaterialProperty<Real> & _dp_dT_2;
   // The second derivative of pressure wrt density
   const MaterialProperty<Real> & _dp_drho_2;
+  // The gravity acceleration as a vector
+  RealVectorValue _gravity;
 };
 
 #endif // MOSKITOMOMENTUM_H

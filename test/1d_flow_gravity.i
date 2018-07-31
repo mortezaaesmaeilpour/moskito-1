@@ -88,7 +88,7 @@
     type = DirichletBC
     variable = q
     boundary = left
-    value = 0.05
+    value = 0
   [../]
 []
 
@@ -97,8 +97,8 @@
     initial_condition = 1000
   [../]
   [./q]
-    scaling = 1e-6
-    initial_condition = 0.05
+    scaling = 1e-7
+    initial_condition = 0
   [../]
 []
 
@@ -112,6 +112,7 @@
     type = MoskitoMomentum
     variable = q
     density = rho
+    gravity = '10 0 0'
   [../]
 []
 

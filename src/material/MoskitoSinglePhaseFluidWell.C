@@ -21,13 +21,13 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>  */
 /**************************************************************************/
 
-#include "MoskitoWellFluid.h"
+#include "MoskitoSinglePhaseFluidWell.h"
 
-registerMooseObject("MoskitoApp", MoskitoWellFluid);
+registerMooseObject("MoskitoApp", MoskitoSinglePhaseFluidWell);
 
 template <>
 InputParameters
-validParams<MoskitoWellFluid>()
+validParams<MoskitoSinglePhaseFluidWell>()
 {
   InputParameters params = validParams<Material>();
 
@@ -44,7 +44,7 @@ validParams<MoskitoWellFluid>()
   return params;
 }
 
-MoskitoWellFluid::MoskitoWellFluid(const InputParameters & parameters)
+MoskitoSinglePhaseFluidWell::MoskitoSinglePhaseFluidWell(const InputParameters & parameters)
   : Material(parameters),
     _vel(declareProperty<Real>("well_velocity")),
     _Re(declareProperty<Real>("well_reynolds_no")),
@@ -68,7 +68,7 @@ MoskitoWellFluid::MoskitoWellFluid(const InputParameters & parameters)
 }
 
 void
-MoskitoWellFluid::computeQpProperties()
+MoskitoSinglePhaseFluidWell::computeQpProperties()
 {
   _dia[_qp] = _d;
   _area[_qp] = PI * _d * _d / 4.0;
@@ -89,27 +89,29 @@ MoskitoWellFluid::computeQpProperties()
 }
 
 void
-MoskitoWellFluid::MoodyFrictionFactor(Real & friction, Real rel_roughness, Real ReNo, MooseEnum roughness_type)
+MoskitoSinglePhaseFluidWell::MoodyFrictionFactor(Real & friction, Real rel_roughness, Real ReNo, MooseEnum roughness_type)
 {
-  if (ReNo < 3500.0)
-    friction = 64.0 / ReNo;
-  else
-    {
+  if (ReNo > 0.0)
+  {
+    if (ReNo < 3500.0)
+      friction = 64.0 / ReNo;
+    else
       switch (roughness_type)
-      {
-        case 1:
-          Real a, b, c, d;
-          a = -2.0 * std::log10(rel_roughness / 3.7 + 12.0 / ReNo);
-          b = -2.0 * std::log10(rel_roughness / 3.7 + 2.51 * a / ReNo);
-          c = -2.0 * std::log10(rel_roughness / 3.7 + 2.51 * b / ReNo);
-          d = a - std::pow(b - a,2.0) / (c - 2.0 * b + a);
-          friction = std::pow(1.0 / d,2.0);
-          break;
+        {
+          case 1:
+            Real a, b, c, d;
+            a = -2.0 * std::log10(rel_roughness / 3.7 + 12.0 / ReNo);
+            b = -2.0 * std::log10(rel_roughness / 3.7 + 2.51 * a / ReNo);
+            c = -2.0 * std::log10(rel_roughness / 3.7 + 2.51 * b / ReNo);
+            d = a - std::pow(b - a,2.0) / (c - 2.0 * b + a);
+            friction = std::pow(1.0 / d,2.0);
+            break;
 
-        case 2:
-          friction = 0.184 * std::pow(ReNo,-0.2);
-          break;
-      }
-    }
-
+          case 2:
+            friction = 0.184 * std::pow(ReNo,-0.2);
+            break;
+        }
+  }
+  else
+    friction = 0.0;
 }
