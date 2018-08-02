@@ -52,7 +52,8 @@ MoskitoMomentum::MoskitoMomentum(const InputParameters & parameters)
     _dp_drho(getMaterialProperty<Real>("dp_drho")),
     _dp_dT_2(getMaterialProperty<Real>("dp_dT_2")),
     _dp_drho_2(getMaterialProperty<Real>("dp_drho_2")),
-    _gravity(getParam<RealVectorValue>("gravity"))
+    _gravity(getParam<RealVectorValue>("gravity")),
+    _well_dir(getMaterialProperty<RealVectorValue>("well_direction_vector"))
 {
 }
 
@@ -60,10 +61,10 @@ Real
 MoskitoMomentum::computeQpResidual()
 {
   Real r = 0.0;
-  r += - _dp_drho[_qp] * _grad_rho[_qp](0);
-  r += - _dp_dT[_qp] * _grad_T[_qp](0);
-  r += _f[_qp] * _rho[_qp] * _u[_qp] * _u[_qp] / (2.0 * _d[_qp] * _area[_qp] * _area[_qp]);
-  r += _rho[_qp] * _gravity(0);
+  r += -_dp_drho[_qp] * _grad_rho[_qp] * _well_dir[_qp];
+  r += -_dp_dT[_qp] * _grad_T[_qp] * _well_dir[_qp];
+  r += -_f[_qp] * _rho[_qp] * _u[_qp] * fabs(_u[_qp]) / (2.0 * _d[_qp] * _area[_qp] * _area[_qp]);
+  r += _rho[_qp] * _gravity * _well_dir[_qp];
   r *= _test[_i][_qp];
 
   return r;
@@ -73,7 +74,8 @@ Real
 MoskitoMomentum::computeQpJacobian()
 {
   Real j = 0.0;
-  j += 2.0 * _f[_qp] * _rho[_qp] * _phi[_j][_qp] * _u[_qp] / (2.0 * _d[_qp] * _area[_qp] * _area[_qp]);
+  j += -2.0 * _f[_qp] * _rho[_qp] * _phi[_j][_qp] * fabs(_u[_qp]) /
+       (2.0 * _d[_qp] * _area[_qp] * _area[_qp]);
   j *= _test[_i][_qp];
 
   return j;
@@ -85,17 +87,18 @@ MoskitoMomentum::computeQpOffDiagJacobian(unsigned int jvar)
   Real j = 0.0;
   if (jvar == _rho_var_number)
   {
-    j += - _dp_drho[_qp] * _grad_phi[_j][_qp](0);
-    j += - _dp_drho_2[_qp] * _phi[_j][_qp] * _grad_rho[_qp](0);
-    j += _f[_qp] * _phi[_j][_qp] * _u[_qp] * _u[_qp] / (2.0 * _d[_qp] * _area[_qp] * _area[_qp]);
-    j += _phi[_j][_qp] * _gravity(0);
+    j += -_dp_drho[_qp] * _grad_phi[_j][_qp] * _well_dir[_qp];
+    j += -_dp_drho_2[_qp] * _phi[_j][_qp] * _grad_rho[_qp] * _well_dir[_qp];
+    j += -_f[_qp] * _phi[_j][_qp] * _u[_qp] * fabs(_u[_qp]) /
+         (2.0 * _d[_qp] * _area[_qp] * _area[_qp]);
+    j += _phi[_j][_qp] * _gravity * _well_dir[_qp];
     j *= _test[_i][_qp];
   }
 
   if (jvar == _T_var_number)
   {
-    j += - _dp_dT[_qp] * _grad_phi[_j][_qp](0);
-    j += - _dp_dT_2[_qp] * _phi[_j][_qp] * _grad_T[_qp](0);
+    j += -_dp_dT[_qp] * _grad_phi[_j][_qp] * _well_dir[_qp];
+    j += -_dp_dT_2[_qp] * _phi[_j][_qp] * _grad_T[_qp] * _well_dir[_qp];
     j *= _test[_i][_qp];
   }
 

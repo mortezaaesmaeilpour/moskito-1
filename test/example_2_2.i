@@ -1,24 +1,13 @@
 [Mesh]
-  type = GeneratedMesh
-  dim = 1
-  xmin = 0
-  xmax = 1000
-  nx = 1000
-[]
-
-[MeshModifiers]
-  [./block1]
-    type = SubdomainBoundingBox
-    block_id = 1
-    bottom_left = '-1 -1 -1'
-    top_right = '500 1 1'
-  [../]
+  type = FileMesh
+  file = example_2_2.msh
+  uniform_refine = 2
 []
 
 [UserObjects]
   [./eos]
     type = MoskitoEOSIdealFluid
-    bulk_modulus = 2e+07
+    density0 = 883
   [../]
 []
 
@@ -30,47 +19,36 @@
     flow_rate = q
     well_direction = x
     eos_UO = eos
-    well_diameter = 0.2
+    well_diameter = 0.1016
     roughness_type = smooth
     output_properties = 'well_direction_vector pressure_difference well_velocity well_reynolds_no well_moody_friction'
-    block = 0
-  [../]
-  [./area1]
-    type = MoskitoSinglePhaseFluidWell
-    temperature = 0
-    well_diameter = 0.25
-    flow_rate = q
-    roughness_type = smooth
-    output_properties = 'well_direction_vector pressure_difference well_velocity well_reynolds_no well_moody_friction'
-    well_direction = x
-    density = rho
-    eos_UO = eos
-    block = 1
   [../]
 []
 
 [BCs]
-  [./rhobc]
-    type = DirichletBC
+  [./rhobcl]
+    type = MoskitoDensityCoupledBC
     variable = rho
     boundary = left
-    value = 1000
+    eos_UO = eos
+    temperature = 0
+    pressure = '0'
   [../]
   [./qbc]
     type = DirichletBC
     variable = q
     boundary = left
-    value = 0.05
+    value = 0.00223
   [../]
 []
 
 [Variables]
   [./rho]
-    initial_condition = 1000
+    initial_condition = 883
   [../]
   [./q]
-    scaling = 1e-6
-    initial_condition = 0.05
+    scaling = 1e-7
+    initial_condition = 0.00223
   [../]
 []
 
@@ -88,7 +66,7 @@
 []
 
 [Preconditioning]
-  active = 'p2'
+  active = 'p3'
   [./p1]
     type = SMP
     full = true
@@ -114,7 +92,7 @@
   l_tol = 1e-10
   l_max_its = 50
   nl_rel_tol = 1e-8
-  nl_abs_tol = 1e-10
+  nl_abs_tol = 1e-9
   nl_max_its = 50
   solve_type = NEWTON
 []

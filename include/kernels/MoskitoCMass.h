@@ -50,6 +50,8 @@ protected:
   // Variable numberings
   unsigned _q_vol_var_number;
   const MaterialProperty<Real> & _area;
+  // Unit vector of well direction
+  const MaterialProperty<RealVectorValue> & _well_dir;
 };
 
 #endif // MOSKITOCMASS_H

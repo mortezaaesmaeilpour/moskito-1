@@ -69,6 +69,8 @@ protected:
   const MaterialProperty<Real> & _dp_drho_2;
   // The gravity acceleration as a vector
   RealVectorValue _gravity;
+  // Unit vector of well direction
+  const MaterialProperty<RealVectorValue> & _well_dir;
 };
 
 #endif // MOSKITOMOMENTUM_H

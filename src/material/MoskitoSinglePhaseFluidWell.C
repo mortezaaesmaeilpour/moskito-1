@@ -38,8 +38,13 @@ validParams<MoskitoSinglePhaseFluidWell>()
   params.addRequiredRangeCheckedParam<Real>("well_diameter", "well_diameter>0", "Well diameter (m)");
   params.addRangeCheckedParam<Real>("roughness", 2.5e-5, "roughness>0", "Material roughness of well casing (m)");
   params.addRequiredParam<UserObjectName>("eos_UO", "The name of the userobject for EOS");
+
   MooseEnum RT("rough=1 smooth=2");
   params.addParam<MooseEnum>("roughness_type", RT="smooth", "Well casing roughness type [rough, smooth].");
+
+  MooseEnum WD("x=1 -x=2 y=3 -y=4 z=5 -z=6");
+  params.addRequiredParam<MooseEnum>(
+      "well_direction", WD, "Well dominent direction towards bottom hole [x, -x, y, -y, z, -z].");
 
   return params;
 }
@@ -56,13 +61,15 @@ MoskitoSinglePhaseFluidWell::MoskitoSinglePhaseFluidWell(const InputParameters &
     _dp_dT(declareProperty<Real>("dp_dT")),
     _dp_drho_2(declareProperty<Real>("dp_drho_2")),
     _dp_dT_2(declareProperty<Real>("dp_dT_2")),
+    _well_unit_vect(declareProperty<RealVectorValue>("well_direction_vector")),
     _eos_UO(getUserObject<MoskitoEOS>("eos_UO")),
     _rho(coupledValue("density")),
     _T(coupledValue("temperature")),
     _flow(coupledValue("flow_rate")),
     _d(getParam<Real>("well_diameter")),
     _rel_roughness(getParam<Real>("roughness")),
-    _roughness_type(getParam<MooseEnum>("roughness_type"))
+    _roughness_type(getParam<MooseEnum>("roughness_type")),
+    _well_direction(getParam<MooseEnum>("well_direction"))
 {
   _rel_roughness /= _d;
 }
@@ -73,8 +80,9 @@ MoskitoSinglePhaseFluidWell::computeQpProperties()
   _dia[_qp] = _d;
   _area[_qp] = PI * _d * _d / 4.0;
   _vel[_qp] = _flow[_qp] / _area[_qp];
-  _Re[_qp] = _rho[_qp] * _dia[_qp] * _vel[_qp] / 0.001;
+  _Re[_qp] = _rho[_qp] * _dia[_qp] * fabs(_vel[_qp]) / 0.001;
   MoodyFrictionFactor(_friction[_qp], _rel_roughness, _Re[_qp], _roughness_type);
+  _well_unit_vect[_qp] = WellUnitVector();
 
   Real p, dp_drho, dp_dT;
 
@@ -114,4 +122,60 @@ MoskitoSinglePhaseFluidWell::MoodyFrictionFactor(Real & friction, Real rel_rough
   }
   else
     friction = 0.0;
+}
+
+RealVectorValue
+MoskitoSinglePhaseFluidWell::WellUnitVector()
+{
+  RealVectorValue p0, p1, p;
+  p0 = _current_elem->point(0);
+  p1 = _current_elem->point(1);
+
+  switch (_well_direction)
+  {
+    case 1:
+      if (p0(0) > p1(0))
+        p = p0 - p1;
+      else
+        p = p1 - p0;
+      break;
+
+    case 2:
+      if (p0(0) < p1(0))
+        p = p0 - p1;
+      else
+        p = p1 - p0;
+      break;
+
+    case 3:
+      if (p0(1) > p1(1))
+        p = p0 - p1;
+      else
+        p = p1 - p0;
+      break;
+
+    case 4:
+      if (p0(1) < p1(1))
+        p = p0 - p1;
+      else
+        p = p1 - p0;
+      break;
+
+    case 5:
+      if (p0(2) > p1(2))
+        p = p0 - p1;
+      else
+        p = p1 - p0;
+      break;
+
+    case 6:
+      if (p0(2) < p1(2))
+        p = p0 - p1;
+      else
+        p = p1 - p0;
+      break;
+  }
+
+  p /= p.norm();
+  return p;
 }

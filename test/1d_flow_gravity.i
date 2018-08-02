@@ -18,6 +18,7 @@
 [UserObjects]
   [./eos]
     type = MoskitoEOSIdealFluid
+    bulk_modulus = 2e+09
   [../]
 []
 
@@ -27,9 +28,11 @@
     temperature = 0
     density = rho
     flow_rate = q
+    well_direction = x
     eos_UO = eos
     well_diameter = 0.2
     roughness_type = smooth
+    output_properties = 'well_direction_vector pressure_difference well_velocity well_reynolds_no'
     block = 0
   [../]
   [./area1]
@@ -38,42 +41,11 @@
     well_diameter = 0.25
     flow_rate = q
     roughness_type = smooth
+    output_properties = 'well_direction_vector pressure_difference well_velocity well_reynolds_no'
+    well_direction = x
     density = rho
     eos_UO = eos
     block = 1
-  [../]
-[]
-
-[AuxVariables]
-  [./p_diff]
-    order = CONSTANT
-    family = MONOMIAL
-  [../]
-  [./v]
-    order = CONSTANT
-    family = MONOMIAL
-  [../]
-  [./re]
-    order = CONSTANT
-    family = MONOMIAL
-  [../]
-[]
-
-[AuxKernels]
-  [./pkernel]
-    type = MaterialRealAux
-    variable = p_diff
-    property = 'pressure_difference'
-  [../]
-  [./vkernel]
-    type = MaterialRealAux
-    variable = v
-    property = 'well_velocity'
-  [../]
-  [./rekernel]
-    type = MaterialRealAux
-    variable = re
-    property = 'well_reynolds_no'
   [../]
 []
 
@@ -160,10 +132,10 @@
 []
 
 [Outputs]
-  exodus = true
+  # exodus = true
   print_linear_residuals = true
-  # [./test]
-  #   type = Exodus
-  #   output_material_properties = true
-  # [../]
+  [./test]
+    type = Exodus
+    output_material_properties = true
+  [../]
 []

@@ -46,13 +46,13 @@ public:
   dp_drhoT_2(Real density, Real temperature, Real & dp_drho_2, Real & dp_dT_2) const override;
 
 protected:
-  /// thermal expansion coefficient
+  // thermal expansion coefficient
   const Real _thermal_expansion;
 
-  /// bulk modulus
+  // bulk modulus
   const Real _bulk_modulus;
 
-  /// density at zero pressure and temperature
+  // density at zero pressure and temperature
   const Real _density0;
 };
 

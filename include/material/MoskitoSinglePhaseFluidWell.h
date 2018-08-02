@@ -41,41 +41,48 @@ public:
   virtual void computeQpProperties() override;
 
 protected:
-  /// Velocity in well
+  // Velocity in well
   MaterialProperty<Real> & _vel;
-  /// Reynolds number in well
+  // Reynolds number in well
   MaterialProperty<Real> & _Re;
-  /// Moody friction coefficient
+  // Moody friction coefficient
   MaterialProperty<Real> & _friction;
-  /// Well diameter
+  // Well diameter
   MaterialProperty<Real> & _dia;
-  /// Well area
+  // Well area
   MaterialProperty<Real> & _area;
 
-  /// Pressure and its fist and second derivatives
+  // Pressure and its fist and second derivatives
   MaterialProperty<Real> & _p;
   MaterialProperty<Real> & _dp_drho;
   MaterialProperty<Real> & _dp_dT;
   MaterialProperty<Real> & _dp_drho_2;
   MaterialProperty<Real> & _dp_dT_2;
 
-  /// Userobject to equation of state
+  // unit vector along well
+  MaterialProperty<RealVectorValue> & _well_unit_vect;
+
+  // Userobject to equation of state
   const MoskitoEOS & _eos_UO;
 
-  /// Density nonlinear variable value
+  // Density nonlinear variable value
   const VariableValue & _rho;
-  /// Temperature nonlinear variable value
+  // Temperature nonlinear variable value
   const VariableValue & _T;
-  /// Flow rate nonlinear variable value
+  // Flow rate nonlinear variable value
   const VariableValue & _flow;
 
-  /// function to calculate friction factor using Moody chart
+  // function to calculate friction factor using Moody chart
   void MoodyFrictionFactor(Real & friction, Real rel_roughness, Real ReNo, MooseEnum roughness_type);
+
+  // function for calculating the unit vector of well orientation
+  RealVectorValue WellUnitVector();
 
 private:
   Real _d;
   Real _rel_roughness;
   MooseEnum _roughness_type;
+  MooseEnum _well_direction;
 };
 
 #endif /* MOSKITOSINGLEPHASEFLUIDWELL_H */
