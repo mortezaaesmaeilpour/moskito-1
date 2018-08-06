@@ -46,6 +46,13 @@ include $(MOOSE_DIR)/modules/modules.mk
 ###############################################################################
 
 # dep apps
+TIGER_DIR          ?= $(CURDIR)/tiger
+APPLICATION_DIR    := $(TIGER_DIR)
+APPLICATION_NAME   := tiger
+include            $(FRAMEWORK_DIR)/app.mk
+###############################################################################
+
+# dep apps
 APPLICATION_DIR    := $(CURDIR)
 APPLICATION_NAME   := moskito
 BUILD_EXEC         := yes

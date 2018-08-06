@@ -1,0 +1,3 @@
+[submodule "tiger"]
+	path = tiger
+	url = git@github.com:kit-agw/tiger.git

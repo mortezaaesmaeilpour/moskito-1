@@ -4,6 +4,9 @@
 #include "ModulesApp.h"
 #include "MooseSyntax.h"
 
+#include "TigerApp.h"
+// #include "TigerSyntax.h"
+
 template <>
 InputParameters
 validParams<MoskitoApp>()
@@ -25,6 +28,11 @@ MoskitoApp::MoskitoApp(InputParameters parameters) : MooseApp(parameters)
   Moose::registerExecFlags(_factory);
   ModulesApp::registerExecFlags(_factory);
   MoskitoApp::registerExecFlags(_factory);
+
+  // TigerApp syntax inclusion
+  // TigerApp::registerSyntax(_factory); //oldway not working
+  TigerApp::registerObjects(_factory);
+  TigerApp::associateSyntax(_syntax, _action_factory);
 }
 
 MoskitoApp::~MoskitoApp() {}
@@ -33,6 +41,9 @@ void
 MoskitoApp::registerApps()
 {
   registerApp(MoskitoApp);
+
+  // TigerApp registration
+  TigerApp::registerApps();
 }
 
 void
