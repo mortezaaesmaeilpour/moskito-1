@@ -28,6 +28,7 @@
 
 #include "Material.h"
 #include "MoskitoEOS.h"
+#include "MoskitoViscosity.h"
 
 class MoskitoSinglePhaseFluidWell;
 
@@ -64,6 +65,8 @@ protected:
 
   // Userobject to equation of state
   const MoskitoEOS & _eos_UO;
+  // Userobject to Viscosity Eq
+  const MoskitoViscosity & _viscosity_UO;
 
   // Density nonlinear variable value
   const VariableValue & _rho;

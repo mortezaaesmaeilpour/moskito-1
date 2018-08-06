@@ -20,6 +20,9 @@
     type = MoskitoEOSIdealFluid
     bulk_modulus = 2e+07
   [../]
+  [./viscosity]
+    type = MoskitoViscosityConst
+  [../]
 []
 
 [Materials]
@@ -30,6 +33,7 @@
     flow_rate = q
     well_direction = x
     eos_UO = eos
+    viscosity_UO = viscosity
     well_diameter = 0.2
     roughness_type = smooth
     output_properties = 'well_direction_vector pressure_difference well_velocity well_reynolds_no well_moody_friction'
@@ -45,6 +49,7 @@
     well_direction = x
     density = rho
     eos_UO = eos
+    viscosity_UO = viscosity
     block = 1
   [../]
 []

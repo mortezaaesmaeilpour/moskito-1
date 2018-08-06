@@ -38,6 +38,8 @@ validParams<MoskitoSinglePhaseFluidWell>()
   params.addRequiredRangeCheckedParam<Real>("well_diameter", "well_diameter>0", "Well diameter (m)");
   params.addRangeCheckedParam<Real>("roughness", 2.5e-5, "roughness>0", "Material roughness of well casing (m)");
   params.addRequiredParam<UserObjectName>("eos_UO", "The name of the userobject for EOS");
+  params.addRequiredParam<UserObjectName>("viscosity_UO",
+                                          "The name of the userobject for Viscosity Eq");
 
   MooseEnum RT("rough=1 smooth=2");
   params.addParam<MooseEnum>("roughness_type", RT="smooth", "Well casing roughness type [rough, smooth].");
@@ -63,6 +65,7 @@ MoskitoSinglePhaseFluidWell::MoskitoSinglePhaseFluidWell(const InputParameters &
     _dp_dT_2(declareProperty<Real>("dp_dT_2")),
     _well_unit_vect(declareProperty<RealVectorValue>("well_direction_vector")),
     _eos_UO(getUserObject<MoskitoEOS>("eos_UO")),
+    _viscosity_UO(getUserObject<MoskitoViscosity>("viscosity_UO")),
     _rho(coupledValue("density")),
     _T(coupledValue("temperature")),
     _flow(coupledValue("flow_rate")),
@@ -77,13 +80,6 @@ MoskitoSinglePhaseFluidWell::MoskitoSinglePhaseFluidWell(const InputParameters &
 void
 MoskitoSinglePhaseFluidWell::computeQpProperties()
 {
-  _dia[_qp] = _d;
-  _area[_qp] = PI * _d * _d / 4.0;
-  _vel[_qp] = _flow[_qp] / _area[_qp];
-  _Re[_qp] = _rho[_qp] * _dia[_qp] * fabs(_vel[_qp]) / 0.001;
-  MoodyFrictionFactor(_friction[_qp], _rel_roughness, _Re[_qp], _roughness_type);
-  _well_unit_vect[_qp] = WellUnitVector();
-
   Real p, dp_drho, dp_dT;
 
   _eos_UO.dp_drhoT(_rho[_qp], _T[_qp], p, dp_drho, dp_dT);
@@ -94,6 +90,14 @@ MoskitoSinglePhaseFluidWell::computeQpProperties()
   _eos_UO.dp_drhoT_2(_rho[_qp], _T[_qp], dp_drho, dp_dT);
   _dp_drho_2[_qp] = dp_drho;
   _dp_dT_2[_qp] = dp_dT;
+
+  _dia[_qp] = _d;
+  _area[_qp] = PI * _d * _d / 4.0;
+
+  _vel[_qp] = _flow[_qp] / _area[_qp];
+  _Re[_qp] = _rho[_qp] * _dia[_qp] * fabs(_vel[_qp]) / _viscosity_UO.mu(_p[_qp], _T[_qp]);
+  MoodyFrictionFactor(_friction[_qp], _rel_roughness, _Re[_qp], _roughness_type);
+  _well_unit_vect[_qp] = WellUnitVector();
 }
 
 void

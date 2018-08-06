@@ -19,6 +19,9 @@
   [./eos]
     type = MoskitoEOSIdealFluid
   [../]
+  [./viscosity]
+    type = MoskitoViscosityConst
+  [../]
 []
 
 [Materials]
@@ -27,6 +30,7 @@
     density = rho
     flow_rate = q
     eos_UO = eos
+    viscosity_UO = viscosity
     well_diameter = 0.2
     block = 0
   [../]
@@ -36,6 +40,7 @@
     flow_rate = q
     density = rho
     eos_UO = eos
+    viscosity_UO = viscosity
     block = 1
   [../]
 []
