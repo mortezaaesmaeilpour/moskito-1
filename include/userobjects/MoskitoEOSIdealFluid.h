@@ -39,6 +39,8 @@ public:
   virtual Real rho(Real pressure, Real temperature) const override;
   virtual void drho_dpT(
       Real pressure, Real temperature, Real & rho, Real & drho_dp, Real & drho_dT) const override;
+  virtual void drho_dpT_2(
+      Real pressure, Real temperature, Real & drho_dp_2, Real & drho_dT_2) const override;
   virtual Real p(Real density, Real temperature) const override;
   virtual void dp_drhoT(
       Real density, Real temperature, Real & pressure, Real & dp_drho, Real & dp_dT) const override;

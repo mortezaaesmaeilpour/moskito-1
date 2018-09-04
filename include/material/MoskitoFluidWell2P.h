@@ -1,0 +1,99 @@
+/**************************************************************************/
+/*  TIGER - Hydro-thermal sImulator GEothermal Reservoirs                 */
+/*                                                                        */
+/*  Copyright (C) 2017 by Maziar Gholami Korzani                          */
+/*  Karlsruhe Institute of Technology, Institute of Applied Geosciences   */
+/*  Division of Geothermal Research                                       */
+/*                                                                        */
+/*  This file is part of TIGER App                                        */
+/*                                                                        */
+/*  This program is free software: you can redistribute it and/or modify  */
+/*  it under the terms of the GNU General Public License as published by  */
+/*  the Free Software Foundation, either version 3 of the License, or     */
+/*  (at your option) any later version.                                   */
+/*                                                                        */
+/*  This program is distributed in the hope that it will be useful,       */
+/*  but WITHOUT ANY WARRANTY; without even the implied warranty of        */
+/*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the          */
+/*  GNU General Public License for more details.                          */
+/*                                                                        */
+/*  You should have received a copy of the GNU General Public License     */
+/*  along with this program.  If not, see <http://www.gnu.org/licenses/>  */
+/**************************************************************************/
+
+#ifndef MOSKITOFLUIDWELL2P_H
+#define MOSKITOFLUIDWELL2P_H
+
+#define PI 3.141592653589793238462643383279502884197169399375105820974944592308
+
+#include "Material.h"
+#include "MoskitoEOS.h"
+#include "MoskitoViscosity.h"
+
+class MoskitoFluidWell2P;
+
+template <>
+InputParameters validParams<MoskitoFluidWell2P>();
+
+class MoskitoFluidWell2P : public Material
+{
+public:
+  MoskitoFluidWell2P(const InputParameters & parameters);
+  virtual void computeQpProperties() override;
+
+protected:
+  // Velocity in well
+  MaterialProperty<Real> & _vel;
+  // Reynolds number in well
+  MaterialProperty<Real> & _Re;
+  // Moody friction coefficient
+  MaterialProperty<Real> & _friction;
+  // Well diameter
+  MaterialProperty<Real> & _dia;
+  // Well area
+  MaterialProperty<Real> & _area;
+
+  // The density of gas
+  MaterialProperty<Real> & _rho_g;
+  // The density of liquid
+  MaterialProperty<Real> & _rho_l;
+  // The first derivative of gas density wrt pressure
+  MaterialProperty<Real> & _drho_g_dp;
+  // The first derivative of liquid density wrt pressure
+  MaterialProperty<Real> & _drho_l_dp;
+  // The second derivative of gas density wrt pressure
+  MaterialProperty<Real> & _drho_g_dp_2;
+  // The second derivative of liquid density wrt pressure
+  MaterialProperty<Real> & _drho_l_dp_2;
+
+  // unit vector along well
+  MaterialProperty<RealVectorValue> & _well_unit_vect;
+
+  // Userobject to equation of state
+  const MoskitoEOS & _eos_UO;
+  // Userobject to Viscosity Eq
+  const MoskitoViscosity & _viscosity_UO;
+
+  // The coupled temperature
+  const VariableValue & _T;
+  // The coupled pressure
+  const VariableValue & _P;
+  // The coupled flow rate
+  const VariableValue & _flow;
+  // The coupled void_fraction
+  const VariableValue & _alpha;
+
+  // function to calculate friction factor using Moody chart
+  void MoodyFrictionFactor(Real & friction, Real rel_roughness, Real ReNo, MooseEnum roughness_type);
+
+  // function for calculating the unit vector of well orientation
+  RealVectorValue WellUnitVector();
+
+private:
+  Real _d;
+  Real _rel_roughness;
+  MooseEnum _roughness_type;
+  MooseEnum _well_direction;
+};
+
+#endif /* MOSKITOFLUIDWELL2P_H */
