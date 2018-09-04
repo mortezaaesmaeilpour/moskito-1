@@ -21,38 +21,56 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>  */
 /**************************************************************************/
 
-#ifndef MOSKITOEOSIDEALGAS_H
-#define MOSKITOEOSIDEALGAS_H
+#ifndef MOSKITOMASS2P_H
+#define MOSKITOMASS2P_H
 
-#include "MoskitoEOS.h"
+#include "Kernel.h"
 
-class MoskitoEOSIdealGas;
+class MoskitoMass2P;
 
 template <>
-InputParameters validParams<MoskitoEOSIdealGas>();
+InputParameters validParams<MoskitoMass2P>();
 
-class MoskitoEOSIdealGas : public MoskitoEOS
+class MoskitoMass2P : public Kernel
 {
 public:
-  MoskitoEOSIdealGas(const InputParameters & parameters);
-
-  virtual Real rho(Real pressure, Real temperature) const override;
-  virtual void drho_dpT(
-      Real pressure, Real temperature, Real & rho, Real & drho_dp, Real & drho_dT) const override;
-  virtual void drho_dpT_2(
-      Real pressure, Real temperature, Real & drho_dp_2, Real & drho_dT_2) const override;
-  virtual Real p(Real density, Real temperature) const override;
-  virtual void dp_drhoT(
-      Real density, Real temperature, Real & pressure, Real & dp_drho, Real & dp_dT) const override;
-  virtual void
-  dp_drhoT_2(Real density, Real temperature, Real & dp_drho_2, Real & dp_dT_2) const override;
+  MoskitoMass2P(const InputParameters & parameters);
 
 protected:
-  // Molar mass of gas
-  const Real _molar_mass;
+  virtual Real computeQpResidual() override;
+  virtual Real computeQpJacobian() override;
+  virtual Real computeQpOffDiagJacobian(unsigned jvar) override;
 
-  // Gas constant
-  const Real _R;
+  // The coupled flow_rate
+  const VariableValue & _q_vol;
+  // The coupled void_fraction
+  const VariableValue & _alpha;
+
+  // The gradient of the coupled flow_rate
+  const VariableGradient & _grad_q_vol;
+  // The gradient of the coupled void_fraction
+  const VariableGradient & _grad_alpha;
+
+  // Variable numberings
+  unsigned _q_vol_var_number;
+  unsigned _alpha_var_number;
+
+  // The area of pipe
+  const MaterialProperty<Real> & _area;
+  // The unit vector of well direction
+  const MaterialProperty<RealVectorValue> & _well_dir;
+  // The density of gas
+  const MaterialProperty<Real> & _rho_g;
+  // The density of liquid
+  const MaterialProperty<Real> & _rho_l;
+  // The first derivative of gas density wrt pressure
+  const MaterialProperty<Real> & _drho_g_dp;
+  // The first derivative of liquid density wrt pressure
+  const MaterialProperty<Real> & _drho_l_dp;
+  // The second derivative of gas density wrt pressure
+  const MaterialProperty<Real> & _drho_g_dp_2;
+  // The second derivative of liquid density wrt pressure
+  const MaterialProperty<Real> & _drho_l_dp_2;
 };
 
-#endif /* MOSKITOEOSIDEALGAS_H */
+#endif // MOSKITOMASS2P_H
