@@ -33,7 +33,7 @@ validParams<MoskitoFluidWell2P>()
 
   params.addRequiredCoupledVar("pressure", "Pressure nonlinear variable (Pa)");
   params.addRequiredCoupledVar("flow_rate", "Mixture flow rate nonlinear variable (m^3/s)");
-  params.addCoupledVar("alpha", 0.0,"Void fraction nonlinear variable (-)");
+  params.addCoupledVar("void_fraction", 0.0,"Void fraction nonlinear variable (-)");
   params.addCoupledVar("temperature", 273.15, "Temperature nonlinear variable (K)");
 
   params.addRequiredRangeCheckedParam<Real>("well_diameter", "well_diameter>0", "Well diameter (m)");
