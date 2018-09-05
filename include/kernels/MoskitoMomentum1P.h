@@ -21,46 +21,36 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>  */
 /**************************************************************************/
 
-#ifndef MOSKITOMOMENTUM2P_H
-#define MOSKITOMOMENTUM2P_H
+#ifndef MOSKITOMOMENTUM1P_H
+#define MOSKITOMOMENTUM1P_H
 
 #include "Kernel.h"
 
-class MoskitoMomentum2P;
+class MoskitoMomentum1P;
 
 template <>
-InputParameters validParams<MoskitoMomentum2P>();
+InputParameters validParams<MoskitoMomentum1P>();
 
-class MoskitoMomentum2P : public Kernel
+class MoskitoMomentum1P : public Kernel
 {
 public:
-  MoskitoMomentum2P(const InputParameters & parameters);
+  MoskitoMomentum1P(const InputParameters & parameters);
 
 protected:
   virtual Real computeQpResidual() override;
   virtual Real computeQpJacobian() override;
   virtual Real computeQpOffDiagJacobian(unsigned jvar) override;
 
-  // The coupled void_fraction
-  const VariableValue & _alpha;
-
   // The gradient of the coupled pressure
   const VariableGradient & _grad_p;
-  // The gradient of the coupled void_fraction
-  const VariableGradient & _grad_alpha;
 
   // Variable numberings
   unsigned _p_var_number;
-  unsigned _alpha_var_number;
 
-  // The density of gas
-  const MaterialProperty<Real> & _rho_g;
-  // The density of liquid
-  const MaterialProperty<Real> & _rho_l;
-  // The first derivative of gas density wrt pressure
-  const MaterialProperty<Real> & _drho_g_dp;
-  // The first derivative of liquid density wrt pressure
-  const MaterialProperty<Real> & _drho_l_dp;
+  // The density
+  const MaterialProperty<Real> & _rho;
+  // The first derivative of density wrt pressure
+  const MaterialProperty<Real> & _drho_dp;
   // The pipe diameter
   const MaterialProperty<Real> & _d;
   // The pipe Moody friction factor
@@ -73,4 +63,4 @@ protected:
   const MaterialProperty<RealVectorValue> & _well_dir;
 };
 
-#endif // MOSKITOMOMENTUM2P_H
+#endif // MOSKITOMOMENTUM1P_H
