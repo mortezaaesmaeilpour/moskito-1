@@ -84,6 +84,8 @@ protected:
 private:
   Real _d;
   Real _rel_roughness;
+  Real _f;
+  bool _f_defined;
   MooseEnum _roughness_type;
   MooseEnum _well_direction;
 };

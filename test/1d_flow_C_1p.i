@@ -1,13 +1,24 @@
 [Mesh]
-  type = FileMesh
-  file = example_2_2.msh
-  uniform_refine = 2
+  type = GeneratedMesh
+  dim = 1
+  xmin = 0
+  xmax = 1000
+  nx = 1000
+[]
+
+[MeshModifiers]
+  [./block1]
+    type = SubdomainBoundingBox
+    block_id = 1
+    bottom_left = '-1 -1 -1'
+    top_right = '500 1 1'
+  [../]
 []
 
 [UserObjects]
   [./eos]
     type = MoskitoEOSIdealFluid
-    density0 = 883
+    bulk_modulus = 2e+07
   [../]
   [./viscosity]
     type = MoskitoViscosityConst
@@ -16,56 +27,67 @@
 
 [Materials]
   [./area0]
-    type = MoskitoSinglePhaseFluidWell
+    type = MoskitoFluidWell1P
+    pressure = p
     temperature = 0
-    density = rho
     flow_rate = q
     well_direction = x
     eos_UO = eos
     viscosity_UO = viscosity
-    well_diameter = 0.1016
+    well_diameter = 0.2
     roughness_type = smooth
-    output_properties = 'well_direction_vector pressure_difference well_velocity well_reynolds_no well_moody_friction'
+    output_properties = 'well_direction_vector density well_velocity well_reynolds_no well_moody_friction'
+    block = 0
+  [../]
+  [./area1]
+    type = MoskitoFluidWell1P
+    pressure = p
+    temperature = 0
+    flow_rate = q
+    well_direction = x
+    eos_UO = eos
+    viscosity_UO = viscosity
+    well_diameter = 0.25
+    roughness_type = smooth
+    output_properties = 'well_direction_vector density well_velocity well_reynolds_no well_moody_friction'
+    block = 1
   [../]
 []
 
 [BCs]
-  [./rhobcl]
-    type = MoskitoDensityCoupledBC
-    variable = rho
+  [./pbc]
+    type = DirichletBC
+    variable = p
     boundary = left
-    eos_UO = eos
-    temperature = 0
-    pressure = '0'
+    value = 0
   [../]
   [./qbc]
     type = DirichletBC
     variable = q
     boundary = left
-    value = 0.00223
+    value = 0.05
   [../]
 []
 
 [Variables]
-  [./rho]
-    initial_condition = 883
+  [./p]
   [../]
   [./q]
-    scaling = 1e-7
-    initial_condition = 0.00223
+    scaling = 1e-5
+    initial_condition = 0.05
   [../]
 []
 
 [Kernels]
-  [./rhokernel]
-    type = MoskitoCMass
-    variable = rho
+  [./pkernel]
+    type = MoskitoMass1P
+    variable = p
     flow_rate = q
   [../]
   [./qkernel]
-    type = MoskitoMomentum
+    type = MoskitoMomentum1P
     variable = q
-    density = rho
+    pressure = p
   [../]
 []
 
@@ -96,15 +118,15 @@
   l_tol = 1e-10
   l_max_its = 50
   nl_rel_tol = 1e-8
-  nl_abs_tol = 1e-9
+  nl_abs_tol = 1e-10
   nl_max_its = 50
   solve_type = NEWTON
 []
 
 [Postprocessors]
-  [./rho]
+  [./p]
     type = VariableResidual
-    variable = rho
+    variable = p
   [../]
   [./q]
     type = VariableResidual
