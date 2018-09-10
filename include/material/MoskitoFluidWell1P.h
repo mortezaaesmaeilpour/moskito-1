@@ -21,8 +21,8 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>  */
 /**************************************************************************/
 
-#ifndef MOSKITOFLUIDWELL2P_H
-#define MOSKITOFLUIDWELL2P_H
+#ifndef MOSKITOFLUIDWELL1P_H
+#define MOSKITOFLUIDWELL1P_H
 
 #define PI 3.141592653589793238462643383279502884197169399375105820974944592308
 
@@ -30,15 +30,15 @@
 #include "MoskitoEOS.h"
 #include "MoskitoViscosity.h"
 
-class MoskitoFluidWell2P;
+class MoskitoFluidWell1P;
 
 template <>
-InputParameters validParams<MoskitoFluidWell2P>();
+InputParameters validParams<MoskitoFluidWell1P>();
 
-class MoskitoFluidWell2P : public Material
+class MoskitoFluidWell1P : public Material
 {
 public:
-  MoskitoFluidWell2P(const InputParameters & parameters);
+  MoskitoFluidWell1P(const InputParameters & parameters);
   virtual void computeQpProperties() override;
 
 protected:
@@ -53,18 +53,12 @@ protected:
   // Well area
   MaterialProperty<Real> & _area;
 
-  // The density of gas
-  MaterialProperty<Real> & _rho_g;
-  // The density of liquid
-  MaterialProperty<Real> & _rho_l;
-  // The first derivative of gas density wrt pressure
-  MaterialProperty<Real> & _drho_g_dp;
-  // The first derivative of liquid density wrt pressure
-  MaterialProperty<Real> & _drho_l_dp;
-  // The second derivative of gas density wrt pressure
-  MaterialProperty<Real> & _drho_g_dp_2;
-  // The second derivative of liquid density wrt pressure
-  MaterialProperty<Real> & _drho_l_dp_2;
+  // The density
+  MaterialProperty<Real> & _rho;
+  // The first derivative of density wrt pressure
+  MaterialProperty<Real> & _drho_dp;
+  // The second derivative of density wrt pressure
+  MaterialProperty<Real> & _drho_dp_2;
 
   // unit vector along well
   MaterialProperty<RealVectorValue> & _well_unit_vect;
@@ -80,8 +74,6 @@ protected:
   const VariableValue & _P;
   // The coupled flow rate
   const VariableValue & _flow;
-  // The coupled void_fraction
-  const VariableValue & _alpha;
 
   // function to calculate friction factor using Moody chart
   void MoodyFrictionFactor(Real & friction, Real rel_roughness, Real ReNo, MooseEnum roughness_type);
@@ -96,4 +88,4 @@ private:
   MooseEnum _well_direction;
 };
 
-#endif /* MOSKITOFLUIDWELL2P_H */
+#endif /* MOSKITOFLUIDWELL1P_H */

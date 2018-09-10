@@ -2,7 +2,7 @@
 /*  MOSKITO - Multiphysics cOupled Simulator toolKIT for wellbOres        */
 /*                                                                        */
 /*  Copyright (C) 2017 by Maziar Gholami Korzani                          */
-/*  Karlsruhe Institute of Technology, Institute of Applied GViscosityciences   */
+/*  Karlsruhe Institute of Technology, Institute of Applied Geosciences   */
 /*  Division of Geothermal Research                                       */
 /*                                                                        */
 /*  This file is part of MOSKITO App                                      */
