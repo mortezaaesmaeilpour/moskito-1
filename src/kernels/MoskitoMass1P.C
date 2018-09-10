@@ -32,8 +32,8 @@ validParams<MoskitoMass1P>()
   InputParameters params = validParams<Kernel>();
 
   params.addRequiredCoupledVar("flow_rate", "Volumetric flow rate nonlinear variable");
-  params.addClassDescription("Mass conservation equation for 1 phase (either liquid or
-                                      gas) pipe flow and it returns pressure");
+  params.addClassDescription("Mass conservation equation for 1 phase (either liquid or"
+                                      " gas) pipe flow and it returns pressure");
 
   return params;
 }
@@ -54,7 +54,7 @@ MoskitoMass1P::MoskitoMass1P(const InputParameters & parameters)
 Real
 MoskitoMass1P::computeQpResidual()
 {
-  Real r = 0.0;
+  RealVectorValue r = 0.0;
 
   r += _drho_dp[_qp] * _grad_u[_qp] * _q_vol[_qp];
   r += _grad_q_vol[_qp] * _rho[_qp];
@@ -65,7 +65,7 @@ MoskitoMass1P::computeQpResidual()
 Real
 MoskitoMass1P::computeQpJacobian()
 {
-  Real j = 0.0;
+  RealVectorValue j = 0.0;
 
   j += _drho_dp_2[_qp] * _phi[_j][_qp] * _grad_u[_qp];
   j += _drho_dp[_qp] * _grad_phi[_j][_qp];
@@ -78,7 +78,7 @@ MoskitoMass1P::computeQpJacobian()
 Real
 MoskitoMass1P::computeQpOffDiagJacobian(unsigned int jvar)
 {
-  Real j = 0.0;
+  RealVectorValue j = 0.0;
   if (jvar == _q_vol_var_number)
   {
     j += _drho_dp[_qp] * _grad_u[_qp] * _phi[_j][_qp];
