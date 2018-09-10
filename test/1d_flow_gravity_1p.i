@@ -18,6 +18,7 @@
 [UserObjects]
   [./eos]
     type = MoskitoEOSIdealFluid
+    bulk_modulus = 2e+09
   [../]
   [./viscosity]
     type = MoskitoViscosityConst
@@ -26,98 +27,73 @@
 
 [Materials]
   [./area0]
-    type = MoskitoWellFluid
-    density = rho
+    type = MoskitoFluidWell1P
+    pressure = p
+    temperature = 0
     flow_rate = q
+    well_direction = x
     eos_UO = eos
     viscosity_UO = viscosity
     well_diameter = 0.2
+    roughness_type = smooth
+    output_properties = 'well_direction_vector density well_velocity well_reynolds_no well_moody_friction'
     block = 0
   [../]
   [./area1]
-    type = MoskitoWellFluid
-    well_diameter = 0.25
+    type = MoskitoFluidWell1P
+    pressure = p
+    temperature = 0
     flow_rate = q
-    density = rho
+    well_direction = x
     eos_UO = eos
     viscosity_UO = viscosity
+    well_diameter = 0.25
+    roughness_type = smooth
+    output_properties = 'well_direction_vector density well_velocity well_reynolds_no well_moody_friction'
     block = 1
   [../]
 []
 
-[AuxVariables]
-  [./p_diff]
-    order = CONSTANT
-    family = MONOMIAL
-  [../]
-  [./v]
-    order = CONSTANT
-    family = MONOMIAL
-  [../]
-  [./re]
-    order = CONSTANT
-    family = MONOMIAL
-  [../]
-[]
-
-[AuxKernels]
-  [./pkernel]
-    type = MaterialRealAux
-    variable = p_diff
-    property = 'pressure_difference'
-  [../]
-  [./vkernel]
-    type = MaterialRealAux
-    variable = v
-    property = 'well_velocity'
-  [../]
-  [./rekernel]
-    type = MaterialRealAux
-    variable = re
-    property = 'well_reynolds_no'
-  [../]
-[]
-
 [BCs]
-  [./rhobc]
+  [./pbc]
     type = DirichletBC
-    variable = rho
+    variable = p
     boundary = left
-    value = 1000
+    value = 0
   [../]
   [./qbc]
     type = DirichletBC
     variable = q
-    boundary = left
-    value = 0.05
+    boundary = right
+    value = 0
   [../]
 []
 
 [Variables]
-  [./rho]
-    initial_condition = 1000
+  [./p]
   [../]
   [./q]
-    scaling = 1e-6
-    initial_condition = 0.05
+    scaling = 1e-4
+    initial_condition = 0
   [../]
 []
 
 [Kernels]
-  [./rhokernel]
-    type = MoskitoIMass
-    variable = rho
+  [./pkernel]
+    type = MoskitoMass1P
+    variable = p
     flow_rate = q
   [../]
   [./qkernel]
-    type = MoskitoCMomentum
+    type = MoskitoMomentum1P
     variable = q
-    density = rho
+    pressure = p
+    gravity = '10 0 0'
   [../]
 []
 
 [Preconditioning]
-  active = 'p2'
+  active = 'p3'
   [./p1]
     type = SMP
     full = true
@@ -142,16 +118,16 @@
   type = Steady
   l_tol = 1e-10
   l_max_its = 50
-  nl_rel_tol = 1e-8
+  nl_rel_tol = 1e-9
   nl_abs_tol = 1e-10
   nl_max_its = 50
   solve_type = NEWTON
 []
 
 [Postprocessors]
-  [./rho]
+  [./p]
     type = VariableResidual
-    variable = rho
+    variable = p
   [../]
   [./q]
     type = VariableResidual
@@ -160,10 +136,10 @@
 []
 
 [Outputs]
-  exodus = true
+  # exodus = true
   print_linear_residuals = true
-  # [./test]
-  #   type = Exodus
-  #   output_material_properties = true
-  # [../]
+  [./test]
+    type = Exodus
+    output_material_properties = true
+  [../]
 []

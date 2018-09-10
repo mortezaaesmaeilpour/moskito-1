@@ -37,6 +37,9 @@ validParams<MoskitoFluidWell1P>()
 
   params.addRequiredRangeCheckedParam<Real>("well_diameter", "well_diameter>0", "Well diameter (m)");
   params.addRangeCheckedParam<Real>("roughness", 2.5e-5, "roughness>0", "Material roughness of well casing (m)");
+  params.addRangeCheckedParam<Real>("manual_friction_factor", 0.0, "manual_friction_factor>=0",
+                                    "User defined constant friction factor (if it is defined, the automatic "
+                                    " moody friction factor based on roughness and type of casing will be disabled)");
   params.addRequiredParam<UserObjectName>("eos_UO", "The name of the userobject for EOS");
   params.addRequiredParam<UserObjectName>("viscosity_UO",
                                           "The name of the userobject for Viscosity Eq");
@@ -69,6 +72,8 @@ MoskitoFluidWell1P::MoskitoFluidWell1P(const InputParameters & parameters)
     _flow(coupledValue("flow_rate")),
     _d(getParam<Real>("well_diameter")),
     _rel_roughness(getParam<Real>("roughness")),
+    _f(getParam<Real>("manual_friction_factor")),
+    _f_defined(parameters.isParamSetByUser("manual_friction_factor")),
     _roughness_type(getParam<MooseEnum>("roughness_type")),
     _well_direction(getParam<MooseEnum>("well_direction"))
 {
@@ -88,7 +93,11 @@ MoskitoFluidWell1P::computeQpProperties()
 
   _vel[_qp] = _flow[_qp] / _area[_qp];
   _Re[_qp] = _rho[_qp] * _dia[_qp] * fabs(_vel[_qp]) / _viscosity_UO.mu(_P[_qp], _T[_qp]);
-  MoodyFrictionFactor(_friction[_qp], _rel_roughness, _Re[_qp], _roughness_type);
+  if (_f_defined)
+    _friction[_qp] = _f;
+  else
+    MoodyFrictionFactor(_friction[_qp], _rel_roughness, _Re[_qp], _roughness_type);
+
   _well_unit_vect[_qp] = WellUnitVector();
 }
 
