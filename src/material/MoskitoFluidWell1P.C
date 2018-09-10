@@ -21,19 +21,18 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>  */
 /**************************************************************************/
 
-#include "MoskitoFluidWell2P.h"
+#include "MoskitoFluidWell1P.h"
 
-registerMooseObject("MoskitoApp", MoskitoFluidWell2P);
+registerMooseObject("MoskitoApp", MoskitoFluidWell1P);
 
 template <>
 InputParameters
-validParams<MoskitoFluidWell2P>()
+validParams<MoskitoFluidWell1P>()
 {
   InputParameters params = validParams<Material>();
 
   params.addRequiredCoupledVar("pressure", "Pressure nonlinear variable (Pa)");
   params.addRequiredCoupledVar("flow_rate", "Mixture flow rate nonlinear variable (m^3/s)");
-  params.addCoupledVar("void_fraction", 0.0,"Void fraction nonlinear variable (-)");
   params.addCoupledVar("temperature", 273.15, "Temperature nonlinear variable (K)");
 
   params.addRequiredRangeCheckedParam<Real>("well_diameter", "well_diameter>0", "Well diameter (m)");
@@ -52,26 +51,22 @@ validParams<MoskitoFluidWell2P>()
   return params;
 }
 
-MoskitoFluidWell2P::MoskitoFluidWell2P(const InputParameters & parameters)
+MoskitoFluidWell1P::MoskitoFluidWell1P(const InputParameters & parameters)
   : Material(parameters),
     _vel(declareProperty<Real>("well_velocity")),
     _Re(declareProperty<Real>("well_reynolds_no")),
     _friction(declareProperty<Real>("well_moody_friction")),
     _dia(declareProperty<Real>("well_diameter")),
     _area(declareProperty<Real>("well_area")),
-    _rho_g(declareProperty<Real>("gas_density")),
-    _rho_l(declareProperty<Real>("liquid_density")),
-    _drho_g_dp(declareProperty<Real>("drho_g_dp")),
-    _drho_l_dp(declareProperty<Real>("drho_l_dp")),
-    _drho_g_dp_2(declareProperty<Real>("drho_g_dp_2")),
-    _drho_l_dp_2(declareProperty<Real>("drho_l_dp_2")),
+    _rho(declareProperty<Real>("density")),
+    _drho_dp(declareProperty<Real>("drho_dp")),
+    _drho_dp_2(declareProperty<Real>("drho_dp_2")),
     _well_unit_vect(declareProperty<RealVectorValue>("well_direction_vector")),
     _eos_UO(getUserObject<MoskitoEOS>("eos_UO")),
     _viscosity_UO(getUserObject<MoskitoViscosity>("viscosity_UO")),
     _T(coupledValue("temperature")),
     _P(coupledValue("pressure")),
     _flow(coupledValue("flow_rate")),
-    _alpha(coupledValue("void_fraction")),
     _d(getParam<Real>("well_diameter")),
     _rel_roughness(getParam<Real>("roughness")),
     _roughness_type(getParam<MooseEnum>("roughness_type")),
@@ -81,30 +76,24 @@ MoskitoFluidWell2P::MoskitoFluidWell2P(const InputParameters & parameters)
 }
 
 void
-MoskitoFluidWell2P::computeQpProperties()
+MoskitoFluidWell1P::computeQpProperties()
 {
-  Real rho_m, temp;
+  Real temp;
 
-  _eos_UO.drho_dpT(_P[_qp], _T[_qp], _rho_l[_qp], _drho_l_dp[_qp], temp);
-  _eos_UO.drho_dpT_2(_P[_qp], _T[_qp], _drho_l_dp_2[_qp], temp);
-
-  _rho_g[_qp] = 0.0;
-  _drho_g_dp[_qp] = 0.0;
-  _drho_g_dp_2[_qp] = 0.0;
-
-  rho_m = _rho_g[_qp] * _alpha[_qp] + (1.0 - _alpha[_qp]) * _rho_l[_qp];
+  _eos_UO.drho_dpT(_P[_qp], _T[_qp], _rho[_qp], _drho_dp[_qp], temp);
+  _eos_UO.drho_dpT_2(_P[_qp], _T[_qp], _drho_dp_2[_qp], temp);
 
   _dia[_qp] = _d;
   _area[_qp] = PI * _d * _d / 4.0;
 
   _vel[_qp] = _flow[_qp] / _area[_qp];
-  _Re[_qp] = rho_m * _dia[_qp] * fabs(_vel[_qp]) / _viscosity_UO.mu(_P[_qp], _T[_qp]);
+  _Re[_qp] = _rho[_qp] * _dia[_qp] * fabs(_vel[_qp]) / _viscosity_UO.mu(_P[_qp], _T[_qp]);
   MoodyFrictionFactor(_friction[_qp], _rel_roughness, _Re[_qp], _roughness_type);
   _well_unit_vect[_qp] = WellUnitVector();
 }
 
 void
-MoskitoFluidWell2P::MoodyFrictionFactor(Real & friction, Real rel_roughness, Real ReNo, MooseEnum roughness_type)
+MoskitoFluidWell1P::MoodyFrictionFactor(Real & friction, Real rel_roughness, Real ReNo, MooseEnum roughness_type)
 {
   if (ReNo > 0.0)
   {
@@ -132,7 +121,7 @@ MoskitoFluidWell2P::MoodyFrictionFactor(Real & friction, Real rel_roughness, Rea
 }
 
 RealVectorValue
-MoskitoFluidWell2P::WellUnitVector()
+MoskitoFluidWell1P::WellUnitVector()
 {
   RealVectorValue p0, p1, p;
   p0 = _current_elem->point(0);

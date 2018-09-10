@@ -33,7 +33,7 @@ validParams<MoskitoMomentum2P>()
 
   params.addRequiredCoupledVar("pressure", "Pressure nonlinear variable");
   params.addRequiredCoupledVar("void_fraction", "Gas saturation nonlinear variable");
-  params.addClassDescription("Momentum equation for pipe flow based on flowrate");
+  params.addClassDescription("Momentum equation for 2 phase (liquid and gas) pipe flow based on flowrate");
   params.addParam<RealVectorValue>("gravity", RealVectorValue(0.0,0.0,0.0), "The gravity acceleration as a vector");
   return params;
 }
