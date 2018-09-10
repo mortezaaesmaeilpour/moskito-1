@@ -21,24 +21,22 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>  */
 /**************************************************************************/
 
-#ifndef MOSKITOSINGLEPHASEFLUIDWELL_H
-#define MOSKITOSINGLEPHASEFLUIDWELL_H
-
-#define PI 3.141592653589793238462643383279502884197169399375105820974944592308
+#ifndef MOSKITOFLUIDWELLGENERAL_H
+#define MOSKITOFLUIDWELLGENERAL_H
 
 #include "Material.h"
 #include "MoskitoEOS.h"
 #include "MoskitoViscosity.h"
 
-class MoskitoSinglePhaseFluidWell;
+class MoskitoFluidWellGeneral;
 
 template <>
-InputParameters validParams<MoskitoSinglePhaseFluidWell>();
+InputParameters validParams<MoskitoFluidWellGeneral>();
 
-class MoskitoSinglePhaseFluidWell : public Material
+class MoskitoFluidWellGeneral : public Material
 {
 public:
-  MoskitoSinglePhaseFluidWell(const InputParameters & parameters);
+  MoskitoFluidWellGeneral(const InputParameters & parameters);
   virtual void computeQpProperties() override;
 
 protected:
@@ -52,14 +50,6 @@ protected:
   MaterialProperty<Real> & _dia;
   // Well area
   MaterialProperty<Real> & _area;
-
-  // Pressure and its fist and second derivatives
-  MaterialProperty<Real> & _p;
-  MaterialProperty<Real> & _dp_drho;
-  MaterialProperty<Real> & _dp_dT;
-  MaterialProperty<Real> & _dp_drho_2;
-  MaterialProperty<Real> & _dp_dT_2;
-
   // unit vector along well
   MaterialProperty<RealVectorValue> & _well_unit_vect;
 
@@ -68,11 +58,11 @@ protected:
   // Userobject to Viscosity Eq
   const MoskitoViscosity & _viscosity_UO;
 
-  // Density nonlinear variable value
-  const VariableValue & _rho;
-  // Temperature nonlinear variable value
+  // The coupled temperature
   const VariableValue & _T;
-  // Flow rate nonlinear variable value
+  // The coupled pressure
+  const VariableValue & _P;
+  // The coupled flow rate
   const VariableValue & _flow;
 
   // function to calculate friction factor using Moody chart
@@ -81,11 +71,14 @@ protected:
   // function for calculating the unit vector of well orientation
   RealVectorValue WellUnitVector();
 
-private:
+  // local variables
   Real _d;
   Real _rel_roughness;
+  Real _f;
+  bool _f_defined;
   MooseEnum _roughness_type;
   MooseEnum _well_direction;
+  const Real PI=3.141592653589793238462643383279502884197169399375105820974944592308;
 };
 
-#endif /* MOSKITOSINGLEPHASEFLUIDWELL_H */
+#endif /* MOSKITOFLUIDWELLGENERAL_H */
