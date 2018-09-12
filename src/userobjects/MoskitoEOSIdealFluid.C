@@ -77,11 +77,12 @@ MoskitoEOSIdealFluid::drho_dpT(
 
 void
 MoskitoEOSIdealFluid::drho_dpT_2(
-    Real pressure, Real temperature, Real & drho_dp_2, Real & drho_dT_2) const
+    Real pressure, Real temperature, Real & drho_dp_2, Real & drho_dT_2, Real & drho_dTdp) const
 {
   Real rho = this->rho(pressure, temperature);
   drho_dp_2 = rho / (_bulk_modulus * _bulk_modulus);
   drho_dT_2 = _thermal_expansion * _thermal_expansion * rho;
+  drho_dTdp = -_thermal_expansion * rho / _bulk_modulus;
 }
 
 Real

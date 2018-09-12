@@ -50,7 +50,7 @@ public:
 
   // The second derivative of density wrt pressure and temperature
   virtual void
-  drho_dpT_2(Real pressure, Real temperature, Real & drho_dp_2, Real & drho_dT_2) const = 0;
+  drho_dpT_2(Real pressure, Real temperature, Real & drho_dp_2, Real & drho_dT_2, Real & drho_dTdp) const = 0;
 
   // Pressure from density and temperature (Pa)
   virtual Real p(Real density, Real temperature) const = 0;

@@ -99,6 +99,7 @@
     type = MoskitoMass1P
     variable = p
     flow_rate = q
+    enthalpy = h
   [../]
   [./qkernel]
     type = MoskitoMomentum1P

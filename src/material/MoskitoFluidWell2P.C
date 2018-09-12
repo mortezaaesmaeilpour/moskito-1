@@ -51,10 +51,10 @@ MoskitoFluidWell2P::MoskitoFluidWell2P(const InputParameters & parameters)
 void
 MoskitoFluidWell2P::computeQpProperties()
 {
-  Real rho_m, temp;
+  Real rho_m, temp, temp2;
 
   _eos_UO.drho_dpT(_P[_qp], _T[_qp], _rho_l[_qp], _drho_l_dp[_qp], temp);
-  _eos_UO.drho_dpT_2(_P[_qp], _T[_qp], _drho_l_dp_2[_qp], temp);
+  _eos_UO.drho_dpT_2(_P[_qp], _T[_qp], _drho_l_dp_2[_qp], temp, temp2);
 
   _rho_g[_qp] = 0.0;
   _drho_g_dp[_qp] = 0.0;
