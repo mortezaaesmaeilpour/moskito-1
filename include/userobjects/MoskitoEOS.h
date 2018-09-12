@@ -62,6 +62,17 @@ public:
   // The second derivatives of pressure wrt density and temperature
   virtual void
   dp_drhoT_2(Real density, Real temperature, Real & dp_drho_2, Real & dp_dT_2) const = 0;
+
+  // density at reference pressure and temperature
+  Real _density_ref = 0;
+  // reference temperature
+  Real _T_ref = 0;
+  // reference pressure
+  Real _P_ref = 0;
+  // reference pressure
+  Real _h_ref = 0;
+  // specific heat at constant pressure
+  Real _cp = 0;
 };
 
 #endif /* MOSKITOEOS_H */

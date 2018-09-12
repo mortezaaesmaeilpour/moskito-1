@@ -52,6 +52,8 @@ protected:
   MaterialProperty<Real> & _area;
   // unit vector along well
   MaterialProperty<RealVectorValue> & _well_unit_vect;
+  // temperature
+  MaterialProperty<Real> & _T;
 
   // Userobject to equation of state
   const MoskitoEOS & _eos_UO;
@@ -59,7 +61,7 @@ protected:
   const MoskitoViscosity & _viscosity_UO;
 
   // The coupled temperature
-  const VariableValue & _T;
+  const VariableValue & _h;
   // The coupled pressure
   const VariableValue & _P;
   // The coupled flow rate

@@ -47,6 +47,8 @@ MoskitoFluidWell1P::computeQpProperties()
 {
   Real temp;
 
+  h_to_T();
+
   _eos_UO.drho_dpT(_P[_qp], _T[_qp], _rho[_qp], _drho_dp[_qp], temp);
   _eos_UO.drho_dpT_2(_P[_qp], _T[_qp], _drho_dp_2[_qp], temp);
 
@@ -57,4 +59,14 @@ MoskitoFluidWell1P::computeQpProperties()
   _Re[_qp] = _rho[_qp] * _dia[_qp] * fabs(_vel[_qp]) / _viscosity_UO.mu(_P[_qp], _T[_qp]);
 
   MoskitoFluidWellGeneral::computeQpProperties();
+}
+
+void
+MoskitoFluidWell1P::h_to_T()
+{
+  Real temp;
+  temp  = 1.0 / _eos_UO._cp;
+  temp *= (_h[_qp] - _eos_UO._h_ref);
+  temp += _eos_UO._T_ref;
+  _T[_qp] = temp;
 }

@@ -31,7 +31,7 @@ validParams<MoskitoFluidWellGeneral>()
 
   params.addRequiredCoupledVar("pressure", "Pressure nonlinear variable (Pa)");
   params.addRequiredCoupledVar("flow_rate", "Mixture flow rate nonlinear variable (m^3/s)");
-  params.addCoupledVar("temperature", 0.0, "Temperature nonlinear variable (K)");
+  params.addRequiredCoupledVar("enthalpy", "Specific enthalpy nonlinear variable (J/kg)");
 
   params.addRequiredRangeCheckedParam<Real>("well_diameter", "well_diameter>0", "Well diameter (m)");
   params.addRangeCheckedParam<Real>("roughness", 2.5e-5, "roughness>0", "Material roughness of well casing (m)");
@@ -60,9 +60,10 @@ MoskitoFluidWellGeneral::MoskitoFluidWellGeneral(const InputParameters & paramet
     _dia(declareProperty<Real>("well_diameter")),
     _area(declareProperty<Real>("well_area")),
     _well_unit_vect(declareProperty<RealVectorValue>("well_direction_vector")),
+    _T(declareProperty<Real>("temperature")),
     _eos_UO(getUserObject<MoskitoEOS>("eos_UO")),
     _viscosity_UO(getUserObject<MoskitoViscosity>("viscosity_UO")),
-    _T(coupledValue("temperature")),
+    _h(coupledValue("enthalpy")),
     _P(coupledValue("pressure")),
     _flow(coupledValue("flow_rate")),
     _d(getParam<Real>("well_diameter")),

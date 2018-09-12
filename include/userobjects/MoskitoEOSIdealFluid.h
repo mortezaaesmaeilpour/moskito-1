@@ -50,12 +50,8 @@ public:
 protected:
   // thermal expansion coefficient
   const Real _thermal_expansion;
-
   // bulk modulus
   const Real _bulk_modulus;
-
-  // density at zero pressure and temperature
-  const Real _density0;
 };
 
 #endif /* MOSKITOEOSIDEALFLUID_H */

@@ -31,11 +31,19 @@ validParams<MoskitoEOSIdealFluid>()
 {
   InputParameters params = validParams<MoskitoEOS>();
   params.addParam<Real>(
-      "thermal_expansion", 2.14E-4, "Constant coefficient of thermal expansion (1/K)");
+      "thermal_expansion", 4.0E-4, "Constant coefficient of thermal expansion (1/K)");
   params.addParam<Real>(
-      "density0", 1000.0, "Density at zero pressure and zero temperature (kg/m^3)");
+      "reference_density", 998.29, "Density at the reference pressure and temperature (kg/m^3)");
+  params.addParam<Real>(
+      "reference_temperature", 293.15, "Reference temperature (K)");
+  params.addParam<Real>(
+      "reference_pressure", 101325, "Reference pressure (Pa)");
+  params.addParam<Real>(
+      "reference_enthalpy", 83950, "Specific enthalpy (J/kg)");
+  params.addParam<Real>(
+      "specific_heat", 4200, "Specific heat at constant pressure (J/kg.K)");
   params.addRangeCheckedParam<Real>(
-      "bulk_modulus", 2.0E9, "bulk_modulus>0", "Constant bulk modulus (Pa)");
+      "bulk_modulus", 2.15E9, "bulk_modulus>0", "Constant bulk modulus (Pa)");
 
   return params;
 }
@@ -43,15 +51,19 @@ validParams<MoskitoEOSIdealFluid>()
 MoskitoEOSIdealFluid::MoskitoEOSIdealFluid(const InputParameters & parameters)
   : MoskitoEOS(parameters),
     _thermal_expansion(getParam<Real>("thermal_expansion")),
-    _bulk_modulus(getParam<Real>("bulk_modulus")),
-    _density0(getParam<Real>("density0"))
+    _bulk_modulus(getParam<Real>("bulk_modulus"))
 {
+  _density_ref = getParam<Real>("reference_density");
+  _T_ref = getParam<Real>("reference_temperature");
+  _P_ref = getParam<Real>("reference_pressure");
+  _h_ref = getParam<Real>("reference_enthalpy");
+  _cp = getParam<Real>("specific_heat");
 }
 
 Real
 MoskitoEOSIdealFluid::rho(Real pressure, Real temperature) const
 {
-  return _density0 * std::exp(pressure / _bulk_modulus - _thermal_expansion * temperature);
+  return _density_ref * std::exp((pressure-_P_ref) / _bulk_modulus - _thermal_expansion * (temperature-_T_ref));
 }
 
 void
@@ -75,7 +87,7 @@ MoskitoEOSIdealFluid::drho_dpT_2(
 Real
 MoskitoEOSIdealFluid::p(Real density, Real temperature) const
 {
-  return _bulk_modulus * (std::log(density / _density0) + _thermal_expansion * temperature);
+  return _bulk_modulus * (std::log(density / _density_ref) + _thermal_expansion * temperature) + _P_ref;
 }
 
 void
