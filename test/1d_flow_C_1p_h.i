@@ -105,6 +105,7 @@
     type = MoskitoMomentum1P
     variable = q
     pressure = p
+    enthalpy = h
   [../]
 []
 

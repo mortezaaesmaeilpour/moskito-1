@@ -32,6 +32,7 @@ validParams<MoskitoMomentum1P>()
   InputParameters params = validParams<Kernel>();
 
   params.addRequiredCoupledVar("pressure", "Pressure nonlinear variable");
+  params.addRequiredCoupledVar("enthalpy", "Specific enthalpy nonlinear variable");
   params.addParam<RealVectorValue>("gravity", RealVectorValue(0.0,0.0,0.0),
                                         "The gravity acceleration as a vector");
   params.addClassDescription("Momentum conservation equation for 1 phase (either"
@@ -42,9 +43,16 @@ validParams<MoskitoMomentum1P>()
 MoskitoMomentum1P::MoskitoMomentum1P(const InputParameters & parameters)
   : Kernel(parameters),
     _grad_p(coupledGradient("pressure")),
+    _grad_h(coupledGradient("enthalpy")),
     _p_var_number(coupled("pressure")),
+    _h_var_number(coupled("enthalpy")),
+    _cp(getMaterialProperty<Real>("specific_heat")),
     _rho(getMaterialProperty<Real>("density")),
     _drho_dp(getMaterialProperty<Real>("drho_dp")),
+    _drho_dp_2(getMaterialProperty<Real>("drho_dp_2")),
+    _drho_dT(getMaterialProperty<Real>("drho_dT")),
+    _drho_dT_2(getMaterialProperty<Real>("drho_dT_2")),
+    _drho_dTdp(getMaterialProperty<Real>("drho_dTdp")),
     _d(getMaterialProperty<Real>("well_diameter")),
     _f(getMaterialProperty<Real>("well_moody_friction")),
     _gravity(getParam<RealVectorValue>("gravity")),
@@ -58,7 +66,9 @@ MoskitoMomentum1P::computeQpResidual()
 {
   Real r = 0.0;
 
-  r += _drho_dp[_qp] * _grad_p[_qp] * _well_dir[_qp] * _u[_qp] * _u[_qp];
+  r += _drho_dp[_qp] * _grad_p[_qp] * _well_dir[_qp];
+  r += _drho_dT[_qp] * _grad_h[_qp] * _well_dir[_qp] / _cp[_qp];
+  r *= _u[_qp] * _u[_qp];
   r += 2.0 * _rho[_qp] * _u[_qp] * _grad_u[_qp] * _well_dir[_qp];
   r += _f[_qp] * _rho[_qp] * _u[_qp] * fabs(_u[_qp]) / (2.0 * _d[_qp]);
   r /= (_area[_qp] * _area[_qp]);
@@ -74,7 +84,9 @@ MoskitoMomentum1P::computeQpJacobian()
 {
   Real j = 0.0;
 
-  j += 2.0 * _drho_dp[_qp] * _grad_p[_qp] * _well_dir[_qp] * _phi[_j][_qp] * _u[_qp];
+  j += _drho_dp[_qp] * _grad_p[_qp] * _well_dir[_qp];
+  j += _drho_dT[_qp] * _grad_h[_qp] * _well_dir[_qp] / _cp[_qp];
+  j *= 2.0 * _phi[_j][_qp] * _u[_qp];
   j += 2.0 * _rho[_qp] * (_phi[_j][_qp]  * _grad_u[_qp] + _u[_qp] * _grad_phi[_j][_qp]) * _well_dir[_qp];
   j += 2.0 * _f[_qp] * _rho[_qp] * _phi[_j][_qp] * fabs(_u[_qp]) / (2.0 * _d[_qp]);
   j /= (_area[_qp] * _area[_qp]);
@@ -90,8 +102,27 @@ MoskitoMomentum1P::computeQpOffDiagJacobian(unsigned int jvar)
 
   if (jvar == _p_var_number)
   {
-    j += _drho_dp[_qp] * _grad_phi[_j][_qp] * _well_dir[_qp] * _u[_qp] * _u[_qp] / (_area[_qp] * _area[_qp]);
+    j += _drho_dp[_qp] * _grad_phi[_j][_qp] * _well_dir[_qp];
+    j += _drho_dp_2[_qp] * _phi[_j][_qp] * _grad_p[_qp] * _well_dir[_qp];
+    j *= _u[_qp] * _u[_qp];
+    j += 2.0 * _drho_dp[_qp] * _phi[_j][_qp] * _u[_qp] * _grad_u[_qp] * _well_dir[_qp];
+    j += _f[_qp] * _drho_dp[_qp] * _phi[_j][_qp] * _u[_qp] * fabs(_u[_qp]) / (2.0 * _d[_qp]);
+    j /= (_area[_qp] * _area[_qp]);
     j += _grad_phi[_j][_qp] * _well_dir[_qp];
+    j -= _drho_dp[_qp] * _phi[_j][_qp] * _gravity * _well_dir[_qp];
+    j *= _test[_i][_qp];
+  }
+
+  if (jvar == _h_var_number)
+  {
+    j += _drho_dTdp[_qp] * _phi[_j][_qp] * _grad_p[_qp] * _well_dir[_qp] / _cp[_qp];
+    j += _drho_dT[_qp] * _grad_phi[_j][_qp] * _well_dir[_qp] / _cp[_qp];
+    j += _drho_dT_2[_qp] * _phi[_j][_qp] * _grad_h[_qp] * _well_dir[_qp] / (_cp[_qp] * _cp[_qp]);
+    j *= _u[_qp] * _u[_qp];
+    j += 2.0 * _drho_dT[_qp] * _phi[_j][_qp] * _u[_qp] * _grad_u[_qp] * _well_dir[_qp] / _cp[_qp];
+    j += _f[_qp] * _drho_dT[_qp] * _phi[_j][_qp] * _u[_qp] * fabs(_u[_qp]) / (2.0 * _d[_qp] * _cp[_qp]);
+    j /= (_area[_qp] * _area[_qp]);
+    j -= _drho_dT[_qp] * _phi[_j][_qp] * _gravity * _well_dir[_qp] / _cp[_qp];
     j *= _test[_i][_qp];
   }
 

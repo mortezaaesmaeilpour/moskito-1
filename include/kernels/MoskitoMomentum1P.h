@@ -43,14 +43,27 @@ protected:
 
   // The gradient of the coupled pressure
   const VariableGradient & _grad_p;
+  // The gradient of the coupled specific enthalpy
+  const VariableGradient & _grad_h;
 
   // Variable numberings
   unsigned _p_var_number;
+  unsigned _h_var_number;
 
+  // The specific heat at constant pressure
+  const MaterialProperty<Real> & _cp;
   // The density
   const MaterialProperty<Real> & _rho;
   // The first derivative of density wrt pressure
   const MaterialProperty<Real> & _drho_dp;
+  // The second derivative of density wrt pressure
+  const MaterialProperty<Real> & _drho_dp_2;
+  // The first derivative of density wrt temperature
+  const MaterialProperty<Real> & _drho_dT;
+  // The second derivative of density wrt temperature
+  const MaterialProperty<Real> & _drho_dT_2;
+  // The second derivative of density wrt temperature and pressure respectively
+  const MaterialProperty<Real> & _drho_dTdp;
   // The pipe diameter
   const MaterialProperty<Real> & _d;
   // The pipe Moody friction factor
