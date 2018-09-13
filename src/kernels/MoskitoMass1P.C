@@ -99,6 +99,7 @@ MoskitoMass1P::computeQpOffDiagJacobian(unsigned int jvar)
 
   if (jvar == _h_var_number)
   {
+    j += _drho_dTdp[_qp] * _phi[_j][_qp] * _grad_u[_qp] * _well_dir[_qp] / _cp[_qp];
     j += _drho_dT_2[_qp] * _phi[_j][_qp] * _grad_h[_qp] * _well_dir[_qp] / (_cp[_qp] * _cp[_qp]);
     j += _drho_dT[_qp] * _grad_phi[_j][_qp] * _well_dir[_qp] / _cp[_qp];
     j *= _q_vol[_qp];

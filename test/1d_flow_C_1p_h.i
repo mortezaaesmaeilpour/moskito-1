@@ -18,7 +18,6 @@
 [UserObjects]
   [./eos]
     type = MoskitoEOSIdealFluid
-    bulk_modulus = 2e+07
     reference_pressure = 0
   [../]
   [./viscosity]
@@ -78,12 +77,12 @@
 
 [Variables]
   [./h]
-    scaling = 1e-7
+    scaling = 1e-6
   [../]
   [./p]
   [../]
   [./q]
-    scaling = 1e-4
+    scaling = 1e-2
     initial_condition = 0.05
   [../]
 []
@@ -135,7 +134,7 @@
   type = Steady
   l_tol = 1e-10
   l_max_its = 50
-  nl_rel_tol = 1e-8
+  nl_rel_tol = 1e-9
   nl_abs_tol = 1e-10
   nl_max_its = 50
   solve_type = NEWTON
