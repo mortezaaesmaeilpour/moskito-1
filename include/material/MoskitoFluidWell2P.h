@@ -24,35 +24,20 @@
 #ifndef MOSKITOFLUIDWELL2P_H
 #define MOSKITOFLUIDWELL2P_H
 
-#define PI 3.141592653589793238462643383279502884197169399375105820974944592308
-
-#include "Material.h"
-#include "MoskitoEOS.h"
-#include "MoskitoViscosity.h"
+#include "MoskitoFluidWellGeneral.h"
 
 class MoskitoFluidWell2P;
 
 template <>
 InputParameters validParams<MoskitoFluidWell2P>();
 
-class MoskitoFluidWell2P : public Material
+class MoskitoFluidWell2P : public MoskitoFluidWellGeneral
 {
 public:
   MoskitoFluidWell2P(const InputParameters & parameters);
   virtual void computeQpProperties() override;
 
 protected:
-  // Velocity in well
-  MaterialProperty<Real> & _vel;
-  // Reynolds number in well
-  MaterialProperty<Real> & _Re;
-  // Moody friction coefficient
-  MaterialProperty<Real> & _friction;
-  // Well diameter
-  MaterialProperty<Real> & _dia;
-  // Well area
-  MaterialProperty<Real> & _area;
-
   // The density of gas
   MaterialProperty<Real> & _rho_g;
   // The density of liquid
@@ -66,34 +51,8 @@ protected:
   // The second derivative of liquid density wrt pressure
   MaterialProperty<Real> & _drho_l_dp_2;
 
-  // unit vector along well
-  MaterialProperty<RealVectorValue> & _well_unit_vect;
-
-  // Userobject to equation of state
-  const MoskitoEOS & _eos_UO;
-  // Userobject to Viscosity Eq
-  const MoskitoViscosity & _viscosity_UO;
-
-  // The coupled temperature
-  const VariableValue & _T;
-  // The coupled pressure
-  const VariableValue & _P;
-  // The coupled flow rate
-  const VariableValue & _flow;
   // The coupled void_fraction
   const VariableValue & _alpha;
-
-  // function to calculate friction factor using Moody chart
-  void MoodyFrictionFactor(Real & friction, Real rel_roughness, Real ReNo, MooseEnum roughness_type);
-
-  // function for calculating the unit vector of well orientation
-  RealVectorValue WellUnitVector();
-
-private:
-  Real _d;
-  Real _rel_roughness;
-  MooseEnum _roughness_type;
-  MooseEnum _well_direction;
 };
 
 #endif /* MOSKITOFLUIDWELL2P_H */

@@ -21,58 +21,56 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>  */
 /**************************************************************************/
 
-#ifndef MOSKITOEOS_H
-#define MOSKITOEOS_H
+#ifndef MOSKITOENERGY1P_H
+#define MOSKITOENERGY1P_H
 
-#include "GeneralUserObject.h"
+#include "Kernel.h"
 
-class MoskitoEOS;
+class MoskitoEnergy1P;
 
 template <>
-InputParameters validParams<MoskitoEOS>();
+InputParameters validParams<MoskitoEnergy1P>();
 
-class MoskitoEOS : public GeneralUserObject
+class MoskitoEnergy1P : public Kernel
 {
 public:
-  MoskitoEOS(const InputParameters & parameters);
-  virtual ~MoskitoEOS();
+  MoskitoEnergy1P(const InputParameters & parameters);
 
-  virtual void execute() final {}
-  virtual void initialize() final {}
-  virtual void finalize() final {}
+protected:
+  virtual Real computeQpResidual() override;
+  virtual Real computeQpJacobian() override;
+  virtual Real computeQpOffDiagJacobian(unsigned jvar) override;
 
-  // Density from pressure and temperature (kg/m^3)
-  virtual Real rho(Real pressure, Real temperature) const = 0;
+  // The coupled flow_rate
+  const VariableValue & _q_vol;
 
-  // Density from pressure and temperature and its derivatives wrt pressure and temperature
-  virtual void
-  drho_dpT(Real pressure, Real temperature, Real & rho, Real & drho_dp, Real & drho_dT) const = 0;
+  // The gradient of the coupled flow_rate
+  const VariableGradient & _grad_q_vol;
+  // The gradient of the coupled pressure
+  const VariableGradient & _grad_p;
 
-  // The second derivative of density wrt pressure and temperature
-  virtual void
-  drho_dpT_2(Real pressure, Real temperature, Real & drho_dp_2, Real & drho_dT_2, Real & drho_dTdp) const = 0;
+  // Variable numberings
+  unsigned _q_vol_var_number;
+  unsigned _p_var_number;
 
-  // Pressure from density and temperature (Pa)
-  virtual Real p(Real density, Real temperature) const = 0;
-
-  // Pressure from density and temperature and its derivatives wrt density and temperature
-  virtual void
-  dp_drhoT(Real density, Real temperature, Real & pressure, Real & dp_drho, Real & dp_dT) const = 0;
-
-  // The second derivatives of pressure wrt density and temperature
-  virtual void
-  dp_drhoT_2(Real density, Real temperature, Real & dp_drho_2, Real & dp_dT_2) const = 0;
-
-  // density at reference pressure and temperature
-  Real _density_ref = 0;
-  // reference temperature
-  Real _T_ref = 0;
-  // reference pressure
-  Real _P_ref = 0;
-  // reference pressure
-  Real _h_ref = 0;
-  // specific heat at constant pressure
-  Real _cp = 0;
+  // The area of pipe
+  const MaterialProperty<Real> & _area;
+  // The unit vector of well direction
+  const MaterialProperty<RealVectorValue> & _well_dir;
+  // The specific heat at constant pressure
+  const MaterialProperty<Real> & _cp;
+  // The density
+  const MaterialProperty<Real> & _rho;
+  // The first derivative of density wrt pressure
+  const MaterialProperty<Real> & _drho_dp;
+  // The second derivative of density wrt pressure
+  const MaterialProperty<Real> & _drho_dp_2;
+  // The first derivative of density wrt temperature
+  const MaterialProperty<Real> & _drho_dT;
+  // The second derivative of density wrt temperature
+  const MaterialProperty<Real> & _drho_dT_2;
+  // The second derivative of density wrt temperature and pressure respectively
+  const MaterialProperty<Real> & _drho_dTdp;
 };
 
-#endif /* MOSKITOEOS_H */
+#endif // MOSKITOENERGY1P_H

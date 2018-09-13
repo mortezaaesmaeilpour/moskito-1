@@ -24,70 +24,36 @@
 #ifndef MOSKITOFLUIDWELL1P_H
 #define MOSKITOFLUIDWELL1P_H
 
-#define PI 3.141592653589793238462643383279502884197169399375105820974944592308
-
-#include "Material.h"
-#include "MoskitoEOS.h"
-#include "MoskitoViscosity.h"
+#include "MoskitoFluidWellGeneral.h"
 
 class MoskitoFluidWell1P;
 
 template <>
 InputParameters validParams<MoskitoFluidWell1P>();
 
-class MoskitoFluidWell1P : public Material
+class MoskitoFluidWell1P : public MoskitoFluidWellGeneral
 {
 public:
   MoskitoFluidWell1P(const InputParameters & parameters);
   virtual void computeQpProperties() override;
+  // calculates temperature using the given specific enthalpy
+  void h_to_T();
 
 protected:
-  // Velocity in well
-  MaterialProperty<Real> & _vel;
-  // Reynolds number in well
-  MaterialProperty<Real> & _Re;
-  // Moody friction coefficient
-  MaterialProperty<Real> & _friction;
-  // Well diameter
-  MaterialProperty<Real> & _dia;
-  // Well area
-  MaterialProperty<Real> & _area;
-
+  // The specific heat at constant pressure
+  MaterialProperty<Real> & _cp;
   // The density
   MaterialProperty<Real> & _rho;
   // The first derivative of density wrt pressure
   MaterialProperty<Real> & _drho_dp;
   // The second derivative of density wrt pressure
   MaterialProperty<Real> & _drho_dp_2;
-
-  // unit vector along well
-  MaterialProperty<RealVectorValue> & _well_unit_vect;
-
-  // Userobject to equation of state
-  const MoskitoEOS & _eos_UO;
-  // Userobject to Viscosity Eq
-  const MoskitoViscosity & _viscosity_UO;
-
-  // The coupled temperature
-  const VariableValue & _T;
-  // The coupled pressure
-  const VariableValue & _P;
-  // The coupled flow rate
-  const VariableValue & _flow;
-
-  // function to calculate friction factor using Moody chart
-  void MoodyFrictionFactor(Real & friction, Real rel_roughness, Real ReNo, MooseEnum roughness_type);
-
-  // function for calculating the unit vector of well orientation
-  RealVectorValue WellUnitVector();
-
-private:
-  Real _d;
-  Real _rel_roughness;
-  Real _f;
-  bool _f_defined;
-  MooseEnum _roughness_type;
-  MooseEnum _well_direction;
+  // The first derivative of density wrt temperature
+  MaterialProperty<Real> & _drho_dT;
+  // The second derivative of density wrt temperature
+  MaterialProperty<Real> & _drho_dT_2;
+  // The second derivative of density wrt temperature and pressure respectively
+  MaterialProperty<Real> & _drho_dTdp;
 };
 
 #endif /* MOSKITOFLUIDWELL1P_H */
