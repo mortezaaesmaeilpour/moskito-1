@@ -30,7 +30,7 @@
     type = MoskitoFluidWell1P
     pressure = p
     enthalpy = h
-    flow_rate = q
+    flowrate = q
     well_direction = x
     eos_UO = eos
     viscosity_UO = viscosity
@@ -43,7 +43,7 @@
     type = MoskitoFluidWell1P
     pressure = p
     enthalpy = h
-    flow_rate = q
+    flowrate = q
     well_direction = x
     eos_UO = eos
     viscosity_UO = viscosity
@@ -78,13 +78,13 @@
 [Variables]
   [./h]
     scaling = 1e-6
-    initial_condition = 1e5
+    initial_condition = 83950
   [../]
   [./p]
     # initial_condition = 2e5
   [../]
   [./q]
-    scaling = 1e-4
+    scaling = 1e-6
   [../]
 []
 
@@ -93,12 +93,18 @@
     type = MoskitoEnergy1P
     variable = h
     pressure = p
-    flow_rate = q
+    flowrate = q
+  [../]
+  [./htkernel]
+    type = MoskitoTimeEnergy1P
+    variable = h
+    pressure = p
+    flowrate = q
   [../]
   [./pkernel]
     type = MoskitoMass1P
     variable = p
-    flow_rate = q
+    flowrate = q
     enthalpy = h
   [../]
   [./ptkernel]
@@ -144,30 +150,34 @@
 
 [Executioner]
   type = Transient
-  end_time = 20
-  num_steps = 10
+  end_time = 10000
+  # num_steps = 50
   l_tol = 1e-10
   l_max_its = 50
   nl_rel_tol = 1e-9
   nl_abs_tol = 1e-10
   nl_max_its = 50
   solve_type = NEWTON
+  [./TimeStepper]
+    type = SolutionTimeAdaptiveDT
+    dt = 0.5
+  [../]
 []
 
-[Postprocessors]
-  [./h]
-    type = VariableResidual
-    variable = h
-  [../]
-  [./p]
-    type = VariableResidual
-    variable = p
-  [../]
-  [./q]
-    type = VariableResidual
-    variable = q
-  [../]
-[]
+# [Postprocessors]
+#   [./h]
+#     type = VariableResidual
+#     variable = h
+#   [../]
+#   [./p]
+#     type = VariableResidual
+#     variable = p
+#   [../]
+#   [./q]
+#     type = VariableResidual
+#     variable = q
+#   [../]
+# []
 
 [Outputs]
   # exodus = true

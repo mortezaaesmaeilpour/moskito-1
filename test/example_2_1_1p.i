@@ -29,7 +29,7 @@
     type = MoskitoFluidWell1P
     pressure = p
     temperature = 0
-    flow_rate = q
+    flowrate = q
     well_direction = x
     eos_UO = eos
     viscosity_UO = viscosity
@@ -68,7 +68,7 @@
   [./pkernel]
     type = MoskitoMass1P
     variable = p
-    flow_rate = q
+    flowrate = q
   [../]
   [./qkernel]
     type = MoskitoMomentum1P

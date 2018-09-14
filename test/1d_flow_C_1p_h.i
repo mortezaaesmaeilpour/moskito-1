@@ -30,7 +30,7 @@
     type = MoskitoFluidWell1P
     pressure = p
     enthalpy = h
-    flow_rate = q
+    flowrate = q
     well_direction = x
     eos_UO = eos
     viscosity_UO = viscosity
@@ -43,7 +43,7 @@
     type = MoskitoFluidWell1P
     pressure = p
     enthalpy = h
-    flow_rate = q
+    flowrate = q
     well_direction = x
     eos_UO = eos
     viscosity_UO = viscosity
@@ -92,12 +92,12 @@
     type = MoskitoEnergy1P
     variable = h
     pressure = p
-    flow_rate = q
+    flowrate = q
   [../]
   [./pkernel]
     type = MoskitoMass1P
     variable = p
-    flow_rate = q
+    flowrate = q
     enthalpy = h
   [../]
   [./qkernel]

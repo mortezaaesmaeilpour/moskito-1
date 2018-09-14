@@ -30,7 +30,7 @@ validParams<MoskitoFluidWellGeneral>()
   InputParameters params = validParams<Material>();
 
   params.addRequiredCoupledVar("pressure", "Pressure nonlinear variable (Pa)");
-  params.addRequiredCoupledVar("flow_rate", "Mixture flow rate nonlinear variable (m^3/s)");
+  params.addRequiredCoupledVar("flowrate", "Mixture flow rate nonlinear variable (m^3/s)");
   params.addRequiredCoupledVar("enthalpy", "Specific enthalpy nonlinear variable (J/kg)");
 
   params.addRequiredRangeCheckedParam<Real>("well_diameter", "well_diameter>0", "Well diameter (m)");
@@ -65,7 +65,7 @@ MoskitoFluidWellGeneral::MoskitoFluidWellGeneral(const InputParameters & paramet
     _viscosity_UO(getUserObject<MoskitoViscosity>("viscosity_UO")),
     _h(coupledValue("enthalpy")),
     _P(coupledValue("pressure")),
-    _flow(coupledValue("flow_rate")),
+    _flow(coupledValue("flowrate")),
     _d(getParam<Real>("well_diameter")),
     _rel_roughness(getParam<Real>("roughness")),
     _f(getParam<Real>("manual_friction_factor")),

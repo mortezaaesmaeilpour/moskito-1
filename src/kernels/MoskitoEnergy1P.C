@@ -31,7 +31,7 @@ validParams<MoskitoEnergy1P>()
 {
   InputParameters params = validParams<Kernel>();
 
-  params.addRequiredCoupledVar("flow_rate", "Volumetric flow rate nonlinear variable");
+  params.addRequiredCoupledVar("flowrate", "Volumetric flowrate nonlinear variable");
   params.addRequiredCoupledVar("pressure", "Pressure nonlinear variable");
   params.addClassDescription("Energy conservation equation for 1 phase (either liquid or"
                                       " gas) pipe flow and it returns enthalpy");
@@ -41,10 +41,10 @@ validParams<MoskitoEnergy1P>()
 
 MoskitoEnergy1P::MoskitoEnergy1P(const InputParameters & parameters)
   : Kernel(parameters),
-  _q_vol(coupledValue("flow_rate")),
-  _grad_q_vol(coupledGradient("flow_rate")),
+  _q_vol(coupledValue("flowrate")),
+  _grad_q_vol(coupledGradient("flowrate")),
   _grad_p(coupledGradient("pressure")),
-  _q_vol_var_number(coupled("flow_rate")),
+  _q_vol_var_number(coupled("flowrate")),
   _area(getMaterialProperty<Real>("well_area")),
   _well_dir(getMaterialProperty<RealVectorValue>("well_direction_vector")),
   _cp(getMaterialProperty<Real>("specific_heat")),
