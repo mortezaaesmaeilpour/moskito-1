@@ -30,15 +30,22 @@ InputParameters
 validParams<MoskitoEOSIdealGas>()
 {
   InputParameters params = validParams<MoskitoEOS>();
-  params.addParam<Real>("molar_mass", 29.0e-3, "Constant molar mass of the fluid (kg/mol)");
-  params.addRequiredParam<Real>("R", "Gas constant");
+
+  params.addRequiredParam<Real>("molar_mass", "Molar mass of the gas (kg/mol)");
+  params.addParam<Real>(
+      "cp", 1.005e3, "Constant specific heat capacity at constant pressure (J/kg/K)");
 
   return params;
 }
 
 MoskitoEOSIdealGas::MoskitoEOSIdealGas(const InputParameters & parameters)
-  : MoskitoEOS(parameters), _molar_mass(getParam<Real>("molar_mass")), _R(getParam<Real>("R"))
+  : MoskitoEOS(parameters), _molar_mass(getParam<Real>("molar_mass")), _R(8.3144598)
 {
+  _cp = getParam<Real>("cp");
+  _density_ref = 0.0;
+  _T_ref = 0.0;
+  _P_ref = 0.0;
+  _h_ref = 0.0;
 }
 
 Real
@@ -89,4 +96,10 @@ MoskitoEOSIdealGas::dp_drhoT_2(Real density,
 {
   dp_drho_2 = 0.0;
   dp_dT_2 = 0.0;
+}
+
+Real
+MoskitoEOSIdealGas::h_to_T(Real enthalpy) const
+{
+  return enthalpy / _cp;
 }

@@ -36,8 +36,6 @@ class MoskitoFluidWell1P : public MoskitoFluidWellGeneral
 public:
   MoskitoFluidWell1P(const InputParameters & parameters);
   virtual void computeQpProperties() override;
-  // calculates temperature using the given specific enthalpy
-  void h_to_T();
 
 protected:
   // The specific heat at constant pressure

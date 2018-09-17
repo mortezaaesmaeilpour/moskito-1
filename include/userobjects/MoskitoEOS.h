@@ -63,6 +63,14 @@ public:
   virtual void
   dp_drhoT_2(Real density, Real temperature, Real & dp_drho_2, Real & dp_dT_2) const = 0;
 
+  // The conversion function from specific enthalpy to temperature
+  virtual Real
+  h_to_T(Real enthalpy) const = 0;
+
+  // specific heat at constant pressure
+  Real _cp = 0;
+
+protected:
   // density at reference pressure and temperature
   Real _density_ref = 0;
   // reference temperature
@@ -71,8 +79,6 @@ public:
   Real _P_ref = 0;
   // reference pressure
   Real _h_ref = 0;
-  // specific heat at constant pressure
-  Real _cp = 0;
 };
 
 #endif /* MOSKITOEOS_H */

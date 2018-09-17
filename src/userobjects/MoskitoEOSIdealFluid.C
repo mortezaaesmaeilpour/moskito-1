@@ -109,3 +109,13 @@ MoskitoEOSIdealFluid::dp_drhoT_2(Real density,
   dp_drho_2 = -_bulk_modulus / (density * density);
   dp_dT_2 = 0.0;
 }
+
+Real
+MoskitoEOSIdealFluid::h_to_T(Real enthalpy) const
+{
+  Real T;
+  T  = 1.0 / _cp;
+  T *= (enthalpy - _h_ref);
+  T += _T_ref;
+  return T;
+}
