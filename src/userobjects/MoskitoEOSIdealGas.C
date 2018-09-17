@@ -103,3 +103,9 @@ MoskitoEOSIdealGas::h_to_T(Real enthalpy) const
 {
   return enthalpy / _cp;
 }
+
+Real
+MoskitoEOSIdealGas::T_to_h(Real temperature) const
+{
+  return _cp * temperature;
+}

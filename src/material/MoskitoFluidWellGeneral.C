@@ -38,8 +38,8 @@ validParams<MoskitoFluidWellGeneral>()
   params.addRangeCheckedParam<Real>("manual_friction_factor", 0.0, "manual_friction_factor>=0",
                                     "User defined constant friction factor (if it is defined, the automatic "
                                     " moody friction factor based on roughness and type of casing will be disabled)");
-  params.addRequiredParam<UserObjectName>("eos_UO", "The name of the userobject for EOS");
-  params.addRequiredParam<UserObjectName>("viscosity_UO",
+  params.addRequiredParam<UserObjectName>("eos_uo", "The name of the userobject for EOS");
+  params.addRequiredParam<UserObjectName>("viscosity_uo",
                                           "The name of the userobject for Viscosity Eq");
 
   MooseEnum RT("rough=1 smooth=2");
@@ -61,8 +61,8 @@ MoskitoFluidWellGeneral::MoskitoFluidWellGeneral(const InputParameters & paramet
     _area(declareProperty<Real>("well_area")),
     _well_unit_vect(declareProperty<RealVectorValue>("well_direction_vector")),
     _T(declareProperty<Real>("temperature")),
-    _eos_UO(getUserObject<MoskitoEOS>("eos_UO")),
-    _viscosity_UO(getUserObject<MoskitoViscosity>("viscosity_UO")),
+    _eos_uo(getUserObject<MoskitoEOS>("eos_uo")),
+    _viscosity_uo(getUserObject<MoskitoViscosity>("viscosity_uo")),
     _h(coupledValue("enthalpy")),
     _P(coupledValue("pressure")),
     _flow(coupledValue("flowrate")),

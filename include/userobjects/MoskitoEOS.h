@@ -63,6 +63,10 @@ public:
   virtual void
   dp_drhoT_2(Real density, Real temperature, Real & dp_drho_2, Real & dp_dT_2) const = 0;
 
+  // The conversion function from temperature to specific enthalpy
+  virtual Real
+  T_to_h(Real temperature) const = 0;
+
   // The conversion function from specific enthalpy to temperature
   virtual Real
   h_to_T(Real enthalpy) const = 0;

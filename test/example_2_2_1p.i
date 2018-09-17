@@ -21,8 +21,8 @@
     temperature = 0
     flowrate = q
     well_direction = x
-    eos_UO = eos
-    viscosity_UO = viscosity
+    eos_uo = eos
+    viscosity_uo = viscosity
     well_diameter = 0.1016
     roughness_type = smooth
     manual_friction_factor = 0.02

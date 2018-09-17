@@ -49,17 +49,17 @@ MoskitoFluidWell1P::MoskitoFluidWell1P(const InputParameters & parameters)
 void
 MoskitoFluidWell1P::computeQpProperties()
 {
-  _T[_qp] = _eos_UO.h_to_T(_h[_qp]);
-  _cp[_qp] = _eos_UO._cp;
+  _T[_qp] = _eos_uo.h_to_T(_h[_qp]);
+  _cp[_qp] = _eos_uo._cp;
 
-  _eos_UO.drho_dpT(_P[_qp], _T[_qp], _rho[_qp], _drho_dp[_qp], _drho_dT[_qp]);
-  _eos_UO.drho_dpT_2(_P[_qp], _T[_qp], _drho_dp_2[_qp], _drho_dT_2[_qp], _drho_dTdp[_qp]);
+  _eos_uo.drho_dpT(_P[_qp], _T[_qp], _rho[_qp], _drho_dp[_qp], _drho_dT[_qp]);
+  _eos_uo.drho_dpT_2(_P[_qp], _T[_qp], _drho_dp_2[_qp], _drho_dT_2[_qp], _drho_dTdp[_qp]);
 
   _dia[_qp] = _d;
   _area[_qp] = PI * _d * _d / 4.0;
 
   _vel[_qp] = _flow[_qp] / _area[_qp];
-  _Re[_qp] = _rho[_qp] * _dia[_qp] * fabs(_vel[_qp]) / _viscosity_UO.mu(_P[_qp], _T[_qp]);
+  _Re[_qp] = _rho[_qp] * _dia[_qp] * fabs(_vel[_qp]) / _viscosity_uo.mu(_P[_qp], _T[_qp]);
 
   MoskitoFluidWellGeneral::computeQpProperties();
 }

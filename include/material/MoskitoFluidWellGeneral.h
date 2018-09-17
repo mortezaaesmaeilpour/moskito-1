@@ -56,9 +56,9 @@ protected:
   MaterialProperty<Real> & _T;
 
   // Userobject to equation of state
-  const MoskitoEOS & _eos_UO;
+  const MoskitoEOS & _eos_uo;
   // Userobject to Viscosity Eq
-  const MoskitoViscosity & _viscosity_UO;
+  const MoskitoViscosity & _viscosity_uo;
 
   // The coupled temperature
   const VariableValue & _h;

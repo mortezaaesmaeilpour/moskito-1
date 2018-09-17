@@ -119,3 +119,13 @@ MoskitoEOSIdealFluid::h_to_T(Real enthalpy) const
   T += _T_ref;
   return T;
 }
+
+Real
+MoskitoEOSIdealFluid::T_to_h(Real temperature) const
+{
+  Real h;
+  h  = _cp;
+  h *= (temperature - _T_ref);
+  h += _h_ref;
+  return h;
+}

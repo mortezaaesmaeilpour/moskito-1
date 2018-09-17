@@ -21,38 +21,30 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>  */
 /**************************************************************************/
 
-#ifndef MOSKITODENSITYCOUPLEDBC_H
-#define MOSKITODENSITYCOUPLEDBC_H
+#ifndef MOSKITOENTHALPYTEMPERATUREDBC_H
+#define MOSKITOENTHALPYTEMPERATUREDBC_H
 
 #include "NodalBC.h"
 #include "MoskitoEOS.h"
-#include "Function.h"
 
-class MoskitoDensityCoupledBC;
+class MoskitoEnthalpyTemperatureDBC;
 
 template <>
-InputParameters validParams<MoskitoDensityCoupledBC>();
+InputParameters validParams<MoskitoEnthalpyTemperatureDBC>();
 
-class MoskitoDensityCoupledBC : public NodalBC
+class MoskitoEnthalpyTemperatureDBC : public NodalBC
 {
 public:
-  MoskitoDensityCoupledBC(const InputParameters & parameters);
+  MoskitoEnthalpyTemperatureDBC(const InputParameters & parameters);
 
 protected:
   virtual Real computeQpResidual() override;
-  virtual Real computeQpOffDiagJacobian(unsigned int jvar) override;
 
-  // Coupeled temperature
-  const VariableValue & _T;
-
-  // Variable numberings
-  unsigned _T_var_number;
-
-  // Pressure function
-  Function & _p_func;
+  // temperature value
+  const Real & _T;
 
   // Userobject to equation of state
-  const MoskitoEOS & _eos_UO;
+  const MoskitoEOS & _eos_uo;
 };
 
-#endif // MOSKITODENSITYCOUPLEDBC_H
+#endif // MOSKITOENTHALPYTEMPERATUREDBC_H

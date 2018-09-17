@@ -21,45 +21,32 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>  */
 /**************************************************************************/
 
-#include "MoskitoDensityCoupledBC.h"
+#include "MoskitoEnthalpyTemperatureDBC.h"
 
-registerMooseObject("MoskitoApp", MoskitoDensityCoupledBC);
+registerMooseObject("MoskitoApp", MoskitoEnthalpyTemperatureDBC);
 
 template <>
 InputParameters
-validParams<MoskitoDensityCoupledBC>()
+validParams<MoskitoEnthalpyTemperatureDBC>()
 {
   InputParameters params = validParams<NodalBC>();
-  params.addRequiredParam<FunctionName>("pressure", "Pressure nonlinear function");
-  params.addRequiredParam<UserObjectName>("eos_UO", "The name of the userobject for EOS");
-  params.addRequiredCoupledVar("temperature", "Temperature nonlinear variable");
-  params.addClassDescription("Implements a NodalBC which calculate density based on EOS using the "
-                             "coupled temperature variable and given pressure function");
+  params.addRequiredParam<UserObjectName>("eos_uo", "The name of the userobject for EOS");
+  params.addRequiredParam<Real>("temperature", "Temperature value of the BC");
+  params.declareControllable("temperature");
+  params.addClassDescription("Implements a NodalBC (Dirichlet) which calculates "
+                            "specific enthalpy using temperature based on EOS ");
   return params;
 }
 
-MoskitoDensityCoupledBC::MoskitoDensityCoupledBC(const InputParameters & parameters)
+MoskitoEnthalpyTemperatureDBC::MoskitoEnthalpyTemperatureDBC(const InputParameters & parameters)
   : NodalBC(parameters),
-    _T(coupledValue("temperature")),
-    _T_var_number(coupled("temperature")),
-    _p_func(getFunction("pressure")),
-    _eos_UO(getUserObject<MoskitoEOS>("eos_UO"))
+    _T(getParam<Real>("temperature")),
+    _eos_uo(getUserObject<MoskitoEOS>("eos_uo"))
 {
 }
 
 Real
-MoskitoDensityCoupledBC::computeQpResidual()
+MoskitoEnthalpyTemperatureDBC::computeQpResidual()
 {
-  return _u[_qp] - _eos_UO.rho(_p_func.value(_t, *_current_node), _T[_qp]);
-}
-
-Real
-MoskitoDensityCoupledBC::computeQpOffDiagJacobian(unsigned int jvar)
-{
-  Real rho, drho_dp, drho_dT;
-  _eos_UO.drho_dpT(_p_func.value(_t, *_current_node), _T[_qp], rho, drho_dp, drho_dT);
-  if (jvar == _T_var_number)
-    return -drho_dT;
-  else
-    return 0.0;
+  return _u[_qp] - _eos_uo.T_to_h(_T);
 }

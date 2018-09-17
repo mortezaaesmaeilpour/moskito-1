@@ -32,8 +32,8 @@
     enthalpy = h
     flowrate = q
     well_direction = x
-    eos_UO = eos
-    viscosity_UO = viscosity
+    eos_uo = eos
+    viscosity_uo = viscosity
     well_diameter = 0.2
     roughness_type = smooth
     output_properties = 'temperature density well_velocity well_reynolds_no well_moody_friction'
@@ -45,8 +45,8 @@
     enthalpy = h
     flowrate = q
     well_direction = x
-    eos_UO = eos
-    viscosity_UO = viscosity
+    eos_uo = eos
+    viscosity_uo = viscosity
     well_diameter = 0.35
     roughness_type = smooth
     output_properties = 'temperature density well_velocity well_reynolds_no well_moody_friction'
@@ -68,10 +68,11 @@
     value = 0.1
   [../]
   [./hbc]
-    type = DirichletBC
+    type = MoskitoEnthalpyTemperatureDBC
     variable = h
     boundary = left
-    value = 1e5
+    temperature = 300
+    eos_uo = eos
   [../]
 []
 
