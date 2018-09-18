@@ -36,6 +36,7 @@
     well_diameter = 0.152
     roughness_type = smooth
     output_properties = 'well_direction_vector density well_velocity well_reynolds_no well_moody_friction'
+    gravity = '0 -9.8 0'
   [../]
 []
 
@@ -74,7 +75,6 @@
     type = MoskitoMomentum1P
     variable = q
     pressure = p
-    gravity = '0 -9.8 0'
   [../]
 []
 

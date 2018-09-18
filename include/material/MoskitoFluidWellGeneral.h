@@ -52,6 +52,8 @@ protected:
   MaterialProperty<Real> & _area;
   // unit vector along well
   MaterialProperty<RealVectorValue> & _well_unit_vect;
+  // The gravity acceleration as a vector
+  MaterialProperty<RealVectorValue> & _gravity;
   // temperature
   MaterialProperty<Real> & _T;
 
@@ -74,6 +76,7 @@ protected:
   RealVectorValue WellUnitVector();
 
   // local variables
+  RealVectorValue _g;
   Real _d;
   Real _rel_roughness;
   Real _f;

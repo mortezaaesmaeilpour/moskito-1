@@ -71,6 +71,8 @@ protected:
   const MaterialProperty<Real> & _drho_dT_2;
   // The second derivative of density wrt temperature and pressure respectively
   const MaterialProperty<Real> & _drho_dTdp;
+  // The gravity acceleration as a vector
+  const MaterialProperty<RealVectorValue> & _gravity;
 };
 
 #endif // MOSKITOENERGY1P_H

@@ -37,6 +37,7 @@
     well_diameter = 0.152
     roughness_type = smooth
     output_properties = 'well_direction_vector liquid_density well_velocity well_reynolds_no well_moody_friction'
+    gravity = '0 -9.8 0'
   [../]
 []
 
@@ -77,7 +78,6 @@
     variable = q
     pressure = p
     void_fraction = 0.0
-    gravity = '0 -9.8 0'
   [../]
 []
 
