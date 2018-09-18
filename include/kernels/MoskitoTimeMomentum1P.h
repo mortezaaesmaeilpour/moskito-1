@@ -21,45 +21,50 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>  */
 /**************************************************************************/
 
-#include "MoskitoDensityCoupledBC.h"
+#ifndef MOSKITOTIMEMOMENTUM1P_H
+#define MOSKITOTIMEMOMENTUM1P_H
 
-registerMooseObject("MoskitoApp", MoskitoDensityCoupledBC);
+#include "Kernel.h"
+
+class MoskitoTimeMomentum1P;
 
 template <>
-InputParameters
-validParams<MoskitoDensityCoupledBC>()
-{
-  InputParameters params = validParams<NodalBC>();
-  params.addRequiredParam<FunctionName>("pressure", "Pressure nonlinear function");
-  params.addRequiredParam<UserObjectName>("eos_UO", "The name of the userobject for EOS");
-  params.addRequiredCoupledVar("temperature", "Temperature nonlinear variable");
-  params.addClassDescription("Implements a NodalBC which calculate density based on EOS using the "
-                             "coupled temperature variable and given pressure function");
-  return params;
-}
+InputParameters validParams<MoskitoTimeMomentum1P>();
 
-MoskitoDensityCoupledBC::MoskitoDensityCoupledBC(const InputParameters & parameters)
-  : NodalBC(parameters),
-    _T(coupledValue("temperature")),
-    _T_var_number(coupled("temperature")),
-    _p_func(getFunction("pressure")),
-    _eos_UO(getUserObject<MoskitoEOS>("eos_UO"))
+class MoskitoTimeMomentum1P : public Kernel
 {
-}
+public:
+  MoskitoTimeMomentum1P(const InputParameters & parameters);
 
-Real
-MoskitoDensityCoupledBC::computeQpResidual()
-{
-  return _u[_qp] - _eos_UO.rho(_p_func.value(_t, *_current_node), _T[_qp]);
-}
+protected:
+  virtual Real computeQpResidual() override;
+  virtual Real computeQpJacobian() override;
+  virtual Real computeQpOffDiagJacobian(unsigned int jvar) override;
 
-Real
-MoskitoDensityCoupledBC::computeQpOffDiagJacobian(unsigned int jvar)
-{
-  Real rho, drho_dp, drho_dT;
-  _eos_UO.drho_dpT(_p_func.value(_t, *_current_node), _T[_qp], rho, drho_dp, drho_dT);
-  if (jvar == _T_var_number)
-    return -drho_dT;
-  else
-    return 0.0;
-}
+  // required values for enthalpy and pressure coupling
+  const VariableValue & _p_dot;
+  const VariableValue & _h_dot;
+  const VariableValue & _dp_dot;
+  const VariableValue & _dh_dot;
+  const unsigned int _p_var_number;
+  const unsigned int _h_var_number;
+
+  // The area of pipe
+  const MaterialProperty<Real> & _area;
+  // The specific heat at constant pressure
+  const MaterialProperty<Real> & _cp;
+  // The density
+  const MaterialProperty<Real> & _rho;
+  // The first derivative of density wrt pressure
+  const MaterialProperty<Real> & _drho_dp;
+  // The second derivative of density wrt pressure
+  const MaterialProperty<Real> & _drho_dp_2;
+  // The first derivative of density wrt temperature
+  const MaterialProperty<Real> & _drho_dT;
+  // The second derivative of density wrt temperature
+  const MaterialProperty<Real> & _drho_dT_2;
+  // The second derivative of density wrt temperature and pressure respectively
+  const MaterialProperty<Real> & _drho_dTdp;
+};
+
+#endif // MOSKITOTIMEMOMENTUM1P_H

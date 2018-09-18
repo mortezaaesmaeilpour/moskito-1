@@ -19,10 +19,10 @@
     type = MoskitoFluidWell1P
     pressure = p
     temperature = 0
-    flow_rate = q
+    flowrate = q
     well_direction = x
-    eos_UO = eos
-    viscosity_UO = viscosity
+    eos_uo = eos
+    viscosity_uo = viscosity
     well_diameter = 0.1016
     roughness_type = smooth
     manual_friction_factor = 0.02
@@ -58,7 +58,7 @@
   [./pkernel]
     type = MoskitoMass1P
     variable = p
-    flow_rate = q
+    flowrate = q
   [../]
   [./qkernel]
     type = MoskitoMomentum1P

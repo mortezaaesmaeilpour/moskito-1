@@ -58,8 +58,8 @@
   [./pbc]
     type = DirichletBC
     variable = p
-    boundary = right
-    value = 0
+    boundary = left
+    value = 2e5
   [../]
   [./qbc]
     type = DirichletBC
@@ -68,22 +68,24 @@
     value = 0.1
   [../]
   [./hbc]
-    type = DirichletBC
+    type = MoskitoEnthalpyTemperatureDBC
     variable = h
     boundary = left
-    value = 1e5
+    temperature = 300
+    eos_uo = eos
   [../]
 []
 
 [Variables]
   [./h]
     scaling = 1e-6
+    initial_condition = 83950
   [../]
   [./p]
+    # initial_condition = 2e5
   [../]
   [./q]
-    scaling = 1e-2
-    initial_condition = 0.05
+    scaling = 1e-6
   [../]
 []
 
@@ -94,14 +96,31 @@
     pressure = p
     flowrate = q
   [../]
+  [./htkernel]
+    type = MoskitoTimeEnergy1P
+    variable = h
+    pressure = p
+    flowrate = q
+  [../]
   [./pkernel]
     type = MoskitoMass1P
     variable = p
     flowrate = q
     enthalpy = h
   [../]
+  [./ptkernel]
+    type = MoskitoTimeMass1P
+    variable = p
+    enthalpy = h
+  [../]
   [./qkernel]
     type = MoskitoMomentum1P
+    variable = q
+    pressure = p
+    enthalpy = h
+  [../]
+  [./qtkernel]
+    type = MoskitoTimeMomentum1P
     variable = q
     pressure = p
     enthalpy = h
@@ -131,29 +150,35 @@
 []
 
 [Executioner]
-  type = Steady
+  type = Transient
+  end_time = 10000
+  # num_steps = 50
   l_tol = 1e-10
   l_max_its = 50
   nl_rel_tol = 1e-9
   nl_abs_tol = 1e-10
   nl_max_its = 50
   solve_type = NEWTON
+  [./TimeStepper]
+    type = SolutionTimeAdaptiveDT
+    dt = 0.5
+  [../]
 []
 
-[Postprocessors]
-  [./h]
-    type = VariableResidual
-    variable = h
-  [../]
-  [./p]
-    type = VariableResidual
-    variable = p
-  [../]
-  [./q]
-    type = VariableResidual
-    variable = q
-  [../]
-[]
+# [Postprocessors]
+#   [./h]
+#     type = VariableResidual
+#     variable = h
+#   [../]
+#   [./p]
+#     type = VariableResidual
+#     variable = p
+#   [../]
+#   [./q]
+#     type = VariableResidual
+#     variable = q
+#   [../]
+# []
 
 [Outputs]
   # exodus = true
@@ -162,8 +187,8 @@
     type = Exodus
     output_material_properties = true
   [../]
-  [./debug]
-  type = VariableResidualNormsDebugOutput
-  output_nonlinear = true
-  [../]
+  # [./debug]
+  # type = VariableResidualNormsDebugOutput
+  # output_nonlinear = true
+  # [../]
 []

@@ -69,7 +69,7 @@ protected:
   // The pipe Moody friction factor
   const MaterialProperty<Real> & _f;
   // The gravity acceleration as a vector
-  RealVectorValue _gravity;
+  const MaterialProperty<RealVectorValue> & _gravity;
   // The area of pipe
   const MaterialProperty<Real> & _area;
   // The unit vector of well direction

@@ -19,6 +19,7 @@
   [./eos]
     type = MoskitoEOSIdealFluid
     reference_pressure = 0
+    thermal_conductivity = 10000
   [../]
   [./viscosity]
     type = MoskitoViscosityConst
@@ -55,35 +56,27 @@
 []
 
 [BCs]
-  [./pbc]
-    type = DirichletBC
-    variable = p
-    boundary = right
-    value = 0
-  [../]
-  [./qbc]
-    type = DirichletBC
-    variable = q
-    boundary = left
-    value = 0.1
-  [../]
   [./hbc]
-    type = DirichletBC
+    type = MoskitoEnthalpyTemperatureDBC
     variable = h
     boundary = left
-    value = 1e5
+    temperature = 300
+    eos_uo = eos
   [../]
 []
 
 [Variables]
   [./h]
-    scaling = 1e-6
+    # scaling = 1e-6
+    initial_condition = 83950
   [../]
   [./p]
+    initial_condition = 0
+  # initial_condition = 2e5
   [../]
   [./q]
-    scaling = 1e-2
-    initial_condition = 0.05
+    initial_condition = 0
+    # scaling = 1e-6
   [../]
 []
 
@@ -94,17 +87,19 @@
     pressure = p
     flowrate = q
   [../]
-  [./pkernel]
-    type = MoskitoMass1P
-    variable = p
+  [./htkernel]
+    type = MoskitoTimeEnergy1P
+    variable = h
+    pressure = p
     flowrate = q
-    enthalpy = h
+  [../]
+  [./pkernel]
+    type = NullKernel
+    variable = p
   [../]
   [./qkernel]
-    type = MoskitoMomentum1P
+    type = NullKernel
     variable = q
-    pressure = p
-    enthalpy = h
   [../]
 []
 
@@ -131,27 +126,18 @@
 []
 
 [Executioner]
-  type = Steady
-  l_tol = 1e-10
+  type = Transient
+  end_time = 10000000
+  # num_steps = 50
+  l_tol = 1e-8
   l_max_its = 50
-  nl_rel_tol = 1e-9
+  nl_rel_tol = 1e-8
   nl_abs_tol = 1e-10
   nl_max_its = 50
   solve_type = NEWTON
-[]
-
-[Postprocessors]
-  [./h]
-    type = VariableResidual
-    variable = h
-  [../]
-  [./p]
-    type = VariableResidual
-    variable = p
-  [../]
-  [./q]
-    type = VariableResidual
-    variable = q
+  [./TimeStepper]
+    type = SolutionTimeAdaptiveDT
+    dt = 1000
   [../]
 []
 
@@ -162,8 +148,8 @@
     type = Exodus
     output_material_properties = true
   [../]
-  [./debug]
-  type = VariableResidualNormsDebugOutput
-  output_nonlinear = true
-  [../]
+  # [./debug]
+  # type = VariableResidualNormsDebugOutput
+  # output_nonlinear = true
+  # [../]
 []

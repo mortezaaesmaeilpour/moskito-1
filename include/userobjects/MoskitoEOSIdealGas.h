@@ -45,13 +45,15 @@ public:
   virtual void dp_drhoT(
       Real density, Real temperature, Real & pressure, Real & dp_drho, Real & dp_dT) const override;
   virtual void
-  dp_drhoT_2(Real density, Real temperature, Real & dp_drho_2, Real & dp_dT_2) const override;
+    dp_drhoT_2(Real density, Real temperature, Real & dp_drho_2, Real & dp_dT_2) const override;
+  virtual Real T_to_h(Real temperature) const override;
+  virtual Real h_to_T(Real enthalpy) const override;
 
 protected:
   // Molar mass of gas
   const Real _molar_mass;
 
-  // Gas constant
+  // Universal Gas constant (J/mol.K)
   const Real _R;
 };
 

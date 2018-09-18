@@ -21,48 +21,33 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>  */
 /**************************************************************************/
 
-#ifndef MOSKITOENERGY1P_H
-#define MOSKITOENERGY1P_H
+#ifndef MOSKITOTIMEMASS1P_H
+#define MOSKITOTIMEMASS1P_H
 
 #include "Kernel.h"
 
-class MoskitoEnergy1P;
+class MoskitoTimeMass1P;
 
 template <>
-InputParameters validParams<MoskitoEnergy1P>();
+InputParameters validParams<MoskitoTimeMass1P>();
 
-class MoskitoEnergy1P : public Kernel
+class MoskitoTimeMass1P : public Kernel
 {
 public:
-  MoskitoEnergy1P(const InputParameters & parameters);
+  MoskitoTimeMass1P(const InputParameters & parameters);
 
 protected:
   virtual Real computeQpResidual() override;
   virtual Real computeQpJacobian() override;
-  virtual Real computeQpOffDiagJacobian(unsigned jvar) override;
+  virtual Real computeQpOffDiagJacobian(unsigned int jvar) override;
 
-  // The coupled flow_rate
-  const VariableValue & _q_vol;
+  // required values for enthalpy coupling
+  const VariableValue & _h_dot;
+  const VariableValue & _dh_dot;
+  const unsigned int _h_var_number;
 
-  // The gradient of the coupled flow_rate
-  const VariableGradient & _grad_q_vol;
-  // The gradient of the coupled pressure
-  const VariableGradient & _grad_p;
-
-  // Variable numberings
-  unsigned _q_vol_var_number;
-  unsigned _p_var_number;
-
-  // The area of pipe
-  const MaterialProperty<Real> & _area;
-  // The unit vector of well direction
-  const MaterialProperty<RealVectorValue> & _well_dir;
-  // The thermal conductivity of casing and fluid
-  const MaterialProperty<Real> & _lambda;
   // The specific heat at constant pressure
   const MaterialProperty<Real> & _cp;
-  // The density
-  const MaterialProperty<Real> & _rho;
   // The first derivative of density wrt pressure
   const MaterialProperty<Real> & _drho_dp;
   // The second derivative of density wrt pressure
@@ -73,8 +58,6 @@ protected:
   const MaterialProperty<Real> & _drho_dT_2;
   // The second derivative of density wrt temperature and pressure respectively
   const MaterialProperty<Real> & _drho_dTdp;
-  // The gravity acceleration as a vector
-  const MaterialProperty<RealVectorValue> & _gravity;
 };
 
-#endif // MOSKITOENERGY1P_H
+#endif // MOSKITOTIMEMASS1P_H

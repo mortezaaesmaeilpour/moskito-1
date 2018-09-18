@@ -21,39 +21,32 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>  */
 /**************************************************************************/
 
-#ifndef MOSKITOEOSIDEALFLUID_H
-#define MOSKITOEOSIDEALFLUID_H
+#include "MoskitoEnthalpyTemperatureDBC.h"
 
-#include "MoskitoEOS.h"
-
-class MoskitoEOSIdealFluid;
+registerMooseObject("MoskitoApp", MoskitoEnthalpyTemperatureDBC);
 
 template <>
-InputParameters validParams<MoskitoEOSIdealFluid>();
-
-class MoskitoEOSIdealFluid : public MoskitoEOS
+InputParameters
+validParams<MoskitoEnthalpyTemperatureDBC>()
 {
-public:
-  MoskitoEOSIdealFluid(const InputParameters & parameters);
+  InputParameters params = validParams<NodalBC>();
+  params.addRequiredParam<UserObjectName>("eos_uo", "The name of the userobject for EOS");
+  params.addRequiredParam<Real>("temperature", "Temperature value of the BC");
+  params.declareControllable("temperature");
+  params.addClassDescription("Implements a NodalBC (Dirichlet) which calculates "
+                            "specific enthalpy using temperature based on EOS ");
+  return params;
+}
 
-  virtual Real rho(Real pressure, Real temperature) const override;
-  virtual void drho_dpT(
-      Real pressure, Real temperature, Real & rho, Real & drho_dp, Real & drho_dT) const override;
-  virtual void drho_dpT_2(
-      Real pressure, Real temperature, Real & drho_dp_2, Real & drho_dT_2, Real & drho_dTdp) const override;
-  virtual Real p(Real density, Real temperature) const override;
-  virtual void dp_drhoT(
-      Real density, Real temperature, Real & pressure, Real & dp_drho, Real & dp_dT) const override;
-  virtual void
-      dp_drhoT_2(Real density, Real temperature, Real & dp_drho_2, Real & dp_dT_2) const override;
-  virtual Real h_to_T(Real enthalpy) const override;
-  virtual Real T_to_h(Real temperature) const override;
+MoskitoEnthalpyTemperatureDBC::MoskitoEnthalpyTemperatureDBC(const InputParameters & parameters)
+  : NodalBC(parameters),
+    _T(getParam<Real>("temperature")),
+    _eos_uo(getUserObject<MoskitoEOS>("eos_uo"))
+{
+}
 
-protected:
-  // thermal expansion coefficient
-  const Real _thermal_expansion;
-  // bulk modulus
-  const Real _bulk_modulus;
-};
-
-#endif /* MOSKITOEOSIDEALFLUID_H */
+Real
+MoskitoEnthalpyTemperatureDBC::computeQpResidual()
+{
+  return _u[_qp] - _eos_uo.T_to_h(_T);
+}

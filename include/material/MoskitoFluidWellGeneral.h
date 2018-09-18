@@ -52,13 +52,17 @@ protected:
   MaterialProperty<Real> & _area;
   // unit vector along well
   MaterialProperty<RealVectorValue> & _well_unit_vect;
+  // The gravity acceleration as a vector
+  MaterialProperty<RealVectorValue> & _gravity;
   // temperature
   MaterialProperty<Real> & _T;
+  // thermal conductivity of casing and fluid
+  MaterialProperty<Real> & _lambda;
 
   // Userobject to equation of state
-  const MoskitoEOS & _eos_UO;
+  const MoskitoEOS & _eos_uo;
   // Userobject to Viscosity Eq
-  const MoskitoViscosity & _viscosity_UO;
+  const MoskitoViscosity & _viscosity_uo;
 
   // The coupled temperature
   const VariableValue & _h;
@@ -74,6 +78,9 @@ protected:
   RealVectorValue WellUnitVector();
 
   // local variables
+  RealVectorValue _g;
+  Real _lambda0;
+  Real _thickness;
   Real _d;
   Real _rel_roughness;
   Real _f;
