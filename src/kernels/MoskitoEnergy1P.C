@@ -47,6 +47,7 @@ MoskitoEnergy1P::MoskitoEnergy1P(const InputParameters & parameters)
   _q_vol_var_number(coupled("flowrate")),
   _area(getMaterialProperty<Real>("well_area")),
   _well_dir(getMaterialProperty<RealVectorValue>("well_direction_vector")),
+  _lambda(getMaterialProperty<Real>("thermal_conductivity")),
   _cp(getMaterialProperty<Real>("specific_heat")),
   _rho(getMaterialProperty<Real>("density")),
   _drho_dp(getMaterialProperty<Real>("drho_dp")),
@@ -76,9 +77,10 @@ MoskitoEnergy1P::computeQpResidual()
   r += _rho[_qp] * V * _grad_u[_qp] * _well_dir[_qp];
   r += _rho[_qp] * V * V * grad_V;
   r -= _rho[_qp] * V * _gravity[_qp] * _well_dir[_qp];
+  r *= _test[_i][_qp];
+  r += _grad_test[_i][_qp] * _lambda[_qp] * _grad_u[_qp] / _cp[_qp];
 
-
-  return r * _test[_i][_qp];
+  return r;
 }
 
 Real
@@ -107,8 +109,10 @@ MoskitoEnergy1P::computeQpJacobian()
   j += _drho_dT[_qp] * _phi[_j][_qp] / _cp[_qp] * V * _grad_u[_qp] * _well_dir[_qp];
   j += _drho_dT[_qp] * _phi[_j][_qp] / _cp[_qp] * V * V * grad_V;
   j -= _drho_dT[_qp] * _phi[_j][_qp] / _cp[_qp] * V * _gravity[_qp] * _well_dir[_qp];
+  j *= _test[_i][_qp];
+  j += _grad_test[_i][_qp] * _lambda[_qp] * _grad_phi[_j][_qp] / _cp[_qp];
 
-  return j * _test[_i][_qp];
+  return j;
 }
 
 Real

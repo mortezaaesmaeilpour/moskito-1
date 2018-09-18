@@ -42,6 +42,8 @@ validParams<MoskitoEOSIdealFluid>()
       "reference_enthalpy", 83950, "Specific enthalpy (J/kg)");
   params.addParam<Real>(
       "specific_heat", 4200, "Specific heat at constant pressure (J/kg.K)");
+  params.addParam<Real>(
+      "thermal_conductivity", 0.6, "Constant thermal conductivity (W/m/K)");
   params.addRangeCheckedParam<Real>(
       "bulk_modulus", 2.15E9, "bulk_modulus>0", "Constant bulk modulus (Pa)");
 
@@ -58,6 +60,7 @@ MoskitoEOSIdealFluid::MoskitoEOSIdealFluid(const InputParameters & parameters)
   _P_ref = getParam<Real>("reference_pressure");
   _h_ref = getParam<Real>("reference_enthalpy");
   _cp = getParam<Real>("specific_heat");
+  _lambda = getParam<Real>("thermal_conductivity");
 }
 
 Real

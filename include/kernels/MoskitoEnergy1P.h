@@ -57,6 +57,8 @@ protected:
   const MaterialProperty<Real> & _area;
   // The unit vector of well direction
   const MaterialProperty<RealVectorValue> & _well_dir;
+  // The thermal conductivity of casing and fluid
+  const MaterialProperty<Real> & _lambda;
   // The specific heat at constant pressure
   const MaterialProperty<Real> & _cp;
   // The density

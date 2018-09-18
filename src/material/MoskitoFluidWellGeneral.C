@@ -34,6 +34,8 @@ validParams<MoskitoFluidWellGeneral>()
   params.addRequiredCoupledVar("enthalpy", "Specific enthalpy nonlinear variable (J/kg)");
   params.addParam<RealVectorValue>("gravity", RealVectorValue(0.0,0.0,0.0),
                                         "The gravity acceleration as a vector");
+  params.addParam<Real>("casing_thermal_conductivity", 0.0, "Thermal conductivity of casing");
+  params.addParam<Real>("casing_thickness", 0.0, "Thickness of casing");
 
   params.addRequiredRangeCheckedParam<Real>("well_diameter", "well_diameter>0", "Well diameter (m)");
   params.addRangeCheckedParam<Real>("roughness", 2.5e-5, "roughness>0", "Material roughness of well casing (m)");
@@ -64,12 +66,15 @@ MoskitoFluidWellGeneral::MoskitoFluidWellGeneral(const InputParameters & paramet
     _well_unit_vect(declareProperty<RealVectorValue>("well_direction_vector")),
     _gravity(declareProperty<RealVectorValue>("gravity")),
     _T(declareProperty<Real>("temperature")),
+    _lambda(declareProperty<Real>("thermal_conductivity")),
     _eos_uo(getUserObject<MoskitoEOS>("eos_uo")),
     _viscosity_uo(getUserObject<MoskitoViscosity>("viscosity_uo")),
     _h(coupledValue("enthalpy")),
     _P(coupledValue("pressure")),
     _flow(coupledValue("flowrate")),
     _g(getParam<RealVectorValue>("gravity")),
+    _lambda0(getParam<Real>("casing_thermal_conductivity")),
+    _thickness(getParam<Real>("casing_thickness")),
     _d(getParam<Real>("well_diameter")),
     _rel_roughness(getParam<Real>("roughness")),
     _f(getParam<Real>("manual_friction_factor")),
@@ -89,7 +94,11 @@ MoskitoFluidWellGeneral::computeQpProperties()
     MoodyFrictionFactor(_friction[_qp], _rel_roughness, _Re[_qp], _roughness_type);
 
   _well_unit_vect[_qp] = WellUnitVector();
+
   _gravity[_qp] = _g;
+
+  _lambda[_qp] = (1.0 - (_d * _d) / std::pow(_d + _thickness , 2.0)) * _lambda0;
+  _lambda[_qp] += (_d * _d) / std::pow(_d + _thickness , 2.0) * _eos_uo._lambda;
 }
 
 void

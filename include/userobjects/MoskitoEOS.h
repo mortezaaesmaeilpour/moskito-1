@@ -73,6 +73,8 @@ public:
 
   // specific heat at constant pressure
   Real _cp = 0;
+  // thermal conductivity
+  Real _lambda = 0;
 
 protected:
   // density at reference pressure and temperature

@@ -56,6 +56,8 @@ protected:
   MaterialProperty<RealVectorValue> & _gravity;
   // temperature
   MaterialProperty<Real> & _T;
+  // thermal conductivity of casing and fluid
+  MaterialProperty<Real> & _lambda;
 
   // Userobject to equation of state
   const MoskitoEOS & _eos_uo;
@@ -77,6 +79,8 @@ protected:
 
   // local variables
   RealVectorValue _g;
+  Real _lambda0;
+  Real _thickness;
   Real _d;
   Real _rel_roughness;
   Real _f;
