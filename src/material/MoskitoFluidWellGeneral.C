@@ -42,9 +42,6 @@ validParams<MoskitoFluidWellGeneral>()
   params.addRangeCheckedParam<Real>("manual_friction_factor", 0.0, "manual_friction_factor>=0",
                                     "User defined constant friction factor (if it is defined, the automatic "
                                     " moody friction factor based on roughness and type of casing will be disabled)");
-  params.addRequiredParam<UserObjectName>("eos_uo", "The name of the userobject for EOS");
-  params.addRequiredParam<UserObjectName>("viscosity_uo",
-                                          "The name of the userobject for Viscosity Eq");
 
   MooseEnum RT("rough=1 smooth=2");
   params.addParam<MooseEnum>("roughness_type", RT="smooth", "Well casing roughness type [rough, smooth].");
@@ -66,8 +63,6 @@ MoskitoFluidWellGeneral::MoskitoFluidWellGeneral(const InputParameters & paramet
     _gravity(declareProperty<RealVectorValue>("gravity")),
     _T(declareProperty<Real>("temperature")),
     _lambda(declareProperty<Real>("thermal_conductivity")),
-    _eos_uo(getUserObject<MoskitoEOS>("eos_uo")),
-    _viscosity_uo(getUserObject<MoskitoViscosity>("viscosity_uo")),
     _h(coupledValue("enthalpy")),
     _P(coupledValue("pressure")),
     _flow(coupledValue("flowrate")),
@@ -95,9 +90,6 @@ MoskitoFluidWellGeneral::computeQpProperties()
   _well_unit_vect[_qp] = WellUnitVector();
 
   _gravity[_qp] = _g;
-
-  _lambda[_qp] = (1.0 - (_d * _d) / std::pow(_d + _thickness , 2.0)) * _lambda0;
-  _lambda[_qp] += (_d * _d) / std::pow(_d + _thickness , 2.0) * _eos_uo._lambda;
 }
 
 void

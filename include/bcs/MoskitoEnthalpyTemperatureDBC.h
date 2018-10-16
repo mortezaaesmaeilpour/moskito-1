@@ -25,7 +25,7 @@
 #define MOSKITOENTHALPYTEMPERATUREDBC_H
 
 #include "NodalBC.h"
-#include "MoskitoEOS.h"
+#include "MoskitoEOS1P.h"
 
 class MoskitoEnthalpyTemperatureDBC;
 
@@ -44,7 +44,7 @@ protected:
   const Real & _T;
 
   // Userobject to equation of state
-  const MoskitoEOS & _eos_uo;
+  const MoskitoEOS1P & _eos_uo;
 };
 
 #endif // MOSKITOENTHALPYTEMPERATUREDBC_H

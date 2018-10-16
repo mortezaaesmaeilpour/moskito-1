@@ -21,21 +21,21 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>  */
 /**************************************************************************/
 
-#ifndef MOSKITOEOS_H
-#define MOSKITOEOS_H
+#ifndef MOSKITOEOS1P_H
+#define MOSKITOEOS1P_H
 
 #include "GeneralUserObject.h"
 
-class MoskitoEOS;
+class MoskitoEOS1P;
 
 template <>
-InputParameters validParams<MoskitoEOS>();
+InputParameters validParams<MoskitoEOS1P>();
 
-class MoskitoEOS : public GeneralUserObject
+class MoskitoEOS1P : public GeneralUserObject
 {
 public:
-  MoskitoEOS(const InputParameters & parameters);
-  virtual ~MoskitoEOS();
+  MoskitoEOS1P(const InputParameters & parameters);
+  virtual ~MoskitoEOS1P();
 
   virtual void execute() final {}
   virtual void initialize() final {}
@@ -51,17 +51,6 @@ public:
   // The second derivative of density wrt pressure, temperature and pressure-temperature
   virtual void
   drho_dpT_2(Real pressure, Real temperature, Real & drho_dp_2, Real & drho_dT_2, Real & drho_dTdp) const = 0;
-
-  // Pressure from density and temperature (Pa)
-  virtual Real p(Real density, Real temperature) const = 0;
-
-  // Pressure from density and temperature and its derivatives wrt density and temperature
-  virtual void
-  dp_drhoT(Real density, Real temperature, Real & pressure, Real & dp_drho, Real & dp_dT) const = 0;
-
-  // The second derivatives of pressure wrt density and temperature
-  virtual void
-  dp_drhoT_2(Real density, Real temperature, Real & dp_drho_2, Real & dp_dT_2) const = 0;
 
   // The conversion function from temperature to specific enthalpy
   virtual Real
@@ -87,4 +76,4 @@ protected:
   Real _h_ref = 0;
 };
 
-#endif /* MOSKITOEOS_H */
+#endif /* MOSKITOEOS1P_H */

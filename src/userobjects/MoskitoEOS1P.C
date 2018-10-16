@@ -21,66 +21,16 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>  */
 /**************************************************************************/
 
-#include "MoskitoEOSIdealGas.h"
-
-registerMooseObject("MoskitoApp", MoskitoEOSIdealGas);
+#include "MoskitoEOS1P.h"
 
 template <>
 InputParameters
-validParams<MoskitoEOSIdealGas>()
+validParams<MoskitoEOS1P>()
 {
-  InputParameters params = validParams<MoskitoEOS1P>();
-
-  params.addRequiredParam<Real>("molar_mass", "Molar mass of the gas (kg/mol)");
-  params.addParam<Real>(
-      "cp", 1.005e3, "Constant specific heat capacity at constant pressure (J/kg/K)");
-
+  InputParameters params = validParams<GeneralUserObject>();
   return params;
 }
 
-MoskitoEOSIdealGas::MoskitoEOSIdealGas(const InputParameters & parameters)
-  : MoskitoEOS1P(parameters), _molar_mass(getParam<Real>("molar_mass")), _R(8.3144598)
-{
-  _cp = getParam<Real>("cp");
-  _density_ref = 0.0;
-  _T_ref = 0.0;
-  _P_ref = 0.0;
-  _h_ref = 0.0;
-}
+MoskitoEOS1P::MoskitoEOS1P(const InputParameters & parameters) : GeneralUserObject(parameters) {}
 
-Real
-MoskitoEOSIdealGas::rho(Real pressure, Real temperature) const
-{
-  return pressure * _molar_mass / (_R * temperature);
-}
-
-void
-MoskitoEOSIdealGas::drho_dpT(
-    Real pressure, Real temperature, Real & rho, Real & drho_dp, Real & drho_dT) const
-{
-  rho = this->rho(pressure, temperature);
-  drho_dp = _molar_mass / (_R * temperature);
-  drho_dT = -pressure * _molar_mass / (_R * temperature * temperature);
-}
-
-void
-MoskitoEOSIdealGas::drho_dpT_2(
-    Real pressure, Real temperature, Real & drho_dp_2, Real & drho_dT_2, Real & drho_dTdp) const
-{
-  Real rho = this->rho(pressure, temperature);
-  drho_dp_2 = 0.0;
-  drho_dT_2 = 2.0 * pressure * _molar_mass / (_R * temperature * temperature * temperature);
-  drho_dTdp = -_molar_mass / (_R * temperature * temperature);
-}
-
-Real
-MoskitoEOSIdealGas::h_to_T(Real enthalpy) const
-{
-  return enthalpy / _cp;
-}
-
-Real
-MoskitoEOSIdealGas::T_to_h(Real temperature) const
-{
-  return _cp * temperature;
-}
+MoskitoEOS1P::~MoskitoEOS1P() {}

@@ -25,6 +25,7 @@
 #define MOSKITOFLUIDWELL1P_H
 
 #include "MoskitoFluidWellGeneral.h"
+#include "MoskitoEOS1P.h"
 
 class MoskitoFluidWell1P;
 
@@ -38,6 +39,11 @@ public:
   virtual void computeQpProperties() override;
 
 protected:
+  // Userobject to equation of state
+  const MoskitoEOS1P & _eos_uo;
+  // Userobject to Viscosity Eq
+  const MoskitoViscosity & _viscosity_uo;
+
   // Velocity in well
   MaterialProperty<Real> & _vel;
   // The specific heat at constant pressure

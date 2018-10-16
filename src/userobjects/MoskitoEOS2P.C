@@ -21,16 +21,16 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>  */
 /**************************************************************************/
 
-#include "MoskitoEOS.h"
+#include "MoskitoEOS2P.h"
 
 template <>
 InputParameters
-validParams<MoskitoEOS>()
+validParams<MoskitoEOS2P>()
 {
   InputParameters params = validParams<GeneralUserObject>();
   return params;
 }
 
-MoskitoEOS::MoskitoEOS(const InputParameters & parameters) : GeneralUserObject(parameters) {}
+MoskitoEOS2P::MoskitoEOS2P(const InputParameters & parameters) : GeneralUserObject(parameters) {}
 
-MoskitoEOS::~MoskitoEOS() {}
+MoskitoEOS2P::~MoskitoEOS2P() {}

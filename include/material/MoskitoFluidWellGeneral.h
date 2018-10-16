@@ -25,7 +25,6 @@
 #define MOSKITOFLUIDWELLGENERAL_H
 
 #include "Material.h"
-#include "MoskitoEOS.h"
 #include "MoskitoViscosity.h"
 
 class MoskitoFluidWellGeneral;
@@ -56,11 +55,6 @@ protected:
   MaterialProperty<Real> & _T;
   // thermal conductivity of casing and fluid
   MaterialProperty<Real> & _lambda;
-
-  // Userobject to equation of state
-  const MoskitoEOS & _eos_uo;
-  // Userobject to Viscosity Eq
-  const MoskitoViscosity & _viscosity_uo;
 
   // The coupled enthalpy
   const VariableValue & _h;

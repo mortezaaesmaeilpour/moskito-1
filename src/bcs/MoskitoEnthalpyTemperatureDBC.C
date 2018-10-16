@@ -41,7 +41,7 @@ validParams<MoskitoEnthalpyTemperatureDBC>()
 MoskitoEnthalpyTemperatureDBC::MoskitoEnthalpyTemperatureDBC(const InputParameters & parameters)
   : NodalBC(parameters),
     _T(getParam<Real>("temperature")),
-    _eos_uo(getUserObject<MoskitoEOS>("eos_uo"))
+    _eos_uo(getUserObject<MoskitoEOS1P>("eos_uo"))
 {
 }
 
