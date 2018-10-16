@@ -38,9 +38,9 @@ public:
   virtual void computeQpProperties() override;
 
 protected:
-  // The density of gas
+  // density of gas
   MaterialProperty<Real> & _rho_g;
-  // The density of liquid
+  // density of liquid
   MaterialProperty<Real> & _rho_l;
   // The first derivative of gas density wrt pressure
   MaterialProperty<Real> & _drho_g_dp;
@@ -50,9 +50,8 @@ protected:
   MaterialProperty<Real> & _drho_g_dp_2;
   // The second derivative of liquid density wrt pressure
   MaterialProperty<Real> & _drho_l_dp_2;
-
-  // The coupled void_fraction
-  const VariableValue & _alpha;
+  // void_fraction
+  MaterialProperty<Real> & _alpha;
 };
 
 #endif /* MOSKITOFLUIDWELL2P_H */

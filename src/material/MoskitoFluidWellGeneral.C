@@ -58,7 +58,6 @@ validParams<MoskitoFluidWellGeneral>()
 
 MoskitoFluidWellGeneral::MoskitoFluidWellGeneral(const InputParameters & parameters)
   : Material(parameters),
-    _vel(declareProperty<Real>("well_velocity")),
     _Re(declareProperty<Real>("well_reynolds_no")),
     _friction(declareProperty<Real>("well_moody_friction")),
     _dia(declareProperty<Real>("well_diameter")),

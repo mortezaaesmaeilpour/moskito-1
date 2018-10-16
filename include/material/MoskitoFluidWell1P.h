@@ -38,6 +38,8 @@ public:
   virtual void computeQpProperties() override;
 
 protected:
+  // Velocity in well
+  MaterialProperty<Real> & _vel;
   // The specific heat at constant pressure
   MaterialProperty<Real> & _cp;
   // The density

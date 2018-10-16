@@ -40,8 +40,6 @@ public:
   virtual void computeQpProperties() override;
 
 protected:
-  // Velocity in well
-  MaterialProperty<Real> & _vel;
   // Reynolds number in well
   MaterialProperty<Real> & _Re;
   // Moody friction coefficient
@@ -64,7 +62,7 @@ protected:
   // Userobject to Viscosity Eq
   const MoskitoViscosity & _viscosity_uo;
 
-  // The coupled temperature
+  // The coupled enthalpy
   const VariableValue & _h;
   // The coupled pressure
   const VariableValue & _P;

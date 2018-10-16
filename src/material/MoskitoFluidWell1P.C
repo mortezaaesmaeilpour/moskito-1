@@ -36,6 +36,7 @@ validParams<MoskitoFluidWell1P>()
 
 MoskitoFluidWell1P::MoskitoFluidWell1P(const InputParameters & parameters)
   : MoskitoFluidWellGeneral(parameters),
+    _vel(declareProperty<Real>("well_velocity")),
     _cp(declareProperty<Real>("specific_heat")),
     _rho(declareProperty<Real>("density")),
     _drho_dp(declareProperty<Real>("drho_dp")),

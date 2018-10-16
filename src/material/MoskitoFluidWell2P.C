@@ -44,7 +44,7 @@ MoskitoFluidWell2P::MoskitoFluidWell2P(const InputParameters & parameters)
     _drho_l_dp(declareProperty<Real>("drho_l_dp")),
     _drho_g_dp_2(declareProperty<Real>("drho_g_dp_2")),
     _drho_l_dp_2(declareProperty<Real>("drho_l_dp_2")),
-    _alpha(coupledValue("void_fraction"))
+    _alpha(declareProperty<Real>("void_fraction"))
 {
 }
 
@@ -65,8 +65,8 @@ MoskitoFluidWell2P::computeQpProperties()
   _dia[_qp] = _d;
   _area[_qp] = PI * _d * _d / 4.0;
 
-  _vel[_qp] = _flow[_qp] / _area[_qp];
-  _Re[_qp] = rho_m * _dia[_qp] * fabs(_vel[_qp]) / _viscosity_uo.mu(_P[_qp], _T[_qp]);
+  // _vel[_qp] = _flow[_qp] / _area[_qp];
+  // _Re[_qp] = rho_m * _dia[_qp] * fabs(_vel[_qp]) / _viscosity_uo.mu(_P[_qp], _T[_qp]);
 
   MoskitoFluidWellGeneral::computeQpProperties();
 }
