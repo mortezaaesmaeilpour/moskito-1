@@ -40,9 +40,9 @@ public:
 
 protected:
   // Userobject to equation of state
-  const MoskitoEOS1P & _eos_uo;
+  const MoskitoEOS1P & eos_uo;
   // Userobject to Viscosity Eq
-  const MoskitoViscosity & _viscosity_uo;
+  const MoskitoViscosity & viscosity_uo;
 
   // Velocity in well
   MaterialProperty<Real> & _vel;
@@ -58,8 +58,10 @@ protected:
   MaterialProperty<Real> & _drho_dT;
   // The second derivative of density wrt temperature
   MaterialProperty<Real> & _drho_dT_2;
-  // The second derivative of density wrt temperature and pressure respectively
+  // The second derivative of density wrt temperature & pressure
   MaterialProperty<Real> & _drho_dTdp;
+  // The second derivative of density wrt pressure & temperature
+  MaterialProperty<Real> & _drho_dpdT;
 };
 
 #endif /* MOSKITOFLUIDWELL1P_H */

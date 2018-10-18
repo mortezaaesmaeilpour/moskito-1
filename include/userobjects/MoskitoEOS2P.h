@@ -25,6 +25,7 @@
 #define MOSKITOEOS2P_H
 
 #include "GeneralUserObject.h"
+#include "MoskitoEOS1P.h"
 
 class MoskitoEOS2P;
 
@@ -40,6 +41,11 @@ public:
   virtual void execute() final {}
   virtual void initialize() final {}
   virtual void finalize() final {}
+
+  // Userobject to equation of state for gas
+  const MoskitoEOS1P & gas;
+  // Userobject to equation of state for liquid
+  const MoskitoEOS1P & liquid;
 };
 
 #endif /* MOSKITOEOS2P_H */

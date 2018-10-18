@@ -23,14 +23,25 @@
 
 #include "MoskitoEOS2P.h"
 
+registerMooseObject("MoskitoApp", MoskitoEOS2P);
+
 template <>
 InputParameters
 validParams<MoskitoEOS2P>()
 {
   InputParameters params = validParams<GeneralUserObject>();
+  params.addRequiredParam<UserObjectName>("eos_uo_gas",
+        "The name of the EOS userobject for gas");
+  params.addRequiredParam<UserObjectName>("eos_uo_liquid",
+        "The name of the EOS userobject for liquid");
   return params;
 }
 
-MoskitoEOS2P::MoskitoEOS2P(const InputParameters & parameters) : GeneralUserObject(parameters) {}
+MoskitoEOS2P::MoskitoEOS2P(const InputParameters & parameters)
+  : GeneralUserObject(parameters),
+    gas(getUserObject<MoskitoEOS1P>("eos_uo_gas")),
+    liquid(getUserObject<MoskitoEOS1P>("eos_uo_liquid"))
+{
+}
 
 MoskitoEOS2P::~MoskitoEOS2P() {}

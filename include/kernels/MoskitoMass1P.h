@@ -69,8 +69,10 @@ protected:
   const MaterialProperty<Real> & _drho_dT;
   // The second derivative of density wrt temperature
   const MaterialProperty<Real> & _drho_dT_2;
-  // The second derivative of density wrt temperature and pressure respectively
+  // The second derivative of density wrt temperature & pressure
   const MaterialProperty<Real> & _drho_dTdp;
+  // The second derivative of density wrt pressure & temperature
+  const MaterialProperty<Real> & _drho_dpdT;
 };
 
 #endif // MOSKITOMASS1P_H

@@ -43,34 +43,36 @@ protected:
 
   // The coupled flow_rate
   const VariableValue & _q_vol;
-  // The coupled void_fraction
-  const VariableValue & _alpha;
 
   // The gradient of the coupled flow_rate
   const VariableGradient & _grad_q_vol;
-  // The gradient of the coupled void_fraction
-  const VariableGradient & _grad_alpha;
+  // The gradient of the coupled specific enthalpy
+  const VariableGradient & _grad_h;
 
   // Variable numberings
   unsigned _q_vol_var_number;
-  unsigned _alpha_var_number;
+  unsigned _h_var_number;
 
   // The area of pipe
   const MaterialProperty<Real> & _area;
+  // The specific heat at constant pressure
+  const MaterialProperty<Real> & _cp;
   // The unit vector of well direction
   const MaterialProperty<RealVectorValue> & _well_dir;
-  // The density of gas
-  const MaterialProperty<Real> & _rho_g;
-  // The density of liquid
-  const MaterialProperty<Real> & _rho_l;
-  // The first derivative of gas density wrt pressure
-  const MaterialProperty<Real> & _drho_g_dp;
-  // The first derivative of liquid density wrt pressure
-  const MaterialProperty<Real> & _drho_l_dp;
-  // The second derivative of gas density wrt pressure
-  const MaterialProperty<Real> & _drho_g_dp_2;
-  // The second derivative of liquid density wrt pressure
-  const MaterialProperty<Real> & _drho_l_dp_2;
+  // The mixture density
+  const MaterialProperty<Real> & _rho_m;
+  // The first derivative of mixture density wrt pressure
+  const MaterialProperty<Real> & _drho_m_dp;
+  // The second derivative of mixture density wrt pressure
+  const MaterialProperty<Real> & _drho_m_dp_2;
+  // The first derivative of mixture density wrt temperature
+  const MaterialProperty<Real> & _drho_m_dT;
+  // The second derivative of mixture density wrt temperature
+  const MaterialProperty<Real> & _drho_m_dT_2;
+  // The second derivative of mixture density wrt temperature & pressure
+  const MaterialProperty<Real> & _drho_m_dTdp;
+  // The second derivative of mixture density wrt pressure & temperature
+  const MaterialProperty<Real> & _drho_m_dpdT;
 };
 
 #endif // MOSKITOMASS2P_H

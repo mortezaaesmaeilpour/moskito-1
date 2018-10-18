@@ -54,7 +54,8 @@ MoskitoMass1P::MoskitoMass1P(const InputParameters & parameters)
   _drho_dp_2(getMaterialProperty<Real>("drho_dp_2")),
   _drho_dT(getMaterialProperty<Real>("drho_dT")),
   _drho_dT_2(getMaterialProperty<Real>("drho_dT_2")),
-  _drho_dTdp(getMaterialProperty<Real>("drho_dTdp"))
+  _drho_dTdp(getMaterialProperty<Real>("drho_dTdp")),
+  _drho_dpdT(getMaterialProperty<Real>("drho_dpdT"))
 {
 }
 
@@ -81,8 +82,9 @@ MoskitoMass1P::computeQpJacobian()
   j += _drho_dTdp[_qp] * _phi[_j][_qp] * _grad_h[_qp] * _well_dir[_qp] / _cp[_qp];
   j *= _q_vol[_qp];
   j += _grad_q_vol[_qp] * _drho_dp[_qp] * _phi[_j][_qp] * _well_dir[_qp];
+  j *= _test[_i][_qp] / _area[_qp];
 
-  return j * _test[_i][_qp] / _area[_qp];
+  return j;
 }
 
 Real
@@ -95,16 +97,18 @@ MoskitoMass1P::computeQpOffDiagJacobian(unsigned int jvar)
     j += _drho_dT[_qp] * _grad_h[_qp] * _well_dir[_qp] / _cp[_qp];
     j *= _phi[_j][_qp];
     j += _grad_phi[_j][_qp] * _rho[_qp] * _well_dir[_qp];
+    j *= _test[_i][_qp] / _area[_qp];
   }
 
   if (jvar == _h_var_number)
   {
-    j += _drho_dTdp[_qp] * _phi[_j][_qp] * _grad_u[_qp] * _well_dir[_qp] / _cp[_qp];
-    j += _drho_dT_2[_qp] * _phi[_j][_qp] * _grad_h[_qp] * _well_dir[_qp] / (_cp[_qp] * _cp[_qp]);
-    j += _drho_dT[_qp] * _grad_phi[_j][_qp] * _well_dir[_qp] / _cp[_qp];
+    j += _drho_dpdT[_qp] * _phi[_j][_qp] * _grad_u[_qp] * _well_dir[_qp];
+    j += _drho_dT_2[_qp] * _phi[_j][_qp] * _grad_h[_qp] * _well_dir[_qp] / _cp[_qp];
+    j += _drho_dT[_qp] * _grad_phi[_j][_qp] * _well_dir[_qp];
     j *= _q_vol[_qp];
-    j += _grad_q_vol[_qp] * _well_dir[_qp] * _drho_dT[_qp] * _phi[_j][_qp] / _cp[_qp];
+    j += _grad_q_vol[_qp] * _well_dir[_qp] * _drho_dT[_qp] * _phi[_j][_qp];
+    j *= _test[_i][_qp] / (_area[_qp] * _cp[_qp]);
   }
 
-  return j * _test[_i][_qp] / _area[_qp];
+  return j;
 }
