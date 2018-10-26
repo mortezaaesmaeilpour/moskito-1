@@ -44,8 +44,6 @@ protected:
   // Userobject to Viscosity Eq
   const MoskitoViscosity & viscosity_uo;
 
-  // Velocity in well
-  MaterialProperty<Real> & _vel;
   // The specific heat at constant pressure
   MaterialProperty<Real> & _cp;
   // The density

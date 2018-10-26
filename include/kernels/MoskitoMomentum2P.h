@@ -41,36 +41,53 @@ protected:
   virtual Real computeQpJacobian() override;
   virtual Real computeQpOffDiagJacobian(unsigned jvar) override;
 
-  // The coupled void_fraction
-  const VariableValue & _alpha;
-
   // The gradient of the coupled pressure
   const VariableGradient & _grad_p;
-  // The gradient of the coupled void_fraction
-  const VariableGradient & _grad_alpha;
+  // The gradient of the coupled specific enthalpy
+  const VariableGradient & _grad_h;
 
   // Variable numberings
   unsigned _p_var_number;
-  unsigned _alpha_var_number;
+  unsigned _h_var_number;
 
-  // The density of gas
-  const MaterialProperty<Real> & _rho_g;
-  // The density of liquid
-  const MaterialProperty<Real> & _rho_l;
-  // The first derivative of gas density wrt pressure
-  const MaterialProperty<Real> & _drho_g_dp;
-  // The first derivative of liquid density wrt pressure
-  const MaterialProperty<Real> & _drho_l_dp;
+  // The specific heat of mixture at constant pressure
+  const MaterialProperty<Real> & _cp_m;
+  // The mixture density
+  const MaterialProperty<Real> & _rho_m;
+  // The first derivative of mixture density wrt pressure
+  const MaterialProperty<Real> & _drho_m_dp;
+  // The second derivative of mixture density wrt pressure
+  const MaterialProperty<Real> & _drho_m_dp_2;
+  // The first derivative of mixture density wrt temperature
+  const MaterialProperty<Real> & _drho_m_dT;
+  // The second derivative of mixture density wrt temperature
+  const MaterialProperty<Real> & _drho_m_dT_2;
+  // The second derivative of mixture density wrt temperature & pressure
+  const MaterialProperty<Real> & _drho_m_dTdp;
+  // The second derivative of mixture density wrt pressure & temperature
+  const MaterialProperty<Real> & _drho_m_dpdT;
   // The pipe diameter
   const MaterialProperty<Real> & _d;
   // The pipe Moody friction factor
   const MaterialProperty<Real> & _f;
   // The gravity acceleration as a vector
-  RealVectorValue _gravity;
+  const MaterialProperty<RealVectorValue> & _gravity;
   // The area of pipe
   const MaterialProperty<Real> & _area;
   // The unit vector of well direction
   const MaterialProperty<RealVectorValue> & _well_dir;
+
+  // residual for dgamma_dz in the momentum conservation
+  const MaterialProperty<Real> & _dgamma_dz;
+  // diagonal jacobian of the residual wrt uj for dgamma_dz in the momentum conservation
+  const MaterialProperty<Real> & _dgamma_dz_uj_gphi;
+  const MaterialProperty<Real> & _dgamma_dz_uj_phi;
+  // diagonal jacobian of the residual wrt pj for dgamma_dz in the momentum conservation
+  const MaterialProperty<Real> & _dgamma_dz_pj_gphi;
+  const MaterialProperty<Real> & _dgamma_dz_pj_phi;
+  // diagonal jacobian of the residual wrt hj for dgamma_dz in the momentum conservation
+  const MaterialProperty<Real> & _dgamma_dz_hj_gphi;
+  const MaterialProperty<Real> & _dgamma_dz_hj_phi;
 };
 
 #endif // MOSKITOMOMENTUM2P_H

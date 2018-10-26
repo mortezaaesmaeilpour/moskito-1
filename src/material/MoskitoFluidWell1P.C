@@ -42,7 +42,6 @@ MoskitoFluidWell1P::MoskitoFluidWell1P(const InputParameters & parameters)
   : MoskitoFluidWellGeneral(parameters),
     eos_uo(getUserObject<MoskitoEOS1P>("eos_uo")),
     viscosity_uo(getUserObject<MoskitoViscosity>("viscosity_uo")),
-    _vel(declareProperty<Real>("well_velocity")),
     _cp(declareProperty<Real>("specific_heat")),
     _rho(declareProperty<Real>("density")),
     _drho_dp(declareProperty<Real>("drho_dp")),
@@ -66,8 +65,8 @@ MoskitoFluidWell1P::computeQpProperties()
   _dia[_qp] = _d;
   _area[_qp] = PI * _d * _d / 4.0;
 
-  _vel[_qp] = _flow[_qp] / _area[_qp];
-  _Re[_qp] = _rho[_qp] * _dia[_qp] * fabs(_vel[_qp]) / viscosity_uo.mu(_P[_qp], _T[_qp]);
+  _u[_qp] = _flow[_qp] / _area[_qp];
+  _Re[_qp] = _rho[_qp] * _dia[_qp] * fabs(_u[_qp]) / viscosity_uo.mu(_P[_qp], _T[_qp]);
 
   _lambda[_qp]  = (1.0 - (_d * _d) / std::pow(_d + _thickness , 2.0)) * _lambda0;
   _lambda[_qp] += (_d * _d) / std::pow(_d + _thickness , 2.0) * eos_uo._lambda;

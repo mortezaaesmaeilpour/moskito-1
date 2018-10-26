@@ -37,6 +37,7 @@ class MoskitoFluidWell2P : public MoskitoFluidWellGeneral
 public:
   MoskitoFluidWell2P(const InputParameters & parameters);
   virtual void computeQpProperties() override;
+  void DriftFluxMomentumEq(Real & c0, Real & ud);
 
 protected:
   // Userobject to equation of state
@@ -46,8 +47,10 @@ protected:
 
   // The specific heat of mixture at constant pressure
   MaterialProperty<Real> & _cp_m;
-  // density of mixture
+  // Density of mixture
   MaterialProperty<Real> & _rho_m;
+  // Profile-adjusted density of mixture
+  MaterialProperty<Real> & _rho_pam;
   // The first derivative of mixture density wrt pressure
   MaterialProperty<Real> & _drho_m_dp;
   // The second derivative of mixture density wrt pressure
@@ -62,6 +65,28 @@ protected:
   MaterialProperty<Real> & _drho_m_dpdT;
   // void_fraction
   MaterialProperty<Real> & _alpha;
+  // Gas velocity
+  MaterialProperty<Real> & _u_g;
+  // Liquid velocity
+  MaterialProperty<Real> & _u_l;
+  
+  //refer to DriftFluxMomentumEq function
+  // residual for dgamma_dz in the momentum conservation
+  MaterialProperty<Real> & _dgamma_dz;
+  // diagonal jacobian of the residual wrt uj for dgamma_dz in the momentum conservation
+  MaterialProperty<Real> & _dgamma_dz_uj_gphi;
+  MaterialProperty<Real> & _dgamma_dz_uj_phi;
+  // diagonal jacobian of the residual wrt pj for dgamma_dz in the momentum conservation
+  MaterialProperty<Real> & _dgamma_dz_pj_gphi;
+  MaterialProperty<Real> & _dgamma_dz_pj_phi;
+  // diagonal jacobian of the residual wrt hj for dgamma_dz in the momentum conservation
+  MaterialProperty<Real> & _dgamma_dz_hj_gphi;
+  MaterialProperty<Real> & _dgamma_dz_hj_phi;
+
+  // The gradient of the coupled variables
+  const VariableGradient & _grad_flow;
+  const VariableGradient & _grad_h;
+  const VariableGradient & _grad_p;
 private:
   // Gas density related properties
   Real _rho_g;

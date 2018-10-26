@@ -39,6 +39,8 @@ public:
   virtual void computeQpProperties() override;
 
 protected:
+  // Velocity in well
+  MaterialProperty<Real> & _u;
   // Reynolds number in well
   MaterialProperty<Real> & _Re;
   // Moody friction coefficient
@@ -79,7 +81,7 @@ protected:
   bool _f_defined;
   MooseEnum _roughness_type;
   MooseEnum _well_direction;
-  const Real PI=3.141592653589793238462643383279502884197169399375105820974944592308;
+  const Real PI = 3.141592653589793238462643383279502884197169399375105820974944592308;
 };
 
 #endif /* MOSKITOFLUIDWELLGENERAL_H */
