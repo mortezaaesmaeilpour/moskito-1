@@ -1,3 +1,7 @@
+# "Applied multiphase flow in pipes and flow assurance oil and gas production"
+# Al-Safran, E., Brill, J. P., 2017
+# Example 2.1: Determine the pipeline inlet pressure?
+
 [Mesh]
   type = GeneratedMesh
   dim = 1
@@ -21,6 +25,7 @@
   [../]
   [./viscosity]
     type = MoskitoViscosityConst
+    viscosity = 0.001
   [../]
 []
 
@@ -28,14 +33,13 @@
   [./area0]
     type = MoskitoFluidWell1P
     pressure = p
-    temperature = 0
+    enthalpy = h
     flowrate = q
     well_direction = x
     eos_uo = eos
     viscosity_uo = viscosity
     well_diameter = 0.152
     roughness_type = smooth
-    output_properties = 'well_direction_vector density well_velocity well_reynolds_no well_moody_friction'
     gravity = '0 -9.8 0'
   [../]
 []
@@ -56,47 +60,43 @@
 []
 
 [Variables]
+  [./h]
+    initial_condition = 0
+  [../]
   [./p]
     initial_condition = 2.07e6
   [../]
   [./q]
-    scaling = 1e-5
+    scaling = 1e-2
     initial_condition = 0.046296296
   [../]
 []
 
 [Kernels]
+  [./hkernel]
+    type = NullKernel
+    variable = h
+  [../]
   [./pkernel]
     type = MoskitoMass1P
     variable = p
     flowrate = q
+    enthalpy = h
   [../]
   [./qkernel]
     type = MoskitoMomentum1P
     variable = q
     pressure = p
+    enthalpy = h
   [../]
 []
 
 [Preconditioning]
-  active = 'p3'
-  [./p1]
-    type = SMP
-    full = true
-    petsc_options_iname = '-pc_type -pc_hypre_type'
-    petsc_options_value = 'hypre boomeramg'
-  [../]
   [./p2]
     type = SMP
     full = true
     petsc_options_iname = '-pc_type -sub_pc_type -sub_pc_factor_shift_type -ksp_gmres_restart'
     petsc_options_value = 'asm lu NONZERO 51'
-  [../]
-  [./p3]
-    type = SMP
-    full = true
-    petsc_options_iname = '-pc_type -ksp_type -sub_pc_type -pc_asm_overlap -sub_pc_factor_shift_type -ksp_gmres_restart'
-    petsc_options_value = 'asm gmres lu 2 NONZERO 51'
   [../]
 []
 
@@ -110,22 +110,6 @@
   solve_type = NEWTON
 []
 
-[Postprocessors]
-  [./p]
-    type = VariableResidual
-    variable = p
-  [../]
-  [./q]
-    type = VariableResidual
-    variable = q
-  [../]
-[]
-
 [Outputs]
-  # exodus = true
-  print_linear_residuals = true
-  [./test]
-    type = Exodus
-    output_material_properties = true
-  [../]
+  exodus = true
 []
