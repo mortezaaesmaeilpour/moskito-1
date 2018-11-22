@@ -1,6 +1,6 @@
 # "Applied multiphase flow in pipes and flow assurance oil and gas production"
 # Al-Safran, E., Brill, J. P., 2017
-# Example 2.1: Determine the pipeline outlet pressure?
+# Example 2.1: Determine the pipeline outlet pressure (injection)?
 
 [Mesh]
   type = FileMesh
@@ -12,7 +12,7 @@
   [./eos]
     type = MoskitoEOSIdealFluid
     bulk_modulus = 2e+012
-     reference_density = 883
+    reference_density = 883
   [../]
   [./viscosity]
     type = MoskitoViscosityConst
@@ -39,14 +39,14 @@
   [./pbcl]
     type = DirichletBC
     variable = p
-    boundary = left
+    boundary = right
     value = 0
   [../]
   [./qbc]
     type = DirichletBC
     variable = q
     boundary = left
-    value = 0.00223
+    value = -0.00223
   [../]
 []
 
@@ -58,7 +58,7 @@
   [../]
   [./q]
     scaling = 1e-5
-    initial_condition = 0.00223
+    initial_condition = -0.00223
   [../]
 []
 

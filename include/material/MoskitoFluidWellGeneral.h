@@ -57,6 +57,8 @@ protected:
   MaterialProperty<Real> & _T;
   // thermal conductivity of casing and fluid
   MaterialProperty<Real> & _lambda;
+  // Direction of flow, the positive sign is production and vice versa
+  MaterialProperty<Real> & _dir;
 
   // The coupled enthalpy
   const VariableValue & _h;

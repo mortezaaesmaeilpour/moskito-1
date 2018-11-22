@@ -33,8 +33,10 @@ validParams<MoskitoMomentum1P>()
 
   params.addRequiredCoupledVar("pressure", "Pressure nonlinear variable");
   params.addRequiredCoupledVar("enthalpy", "Specific enthalpy nonlinear variable");
-  params.addClassDescription("Momentum conservation equation for 1 phase (either"
-                            " liquid or gas) pipe flow and it returns flowrate");
+  params.addClassDescription("Momentum conservation equation for 1 phase "
+        "(either liquid or gas) pipe flow and it returns flowrate. A positive "
+        "value in BCs is the production scenario and the flow is in the opposite"
+        " way of the well direction as defined in the material, and vice versa");
   return params;
 }
 
@@ -55,71 +57,77 @@ MoskitoMomentum1P::MoskitoMomentum1P(const InputParameters & parameters)
     _f(getMaterialProperty<Real>("well_moody_friction")),
     _gravity(getMaterialProperty<RealVectorValue>("gravity")),
     _area(getMaterialProperty<Real>("well_area")),
-    _well_dir(getMaterialProperty<RealVectorValue>("well_direction_vector"))
+    _well_dir(getMaterialProperty<RealVectorValue>("well_direction_vector")),
+    _flow_dir(getMaterialProperty<Real>("flow_direction"))
 {
 }
 
 Real
 MoskitoMomentum1P::computeQpResidual()
 {
-  Real r = 0.0;
+  RealVectorValue r = 0.0;
 
-  r += _drho_dp[_qp] * _grad_p[_qp] * _well_dir[_qp];
-  r += _drho_dT[_qp] * _grad_h[_qp] * _well_dir[_qp] / _cp[_qp];
-  r *= _u[_qp] * _u[_qp];
-  r += 2.0 * _rho[_qp] * _u[_qp] * _grad_u[_qp] * _well_dir[_qp];
-  r += _f[_qp] * _rho[_qp] * _u[_qp] * fabs(_u[_qp]) / (2.0 * _d[_qp]);
+  r += _drho_dp[_qp] * _grad_p[_qp];
+  r += _drho_dT[_qp] * _grad_h[_qp] / _cp[_qp];
+  r *= _flow_dir[_qp] * _u[_qp] * _u[_qp];
+  r += _flow_dir[_qp] * 2.0 * _rho[_qp] * _u[_qp] * _grad_u[_qp];
+  r += _flow_dir[_qp] * _f[_qp] * _rho[_qp] * _u[_qp] * _u[_qp]
+        * _well_dir[_qp] / (2.0 * _d[_qp]);
   r /= (_area[_qp] * _area[_qp]);
-  r -= _grad_p[_qp] * _well_dir[_qp];
-  r += _rho[_qp] * _gravity[_qp] * _well_dir[_qp];
+  r -= _grad_p[_qp];
+  r += _rho[_qp] * _gravity[_qp];
   r *= _test[_i][_qp];
 
-  return r;
+  return r * _well_dir[_qp];
 }
 
 Real
 MoskitoMomentum1P::computeQpJacobian()
 {
-  Real j = 0.0;
+  RealVectorValue j = 0.0;
 
-  j += _drho_dp[_qp] * _grad_p[_qp] * _well_dir[_qp];
-  j += _drho_dT[_qp] * _grad_h[_qp] * _well_dir[_qp] / _cp[_qp];
-  j *= 2.0 * _phi[_j][_qp] * _u[_qp];
-  j += 2.0 * _rho[_qp] * (_phi[_j][_qp]  * _grad_u[_qp] + _u[_qp] * _grad_phi[_j][_qp]) * _well_dir[_qp];
-  j += _f[_qp] * _rho[_qp] * _phi[_j][_qp] * fabs(_u[_qp]) / _d[_qp];
+  j += _drho_dp[_qp] * _grad_p[_qp];
+  j += _drho_dT[_qp] * _grad_h[_qp]/ _cp[_qp];
+  j *= _flow_dir[_qp] * 2.0 * _phi[_j][_qp] * _u[_qp];
+  j += _flow_dir[_qp] * 2.0 * _rho[_qp] * (_phi[_j][_qp]  * _grad_u[_qp]
+        + _u[_qp] * _grad_phi[_j][_qp]);
+  j += _flow_dir[_qp] * _f[_qp] * _rho[_qp] * _phi[_j][_qp]
+        * _u[_qp]  * _well_dir[_qp] / _d[_qp];
   j /= (_area[_qp] * _area[_qp]);
   j *= _test[_i][_qp];
 
-  return j;
+  return j * _well_dir[_qp];
 }
 
 Real
 MoskitoMomentum1P::computeQpOffDiagJacobian(unsigned int jvar)
 {
-  Real j = 0.0;
+  RealVectorValue j = 0.0;
 
   if (jvar == _p_var_number)
   {
-    j += _drho_dp[_qp] * _grad_phi[_j][_qp] * _well_dir[_qp];
-    j *= _u[_qp] * _u[_qp];
-    j += 2.0 * _drho_dp[_qp] * _phi[_j][_qp] * _u[_qp] * _grad_u[_qp] * _well_dir[_qp];
-    j += _f[_qp] * _drho_dp[_qp] * _phi[_j][_qp] * _u[_qp] * fabs(_u[_qp]) / (2.0 * _d[_qp]);
+    j += _drho_dp[_qp] * _grad_phi[_j][_qp];
+    j *= _flow_dir[_qp] * _u[_qp] * _u[_qp];
+    j += _flow_dir[_qp] * 2.0 * _drho_dp[_qp] * _phi[_j][_qp] * _u[_qp] * _grad_u[_qp];
+    j += _flow_dir[_qp] * _f[_qp] * _drho_dp[_qp] * _phi[_j][_qp] * _u[_qp]
+          * _u[_qp] * _well_dir[_qp] / (2.0 * _d[_qp]);
     j /= (_area[_qp] * _area[_qp]);
-    j -= _grad_phi[_j][_qp] * _well_dir[_qp];
-    j += _drho_dp[_qp] * _phi[_j][_qp] * _gravity[_qp] * _well_dir[_qp];
+    j -= _grad_phi[_j][_qp];
+    j += _drho_dp[_qp] * _phi[_j][_qp] * _gravity[_qp];
     j *= _test[_i][_qp];
   }
 
   if (jvar == _h_var_number)
   {
-    j += _drho_dT[_qp] * _grad_phi[_j][_qp] * _well_dir[_qp];
-    j *= _u[_qp] * _u[_qp];
-    j += 2.0 * _drho_dT[_qp] * _phi[_j][_qp] * _u[_qp] * _grad_u[_qp] * _well_dir[_qp];
-    j += _f[_qp] * _drho_dT[_qp] * _phi[_j][_qp] * _u[_qp] * fabs(_u[_qp]) / (2.0 * _d[_qp]);
+    j += _drho_dT[_qp] * _grad_phi[_j][_qp];
+    j *= _flow_dir[_qp] * _u[_qp] * _u[_qp];
+    j += _flow_dir[_qp] * 2.0 * _drho_dT[_qp] * _phi[_j][_qp] * _u[_qp] * _grad_u[_qp];
+    j += _flow_dir[_qp] * _f[_qp] * _drho_dT[_qp] * _phi[_j][_qp] * _u[_qp]
+          * _u[_qp] * _well_dir[_qp] / (2.0 * _d[_qp]);
     j /= (_area[_qp] * _area[_qp]);
-    j += _drho_dT[_qp] * _phi[_j][_qp] * _gravity[_qp] * _well_dir[_qp];
+    j += _drho_dT[_qp] * _phi[_j][_qp] * _gravity[_qp];
     j *= _test[_i][_qp] / _cp[_qp];
   }
 
-  return j;
+  return j * _well_dir[_qp];
 }

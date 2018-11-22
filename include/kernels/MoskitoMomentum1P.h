@@ -74,6 +74,8 @@ protected:
   const MaterialProperty<Real> & _area;
   // The unit vector of well direction
   const MaterialProperty<RealVectorValue> & _well_dir;
+  // The flow direction
+  const MaterialProperty<Real> & _flow_dir;
 };
 
 #endif // MOSKITOMOMENTUM1P_H

@@ -64,6 +64,7 @@ MoskitoFluidWellGeneral::MoskitoFluidWellGeneral(const InputParameters & paramet
     _gravity(declareProperty<RealVectorValue>("gravity")),
     _T(declareProperty<Real>("temperature")),
     _lambda(declareProperty<Real>("thermal_conductivity")),
+    _dir(declareProperty<Real>("flow_direction")),
     _h(coupledValue("enthalpy")),
     _P(coupledValue("pressure")),
     _flow(coupledValue("flowrate")),
@@ -91,6 +92,8 @@ MoskitoFluidWellGeneral::computeQpProperties()
   _well_unit_vect[_qp] = WellUnitVector();
 
   _gravity[_qp] = _g;
+
+  _dir[_qp] = _flow[_qp] / fabs(_flow[_qp]);
 }
 
 void

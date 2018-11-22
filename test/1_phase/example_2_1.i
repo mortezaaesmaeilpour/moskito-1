@@ -55,7 +55,7 @@
     type = DirichletBC
     variable = q
     boundary = right
-    value = 0.046296296
+    value = -0.046296296
   [../]
 []
 
@@ -68,7 +68,7 @@
   [../]
   [./q]
     scaling = 1e-2
-    initial_condition = 0.046296296
+    initial_condition = -0.046296296
   [../]
 []
 

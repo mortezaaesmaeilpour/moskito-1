@@ -9,4 +9,9 @@
     input = 'example_2_2.i'
     exodiff = 'example_2_2_out.e'
   [../]
+  [./Pressure_Compressible_Gas_Well]
+    type = 'Exodiff'
+    input = 'example_2_3.i'
+    exodiff = 'example_2_3_out.e'
+  [../]
 []
