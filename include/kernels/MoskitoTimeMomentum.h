@@ -21,33 +21,40 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>  */
 /**************************************************************************/
 
-#ifndef MOSKITOTIMEMASS1P_H
-#define MOSKITOTIMEMASS1P_H
+#ifndef MOSKITOTIMEMOMENTUM_H
+#define MOSKITOTIMEMOMENTUM_H
 
 #include "Kernel.h"
 
-class MoskitoTimeMass1P;
+class MoskitoTimeMomentum;
 
 template <>
-InputParameters validParams<MoskitoTimeMass1P>();
+InputParameters validParams<MoskitoTimeMomentum>();
 
-class MoskitoTimeMass1P : public Kernel
+class MoskitoTimeMomentum : public Kernel
 {
 public:
-  MoskitoTimeMass1P(const InputParameters & parameters);
+  MoskitoTimeMomentum(const InputParameters & parameters);
 
 protected:
   virtual Real computeQpResidual() override;
   virtual Real computeQpJacobian() override;
   virtual Real computeQpOffDiagJacobian(unsigned int jvar) override;
 
-  // required values for enthalpy coupling
+  // required values for enthalpy and pressure coupling
+  const VariableValue & _p_dot;
   const VariableValue & _h_dot;
+  const VariableValue & _dp_dot;
   const VariableValue & _dh_dot;
+  const unsigned int _p_var_number;
   const unsigned int _h_var_number;
 
+  // The area of pipe
+  const MaterialProperty<Real> & _area;
   // The specific heat at constant pressure
   const MaterialProperty<Real> & _cp;
+  // The density
+  const MaterialProperty<Real> & _rho;
   // The first derivative of density wrt pressure
   const MaterialProperty<Real> & _drho_dp;
   // The second derivative of density wrt pressure
@@ -60,4 +67,4 @@ protected:
   const MaterialProperty<Real> & _drho_dTdp;
 };
 
-#endif // MOSKITOTIMEMASS1P_H
+#endif // MOSKITOTIMEMOMENTUM_H

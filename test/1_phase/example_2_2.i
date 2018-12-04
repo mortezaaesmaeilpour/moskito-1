@@ -68,13 +68,13 @@
     variable = h
   [../]
   [./pkernel]
-    type = MoskitoMass1P
+    type = MoskitoMass
     variable = p
     flowrate = q
     enthalpy = h
   [../]
   [./qkernel]
-    type = MoskitoMomentum1P
+    type = MoskitoMomentum
     variable = q
     pressure = p
     enthalpy = h

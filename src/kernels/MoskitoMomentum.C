@@ -21,13 +21,13 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>  */
 /**************************************************************************/
 
-#include "MoskitoMomentum1P.h"
+#include "MoskitoMomentum.h"
 
-registerMooseObject("MoskitoApp", MoskitoMomentum1P);
+registerMooseObject("MoskitoApp", MoskitoMomentum);
 
 template <>
 InputParameters
-validParams<MoskitoMomentum1P>()
+validParams<MoskitoMomentum>()
 {
   InputParameters params = validParams<Kernel>();
 
@@ -40,7 +40,7 @@ validParams<MoskitoMomentum1P>()
   return params;
 }
 
-MoskitoMomentum1P::MoskitoMomentum1P(const InputParameters & parameters)
+MoskitoMomentum::MoskitoMomentum(const InputParameters & parameters)
   : Kernel(parameters),
     _grad_p(coupledGradient("pressure")),
     _grad_h(coupledGradient("enthalpy")),
@@ -63,7 +63,7 @@ MoskitoMomentum1P::MoskitoMomentum1P(const InputParameters & parameters)
 }
 
 Real
-MoskitoMomentum1P::computeQpResidual()
+MoskitoMomentum::computeQpResidual()
 {
   RealVectorValue r = 0.0;
 
@@ -82,7 +82,7 @@ MoskitoMomentum1P::computeQpResidual()
 }
 
 Real
-MoskitoMomentum1P::computeQpJacobian()
+MoskitoMomentum::computeQpJacobian()
 {
   RealVectorValue j = 0.0;
 
@@ -100,7 +100,7 @@ MoskitoMomentum1P::computeQpJacobian()
 }
 
 Real
-MoskitoMomentum1P::computeQpOffDiagJacobian(unsigned int jvar)
+MoskitoMomentum::computeQpOffDiagJacobian(unsigned int jvar)
 {
   RealVectorValue j = 0.0;
 

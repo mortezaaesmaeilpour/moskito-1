@@ -21,13 +21,13 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>  */
 /**************************************************************************/
 
-#include "MoskitoTimeEnergy1P.h"
+#include "MoskitoTimeEnergy.h"
 
-registerMooseObject("MoskitoApp", MoskitoTimeEnergy1P);
+registerMooseObject("MoskitoApp", MoskitoTimeEnergy);
 
 template <>
 InputParameters
-validParams<MoskitoTimeEnergy1P>()
+validParams<MoskitoTimeEnergy>()
 {
   InputParameters params = validParams<Kernel>();
 
@@ -39,7 +39,7 @@ validParams<MoskitoTimeEnergy1P>()
   return params;
 }
 
-MoskitoTimeEnergy1P::MoskitoTimeEnergy1P(const InputParameters & parameters)
+MoskitoTimeEnergy::MoskitoTimeEnergy(const InputParameters & parameters)
   : Kernel(parameters),
     _q(coupledValue("flowrate")),
     _p_dot(coupledDot("pressure")),
@@ -60,7 +60,7 @@ MoskitoTimeEnergy1P::MoskitoTimeEnergy1P(const InputParameters & parameters)
 }
 
 Real
-MoskitoTimeEnergy1P::computeQpResidual()
+MoskitoTimeEnergy::computeQpResidual()
 {
   Real r = 0.0;
 
@@ -76,7 +76,7 @@ MoskitoTimeEnergy1P::computeQpResidual()
 }
 
 Real
-MoskitoTimeEnergy1P::computeQpJacobian()
+MoskitoTimeEnergy::computeQpJacobian()
 {
   Real j = 0.0;
 
@@ -94,7 +94,7 @@ MoskitoTimeEnergy1P::computeQpJacobian()
 }
 
 Real
-MoskitoTimeEnergy1P::computeQpOffDiagJacobian(unsigned int jvar)
+MoskitoTimeEnergy::computeQpOffDiagJacobian(unsigned int jvar)
 {
   Real j = 0.0;
 
@@ -119,6 +119,6 @@ MoskitoTimeEnergy1P::computeQpOffDiagJacobian(unsigned int jvar)
     j -= _phi[_j][_qp] * _dp_dot[_qp];
     j *= _test[_i][_qp];
   }
-  
+
   return j;
 }

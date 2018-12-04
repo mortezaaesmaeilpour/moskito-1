@@ -21,13 +21,13 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>  */
 /**************************************************************************/
 
-#include "MoskitoEnergy1P.h"
+#include "MoskitoEnergy.h"
 
-registerMooseObject("MoskitoApp", MoskitoEnergy1P);
+registerMooseObject("MoskitoApp", MoskitoEnergy);
 
 template <>
 InputParameters
-validParams<MoskitoEnergy1P>()
+validParams<MoskitoEnergy>()
 {
   InputParameters params = validParams<Kernel>();
 
@@ -39,7 +39,7 @@ validParams<MoskitoEnergy1P>()
   return params;
 }
 
-MoskitoEnergy1P::MoskitoEnergy1P(const InputParameters & parameters)
+MoskitoEnergy::MoskitoEnergy(const InputParameters & parameters)
   : Kernel(parameters),
   _q_vol(coupledValue("flowrate")),
   _grad_q_vol(coupledGradient("flowrate")),
@@ -60,7 +60,7 @@ MoskitoEnergy1P::MoskitoEnergy1P(const InputParameters & parameters)
 }
 
 Real
-MoskitoEnergy1P::computeQpResidual()
+MoskitoEnergy::computeQpResidual()
 {
   Real r = 0.0, V = 0.0, grad_V = 0.0, grad_rho_V = 0.0;
 
@@ -84,7 +84,7 @@ MoskitoEnergy1P::computeQpResidual()
 }
 
 Real
-MoskitoEnergy1P::computeQpJacobian()
+MoskitoEnergy::computeQpJacobian()
 {
   Real j = 0.0, V = 0.0, grad_V = 0.0, grad_rho_V = 0.0, grad_rho_V_Uj = 0.0;
 
@@ -116,7 +116,7 @@ MoskitoEnergy1P::computeQpJacobian()
 }
 
 Real
-MoskitoEnergy1P::computeQpOffDiagJacobian(unsigned int jvar)
+MoskitoEnergy::computeQpOffDiagJacobian(unsigned int jvar)
 {
   Real j = 0.0, V = 0.0, grad_V = 0.0, grad_rho_V = 0.0;
 

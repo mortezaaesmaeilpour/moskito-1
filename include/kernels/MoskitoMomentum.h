@@ -21,58 +21,61 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>  */
 /**************************************************************************/
 
-#ifndef MOSKITOMASS2P_H
-#define MOSKITOMASS2P_H
+#ifndef MOSKITOMOMENTUM_H
+#define MOSKITOMOMENTUM_H
 
 #include "Kernel.h"
 
-class MoskitoMass2P;
+class MoskitoMomentum;
 
 template <>
-InputParameters validParams<MoskitoMass2P>();
+InputParameters validParams<MoskitoMomentum>();
 
-class MoskitoMass2P : public Kernel
+class MoskitoMomentum : public Kernel
 {
 public:
-  MoskitoMass2P(const InputParameters & parameters);
+  MoskitoMomentum(const InputParameters & parameters);
 
 protected:
   virtual Real computeQpResidual() override;
   virtual Real computeQpJacobian() override;
   virtual Real computeQpOffDiagJacobian(unsigned jvar) override;
 
-  // The coupled flow_rate
-  const VariableValue & _q_vol;
-
-  // The gradient of the coupled flow_rate
-  const VariableGradient & _grad_q_vol;
+  // The gradient of the coupled pressure
+  const VariableGradient & _grad_p;
   // The gradient of the coupled specific enthalpy
   const VariableGradient & _grad_h;
 
   // Variable numberings
-  unsigned _q_vol_var_number;
+  unsigned _p_var_number;
   unsigned _h_var_number;
 
-  // The area of pipe
-  const MaterialProperty<Real> & _area;
   // The specific heat at constant pressure
   const MaterialProperty<Real> & _cp;
+  // The density
+  const MaterialProperty<Real> & _rho;
+  // The first derivative of density wrt pressure
+  const MaterialProperty<Real> & _drho_dp;
+  // The second derivative of density wrt pressure
+  const MaterialProperty<Real> & _drho_dp_2;
+  // The first derivative of density wrt temperature
+  const MaterialProperty<Real> & _drho_dT;
+  // The second derivative of density wrt temperature
+  const MaterialProperty<Real> & _drho_dT_2;
+  // The second derivative of density wrt temperature and pressure respectively
+  const MaterialProperty<Real> & _drho_dTdp;
+  // The pipe diameter
+  const MaterialProperty<Real> & _d;
+  // The pipe Moody friction factor
+  const MaterialProperty<Real> & _f;
+  // The gravity acceleration as a vector
+  const MaterialProperty<RealVectorValue> & _gravity;
+  // The area of pipe
+  const MaterialProperty<Real> & _area;
   // The unit vector of well direction
   const MaterialProperty<RealVectorValue> & _well_dir;
-  // The mixture density
-  const MaterialProperty<Real> & _rho_m;
-  // The first derivative of mixture density wrt pressure
-  const MaterialProperty<Real> & _drho_m_dp;
-  // The second derivative of mixture density wrt pressure
-  const MaterialProperty<Real> & _drho_m_dp_2;
-  // The first derivative of mixture density wrt temperature
-  const MaterialProperty<Real> & _drho_m_dT;
-  // The second derivative of mixture density wrt temperature
-  const MaterialProperty<Real> & _drho_m_dT_2;
-  // The second derivative of mixture density wrt temperature & pressure
-  const MaterialProperty<Real> & _drho_m_dTdp;
-  // The second derivative of mixture density wrt pressure & temperature
-  const MaterialProperty<Real> & _drho_m_dpdT;
+  // The flow direction
+  const MaterialProperty<Real> & _flow_dir;
 };
 
-#endif // MOSKITOMASS2P_H
+#endif // MOSKITOMOMENTUM_H
