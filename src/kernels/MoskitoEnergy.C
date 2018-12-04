@@ -51,10 +51,7 @@ MoskitoEnergy::MoskitoEnergy(const InputParameters & parameters)
   _cp(getMaterialProperty<Real>("specific_heat")),
   _rho(getMaterialProperty<Real>("density")),
   _drho_dp(getMaterialProperty<Real>("drho_dp")),
-  _drho_dp_2(getMaterialProperty<Real>("drho_dp_2")),
   _drho_dT(getMaterialProperty<Real>("drho_dT")),
-  _drho_dT_2(getMaterialProperty<Real>("drho_dT_2")),
-  _drho_dTdp(getMaterialProperty<Real>("drho_dTdp")),
   _gravity(getMaterialProperty<RealVectorValue>("gravity"))
 {
 }
@@ -97,8 +94,6 @@ MoskitoEnergy::computeQpJacobian()
   grad_rho_V *= V;
   grad_rho_V +=  grad_V * _rho[_qp];
 
-  grad_rho_V_Uj += _drho_dTdp[_qp] * _phi[_j][_qp] * _grad_p[_qp] * _well_dir[_qp] / _cp[_qp];
-  grad_rho_V_Uj += _drho_dT_2[_qp] * _phi[_j][_qp] * _grad_u[_qp] * _well_dir[_qp] / (_cp[_qp] * _cp[_qp]);
   grad_rho_V_Uj += _drho_dT[_qp] * _grad_phi[_j][_qp] * _well_dir[_qp] / _cp[_qp];
   grad_rho_V_Uj *= V;
   grad_rho_V_Uj +=  grad_V * _drho_dT[_qp] * _phi[_j][_qp] / _cp[_qp];
@@ -158,7 +153,6 @@ MoskitoEnergy::computeQpOffDiagJacobian(unsigned int jvar)
 
     grad_V = _grad_q_vol[_qp] * _well_dir[_qp] / _area[_qp];
 
-    grad_rho_V_Pj += _drho_dp_2[_qp] * _phi[_j][_qp] * _grad_p[_qp] * _well_dir[_qp];
     grad_rho_V_Pj += _drho_dp[_qp] * _grad_phi[_j][_qp] * _well_dir[_qp];
     grad_rho_V_Pj *= V;
     grad_rho_V_Pj +=  grad_V * _drho_dp[_qp] * _phi[_j][_qp];

@@ -50,16 +50,9 @@ protected:
   MaterialProperty<Real> & _rho;
   // The first derivative of density wrt pressure
   MaterialProperty<Real> & _drho_dp;
-  // The second derivative of density wrt pressure
-  MaterialProperty<Real> & _drho_dp_2;
   // The first derivative of density wrt temperature
   MaterialProperty<Real> & _drho_dT;
-  // The second derivative of density wrt temperature
-  MaterialProperty<Real> & _drho_dT_2;
-  // The second derivative of density wrt temperature & pressure
-  MaterialProperty<Real> & _drho_dTdp;
-  // The second derivative of density wrt pressure & temperature
-  MaterialProperty<Real> & _drho_dpdT;
+
 };
 
 #endif /* MOSKITOFLUIDWELL1P_H */

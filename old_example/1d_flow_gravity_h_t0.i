@@ -70,40 +70,25 @@
     boundary = right
     value = 0
   [../]
-  [./hbc]
-    type = DirichletBC
-    variable = h
-    boundary = left
-    value = 83950
-  [../]
 []
 
 [Variables]
   [./h]
-    scaling = 1e-7
     initial_condition = 83950
   [../]
   [./p]
     initial_condition = 0
   [../]
   [./q]
-    scaling = 1e-8
+    scaling = 1e-3
     initial_condition = 0
   [../]
 []
 
 [Kernels]
   [./hkernel]
-    type = MoskitoEnergy
+    type = NullKernel
     variable = h
-    pressure = p
-    flowrate = q
-  [../]
-  [./htkernel]
-    type = MoskitoTimeEnergy
-    variable = h
-    pressure = p
-    flowrate = q
   [../]
   [./pkernel]
     type = MoskitoMass
@@ -111,19 +96,8 @@
     flowrate = q
     enthalpy = h
   [../]
-  [./ptkernel]
-    type = MoskitoTimeMass
-    variable = p
-    enthalpy = h
-  [../]
   [./qkernel]
     type = MoskitoMomentum
-    variable = q
-    pressure = p
-    enthalpy = h
-  [../]
-  [./qtkernel]
-    type = MoskitoTimeMomentum
     variable = q
     pressure = p
     enthalpy = h
@@ -140,9 +114,7 @@
 []
 
 [Executioner]
-  type = Transient
-  end_time = 30
-  # num_steps = 50
+  type = Steady
   l_tol = 1e-10
   l_max_its = 50
   nl_rel_tol = 1e-8
@@ -155,5 +127,8 @@
   [./out]
     type = Exodus
     output_material_properties = true
+  [../]
+  [./out1]
+    type = VariableResidualNormsDebugOutput
   [../]
 []

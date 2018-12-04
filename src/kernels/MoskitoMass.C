@@ -51,11 +51,7 @@ MoskitoMass::MoskitoMass(const InputParameters & parameters)
   _well_dir(getMaterialProperty<RealVectorValue>("well_direction_vector")),
   _rho(getMaterialProperty<Real>("density")),
   _drho_dp(getMaterialProperty<Real>("drho_dp")),
-  _drho_dp_2(getMaterialProperty<Real>("drho_dp_2")),
-  _drho_dT(getMaterialProperty<Real>("drho_dT")),
-  _drho_dT_2(getMaterialProperty<Real>("drho_dT_2")),
-  _drho_dTdp(getMaterialProperty<Real>("drho_dTdp")),
-  _drho_dpdT(getMaterialProperty<Real>("drho_dpdT"))
+  _drho_dT(getMaterialProperty<Real>("drho_dT"))
 {
 }
 
