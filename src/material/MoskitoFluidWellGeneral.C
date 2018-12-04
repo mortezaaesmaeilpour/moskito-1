@@ -93,7 +93,10 @@ MoskitoFluidWellGeneral::computeQpProperties()
 
   _gravity[_qp] = _g;
 
-  _dir[_qp] = _flow[_qp] / fabs(_flow[_qp]);
+  if (_flow[_qp] != 0.0)
+    _dir[_qp] = _flow[_qp] / fabs(_flow[_qp]);
+  else
+    _dir[_qp] = 0.0;
 }
 
 void
