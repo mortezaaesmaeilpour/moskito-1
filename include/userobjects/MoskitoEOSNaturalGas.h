@@ -21,60 +21,46 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>  */
 /**************************************************************************/
 
-#ifndef MOSKITOENERGY1P_H
-#define MOSKITOENERGY1P_H
+#ifndef MOSKITOEOSNATURALGAS_H
+#define MOSKITOEOSNATURALGAS_H
 
-#include "Kernel.h"
+#include "MoskitoEOS1P.h"
 
-class MoskitoEnergy1P;
+class MoskitoEOSNaturalGas;
 
 template <>
-InputParameters validParams<MoskitoEnergy1P>();
+InputParameters validParams<MoskitoEOSNaturalGas>();
 
-class MoskitoEnergy1P : public Kernel
+class MoskitoEOSNaturalGas : public MoskitoEOS1P
 {
 public:
-  MoskitoEnergy1P(const InputParameters & parameters);
+  MoskitoEOSNaturalGas(const InputParameters & parameters);
+
+  virtual Real rho(Real pressure, Real temperature) const override;
+  virtual void drho_dpT(
+      Real pressure, Real temperature, Real & rho, Real & drho_dp, Real & drho_dT) const override;
+  virtual Real T_to_h(Real temperature) const override;
+  virtual Real h_to_T(Real enthalpy) const override;
+  void Pseudo_Critical_Calc(const Real & g);
+  Real z_factor(Real pressure, Real temperature) const;
+
 
 protected:
-  virtual Real computeQpResidual() override;
-  virtual Real computeQpJacobian() override;
-  virtual Real computeQpOffDiagJacobian(unsigned jvar) override;
+  // Molar mass of gas
+  const Real _molar_mass;
+  // Specific gravity
+  const Real _gamma_g;
+  // Universal Gas constant (J/mol.K)
+  const Real _R;
+  // Pseudo critical properties
+  Real _P_pc;
+  Real _T_pc;
 
-  // The coupled flow_rate
-  const VariableValue & _q_vol;
-
-  // The gradient of the coupled flow_rate
-  const VariableGradient & _grad_q_vol;
-  // The gradient of the coupled pressure
-  const VariableGradient & _grad_p;
-
-  // Variable numberings
-  unsigned _q_vol_var_number;
-  unsigned _p_var_number;
-
-  // The area of pipe
-  const MaterialProperty<Real> & _area;
-  // The unit vector of well direction
-  const MaterialProperty<RealVectorValue> & _well_dir;
-  // The thermal conductivity of casing and fluid
-  const MaterialProperty<Real> & _lambda;
-  // The specific heat at constant pressure
-  const MaterialProperty<Real> & _cp;
-  // The density
-  const MaterialProperty<Real> & _rho;
-  // The first derivative of density wrt pressure
-  const MaterialProperty<Real> & _drho_dp;
-  // The second derivative of density wrt pressure
-  const MaterialProperty<Real> & _drho_dp_2;
-  // The first derivative of density wrt temperature
-  const MaterialProperty<Real> & _drho_dT;
-  // The second derivative of density wrt temperature
-  const MaterialProperty<Real> & _drho_dT_2;
-  // The second derivative of density wrt temperature and pressure respectively
-  const MaterialProperty<Real> & _drho_dTdp;
-  // The gravity acceleration as a vector
-  const MaterialProperty<RealVectorValue> & _gravity;
+  // constants for z factor calculation based on Kareem et al 2016
+  const std::array<Real, 20> a{
+    {0.0 , 0.317842, 0.382216, -7.768354, 14.290531, 0.000002, -0.004693,
+    0.096254, 0.166720, 0.966910, 0.063069, -1.966847, 21.0581, -27.0246,
+    16.23, 207.783, -488.161, 176.29, 1.88453, 3.05921 }};
 };
 
-#endif // MOSKITOENERGY1P_H
+#endif /* MOSKITOEOSNATURALGAS_H */

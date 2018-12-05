@@ -21,59 +21,38 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>  */
 /**************************************************************************/
 
-#ifndef MOSKITOMOMENTUM1P_H
-#define MOSKITOMOMENTUM1P_H
+#ifndef MOSKITOTIMEMASS_H
+#define MOSKITOTIMEMASS_H
 
 #include "Kernel.h"
 
-class MoskitoMomentum1P;
+class MoskitoTimeMass;
 
 template <>
-InputParameters validParams<MoskitoMomentum1P>();
+InputParameters validParams<MoskitoTimeMass>();
 
-class MoskitoMomentum1P : public Kernel
+class MoskitoTimeMass : public Kernel
 {
 public:
-  MoskitoMomentum1P(const InputParameters & parameters);
+  MoskitoTimeMass(const InputParameters & parameters);
 
 protected:
   virtual Real computeQpResidual() override;
   virtual Real computeQpJacobian() override;
-  virtual Real computeQpOffDiagJacobian(unsigned jvar) override;
+  virtual Real computeQpOffDiagJacobian(unsigned int jvar) override;
 
-  // The gradient of the coupled pressure
-  const VariableGradient & _grad_p;
-  // The gradient of the coupled specific enthalpy
-  const VariableGradient & _grad_h;
-
-  // Variable numberings
-  unsigned _p_var_number;
-  unsigned _h_var_number;
+  // required values for enthalpy coupling
+  const VariableValue & _h_dot;
+  const VariableValue & _dh_dot;
+  const unsigned int _h_var_number;
 
   // The specific heat at constant pressure
   const MaterialProperty<Real> & _cp;
-  // The density
-  const MaterialProperty<Real> & _rho;
   // The first derivative of density wrt pressure
   const MaterialProperty<Real> & _drho_dp;
-  // The second derivative of density wrt pressure
-  const MaterialProperty<Real> & _drho_dp_2;
   // The first derivative of density wrt temperature
   const MaterialProperty<Real> & _drho_dT;
-  // The second derivative of density wrt temperature
-  const MaterialProperty<Real> & _drho_dT_2;
-  // The second derivative of density wrt temperature and pressure respectively
-  const MaterialProperty<Real> & _drho_dTdp;
-  // The pipe diameter
-  const MaterialProperty<Real> & _d;
-  // The pipe Moody friction factor
-  const MaterialProperty<Real> & _f;
-  // The gravity acceleration as a vector
-  const MaterialProperty<RealVectorValue> & _gravity;
-  // The area of pipe
-  const MaterialProperty<Real> & _area;
-  // The unit vector of well direction
-  const MaterialProperty<RealVectorValue> & _well_dir;
+
 };
 
-#endif // MOSKITOMOMENTUM1P_H
+#endif // MOSKITOTIMEMASS_H

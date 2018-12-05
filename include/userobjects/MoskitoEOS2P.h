@@ -21,38 +21,31 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>  */
 /**************************************************************************/
 
-#ifndef MOSKITOFLUIDWELL1P_H
-#define MOSKITOFLUIDWELL1P_H
+#ifndef MOSKITOEOS2P_H
+#define MOSKITOEOS2P_H
 
-#include "MoskitoFluidWellGeneral.h"
+#include "GeneralUserObject.h"
 #include "MoskitoEOS1P.h"
 
-class MoskitoFluidWell1P;
+class MoskitoEOS2P;
 
 template <>
-InputParameters validParams<MoskitoFluidWell1P>();
+InputParameters validParams<MoskitoEOS2P>();
 
-class MoskitoFluidWell1P : public MoskitoFluidWellGeneral
+class MoskitoEOS2P : public GeneralUserObject
 {
 public:
-  MoskitoFluidWell1P(const InputParameters & parameters);
-  virtual void computeQpProperties() override;
+  MoskitoEOS2P(const InputParameters & parameters);
+  virtual ~MoskitoEOS2P();
 
-protected:
-  // Userobject to equation of state
-  const MoskitoEOS1P & eos_uo;
-  // Userobject to Viscosity Eq
-  const MoskitoViscosity & viscosity_uo;
+  virtual void execute() final {}
+  virtual void initialize() final {}
+  virtual void finalize() final {}
 
-  // The specific heat at constant pressure
-  MaterialProperty<Real> & _cp;
-  // The density
-  MaterialProperty<Real> & _rho;
-  // The first derivative of density wrt pressure
-  MaterialProperty<Real> & _drho_dp;
-  // The first derivative of density wrt temperature
-  MaterialProperty<Real> & _drho_dT;
-
+  // Userobject to equation of state for gas
+  const MoskitoEOS1P & gas;
+  // Userobject to equation of state for liquid
+  const MoskitoEOS1P & liquid;
 };
 
-#endif /* MOSKITOFLUIDWELL1P_H */
+#endif /* MOSKITOEOS2P_H */

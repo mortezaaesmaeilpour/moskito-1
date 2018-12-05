@@ -25,7 +25,6 @@
 #define MOSKITOFLUIDWELLGENERAL_H
 
 #include "Material.h"
-#include "MoskitoEOS.h"
 #include "MoskitoViscosity.h"
 
 class MoskitoFluidWellGeneral;
@@ -41,7 +40,7 @@ public:
 
 protected:
   // Velocity in well
-  MaterialProperty<Real> & _vel;
+  MaterialProperty<Real> & _u;
   // Reynolds number in well
   MaterialProperty<Real> & _Re;
   // Moody friction coefficient
@@ -58,13 +57,10 @@ protected:
   MaterialProperty<Real> & _T;
   // thermal conductivity of casing and fluid
   MaterialProperty<Real> & _lambda;
+  // Direction of flow, the positive sign is production and vice versa
+  MaterialProperty<Real> & _dir;
 
-  // Userobject to equation of state
-  const MoskitoEOS & _eos_uo;
-  // Userobject to Viscosity Eq
-  const MoskitoViscosity & _viscosity_uo;
-
-  // The coupled temperature
+  // The coupled enthalpy
   const VariableValue & _h;
   // The coupled pressure
   const VariableValue & _P;
@@ -87,7 +83,7 @@ protected:
   bool _f_defined;
   MooseEnum _roughness_type;
   MooseEnum _well_direction;
-  const Real PI=3.141592653589793238462643383279502884197169399375105820974944592308;
+  const Real PI = 3.141592653589793238462643383279502884197169399375105820974944592308;
 };
 
 #endif /* MOSKITOFLUIDWELLGENERAL_H */

@@ -21,38 +21,16 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>  */
 /**************************************************************************/
 
-#ifndef MOSKITOFLUIDWELL1P_H
-#define MOSKITOFLUIDWELL1P_H
-
-#include "MoskitoFluidWellGeneral.h"
 #include "MoskitoEOS1P.h"
 
-class MoskitoFluidWell1P;
-
 template <>
-InputParameters validParams<MoskitoFluidWell1P>();
-
-class MoskitoFluidWell1P : public MoskitoFluidWellGeneral
+InputParameters
+validParams<MoskitoEOS1P>()
 {
-public:
-  MoskitoFluidWell1P(const InputParameters & parameters);
-  virtual void computeQpProperties() override;
+  InputParameters params = validParams<GeneralUserObject>();
+  return params;
+}
 
-protected:
-  // Userobject to equation of state
-  const MoskitoEOS1P & eos_uo;
-  // Userobject to Viscosity Eq
-  const MoskitoViscosity & viscosity_uo;
+MoskitoEOS1P::MoskitoEOS1P(const InputParameters & parameters) : GeneralUserObject(parameters) {}
 
-  // The specific heat at constant pressure
-  MaterialProperty<Real> & _cp;
-  // The density
-  MaterialProperty<Real> & _rho;
-  // The first derivative of density wrt pressure
-  MaterialProperty<Real> & _drho_dp;
-  // The first derivative of density wrt temperature
-  MaterialProperty<Real> & _drho_dT;
-
-};
-
-#endif /* MOSKITOFLUIDWELL1P_H */
+MoskitoEOS1P::~MoskitoEOS1P() {}

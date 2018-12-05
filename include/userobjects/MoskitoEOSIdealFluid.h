@@ -24,14 +24,14 @@
 #ifndef MOSKITOEOSIDEALFLUID_H
 #define MOSKITOEOSIDEALFLUID_H
 
-#include "MoskitoEOS.h"
+#include "MoskitoEOS1P.h"
 
 class MoskitoEOSIdealFluid;
 
 template <>
 InputParameters validParams<MoskitoEOSIdealFluid>();
 
-class MoskitoEOSIdealFluid : public MoskitoEOS
+class MoskitoEOSIdealFluid : public MoskitoEOS1P
 {
 public:
   MoskitoEOSIdealFluid(const InputParameters & parameters);
@@ -39,13 +39,6 @@ public:
   virtual Real rho(Real pressure, Real temperature) const override;
   virtual void drho_dpT(
       Real pressure, Real temperature, Real & rho, Real & drho_dp, Real & drho_dT) const override;
-  virtual void drho_dpT_2(
-      Real pressure, Real temperature, Real & drho_dp_2, Real & drho_dT_2, Real & drho_dTdp) const override;
-  virtual Real p(Real density, Real temperature) const override;
-  virtual void dp_drhoT(
-      Real density, Real temperature, Real & pressure, Real & dp_drho, Real & dp_dT) const override;
-  virtual void
-      dp_drhoT_2(Real density, Real temperature, Real & dp_drho_2, Real & dp_dT_2) const override;
   virtual Real h_to_T(Real enthalpy) const override;
   virtual Real T_to_h(Real temperature) const override;
 

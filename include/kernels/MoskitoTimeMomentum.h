@@ -21,34 +21,33 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>  */
 /**************************************************************************/
 
-#ifndef MOSKITOTIMEENERGY1P_H
-#define MOSKITOTIMEENERGY1P_H
+#ifndef MOSKITOTIMEMOMENTUM_H
+#define MOSKITOTIMEMOMENTUM_H
 
 #include "Kernel.h"
 
-class MoskitoTimeEnergy1P;
+class MoskitoTimeMomentum;
 
 template <>
-InputParameters validParams<MoskitoTimeEnergy1P>();
+InputParameters validParams<MoskitoTimeMomentum>();
 
-class MoskitoTimeEnergy1P : public Kernel
+class MoskitoTimeMomentum : public Kernel
 {
 public:
-  MoskitoTimeEnergy1P(const InputParameters & parameters);
+  MoskitoTimeMomentum(const InputParameters & parameters);
 
 protected:
   virtual Real computeQpResidual() override;
   virtual Real computeQpJacobian() override;
   virtual Real computeQpOffDiagJacobian(unsigned int jvar) override;
 
-  // required values for pressure and flowrate coupling
-  const VariableValue & _q;
+  // required values for enthalpy and pressure coupling
   const VariableValue & _p_dot;
-  const VariableValue & _q_dot;
+  const VariableValue & _h_dot;
   const VariableValue & _dp_dot;
-  const VariableValue & _dq_dot;
+  const VariableValue & _dh_dot;
   const unsigned int _p_var_number;
-  const unsigned int _q_var_number;
+  const unsigned int _h_var_number;
 
   // The area of pipe
   const MaterialProperty<Real> & _area;
@@ -58,14 +57,9 @@ protected:
   const MaterialProperty<Real> & _rho;
   // The first derivative of density wrt pressure
   const MaterialProperty<Real> & _drho_dp;
-  // The second derivative of density wrt pressure
-  const MaterialProperty<Real> & _drho_dp_2;
   // The first derivative of density wrt temperature
   const MaterialProperty<Real> & _drho_dT;
-  // The second derivative of density wrt temperature
-  const MaterialProperty<Real> & _drho_dT_2;
-  // The second derivative of density wrt temperature and pressure respectively
-  const MaterialProperty<Real> & _drho_dTdp;
+
 };
 
-#endif // MOSKITOTIMEENERGY1P_H
+#endif // MOSKITOTIMEMOMENTUM_H

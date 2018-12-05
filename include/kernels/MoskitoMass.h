@@ -21,43 +21,52 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>  */
 /**************************************************************************/
 
-#ifndef MOSKITOTIMEMASS1P_H
-#define MOSKITOTIMEMASS1P_H
+#ifndef MOSKITOMASS_H
+#define MOSKITOMASS_H
 
 #include "Kernel.h"
 
-class MoskitoTimeMass1P;
+class MoskitoMass;
 
 template <>
-InputParameters validParams<MoskitoTimeMass1P>();
+InputParameters validParams<MoskitoMass>();
 
-class MoskitoTimeMass1P : public Kernel
+class MoskitoMass : public Kernel
 {
 public:
-  MoskitoTimeMass1P(const InputParameters & parameters);
+  MoskitoMass(const InputParameters & parameters);
 
 protected:
   virtual Real computeQpResidual() override;
   virtual Real computeQpJacobian() override;
-  virtual Real computeQpOffDiagJacobian(unsigned int jvar) override;
+  virtual Real computeQpOffDiagJacobian(unsigned jvar) override;
 
-  // required values for enthalpy coupling
-  const VariableValue & _h_dot;
-  const VariableValue & _dh_dot;
-  const unsigned int _h_var_number;
+  // The coupled flow_rate
+  const VariableValue & _q_vol;
 
+  // The gradient of the coupled flow_rate
+  const VariableGradient & _grad_q_vol;
+  // The gradient of the coupled specific enthalpy
+  const VariableGradient & _grad_h;
+
+  // Variable numberings
+  unsigned _q_vol_var_number;
+  unsigned _h_var_number;
+
+  // The area of pipe
+  const MaterialProperty<Real> & _area;
   // The specific heat at constant pressure
   const MaterialProperty<Real> & _cp;
+  // The unit vector of well direction
+  const MaterialProperty<RealVectorValue> & _well_dir;
+  // The density
+  const MaterialProperty<Real> & _rho;
   // The first derivative of density wrt pressure
   const MaterialProperty<Real> & _drho_dp;
-  // The second derivative of density wrt pressure
-  const MaterialProperty<Real> & _drho_dp_2;
   // The first derivative of density wrt temperature
   const MaterialProperty<Real> & _drho_dT;
-  // The second derivative of density wrt temperature
-  const MaterialProperty<Real> & _drho_dT_2;
-  // The second derivative of density wrt temperature and pressure respectively
-  const MaterialProperty<Real> & _drho_dTdp;
+
+
 };
 
-#endif // MOSKITOTIMEMASS1P_H
+#endif // MOSKITOMASS_H

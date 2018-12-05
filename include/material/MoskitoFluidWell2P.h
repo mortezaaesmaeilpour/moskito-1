@@ -25,6 +25,7 @@
 #define MOSKITOFLUIDWELL2P_H
 
 #include "MoskitoFluidWellGeneral.h"
+#include "MoskitoEOS2P.h"
 
 class MoskitoFluidWell2P;
 
@@ -36,23 +37,59 @@ class MoskitoFluidWell2P : public MoskitoFluidWellGeneral
 public:
   MoskitoFluidWell2P(const InputParameters & parameters);
   virtual void computeQpProperties() override;
+  void DriftFluxMomentumEq();
 
 protected:
-  // The density of gas
-  MaterialProperty<Real> & _rho_g;
-  // The density of liquid
-  MaterialProperty<Real> & _rho_l;
-  // The first derivative of gas density wrt pressure
-  MaterialProperty<Real> & _drho_g_dp;
-  // The first derivative of liquid density wrt pressure
-  MaterialProperty<Real> & _drho_l_dp;
-  // The second derivative of gas density wrt pressure
-  MaterialProperty<Real> & _drho_g_dp_2;
-  // The second derivative of liquid density wrt pressure
-  MaterialProperty<Real> & _drho_l_dp_2;
+  // Userobject to equation of state
+  const MoskitoEOS2P & eos_uo;
+  // Userobject to Viscosity Eq
+  // const MoskitoViscosity & viscosity_uo;
 
-  // The coupled void_fraction
-  const VariableValue & _alpha;
+  // The specific heat of mixture at constant pressure
+  MaterialProperty<Real> & _cp_m;
+  // Density of gas
+  MaterialProperty<Real> & _rho_g;
+  // Density of liquid
+  MaterialProperty<Real> & _rho_l;
+  // Density of mixture
+  MaterialProperty<Real> & _rho_m;
+  // Profile-adjusted density of mixture
+  MaterialProperty<Real> & _rho_pam;
+  // The first derivative of mixture density wrt pressure
+  MaterialProperty<Real> & _drho_m_dp;
+  // The first derivative of mixture density wrt temperature
+  MaterialProperty<Real> & _drho_m_dT;
+  // mass_fraction
+  MaterialProperty<Real> & _mfrac;
+  // Gas velocity
+  MaterialProperty<Real> & _u_g;
+  // Liquid velocity
+  MaterialProperty<Real> & _u_l;
+
+  // void_fraction
+  const MaterialProperty<Real> & _vfrac;
+  // drift velocity
+  const MaterialProperty<Real> & _u_d;
+  // flow type parameter
+  const MaterialProperty<Real> & _c0;
+
+  //refer to DriftFluxMomentumEq function
+  // residual for dgamma_dz in the momentum conservation
+  MaterialProperty<Real> & _dgamma_dz;
+  // diagonal jacobian of the residual wrt uj for dgamma_dz in the momentum conservation
+  MaterialProperty<Real> & _dgamma_dz_uj_gphi;
+  MaterialProperty<Real> & _dgamma_dz_uj_phi;
+  // diagonal jacobian of the residual wrt pj for dgamma_dz in the momentum conservation
+  MaterialProperty<Real> & _dgamma_dz_pj_gphi;
+  MaterialProperty<Real> & _dgamma_dz_pj_phi;
+  // diagonal jacobian of the residual wrt hj for dgamma_dz in the momentum conservation
+  MaterialProperty<Real> & _dgamma_dz_hj_gphi;
+  MaterialProperty<Real> & _dgamma_dz_hj_phi;
+
+  // The gradient of the coupled variables
+  const VariableGradient & _grad_flow;
+  const VariableGradient & _grad_h;
+  const VariableGradient & _grad_p;
 };
 
 #endif /* MOSKITOFLUIDWELL2P_H */

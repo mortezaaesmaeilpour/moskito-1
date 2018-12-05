@@ -29,7 +29,7 @@ template <>
 InputParameters
 validParams<MoskitoEOSIdealGas>()
 {
-  InputParameters params = validParams<MoskitoEOS>();
+  InputParameters params = validParams<MoskitoEOS1P>();
 
   params.addRequiredParam<Real>("molar_mass", "Molar mass of the gas (kg/mol)");
   params.addParam<Real>(
@@ -39,7 +39,7 @@ validParams<MoskitoEOSIdealGas>()
 }
 
 MoskitoEOSIdealGas::MoskitoEOSIdealGas(const InputParameters & parameters)
-  : MoskitoEOS(parameters), _molar_mass(getParam<Real>("molar_mass")), _R(8.3144598)
+  : MoskitoEOS1P(parameters), _molar_mass(getParam<Real>("molar_mass")), _R(8.3144598)
 {
   _cp = getParam<Real>("cp");
   _density_ref = 0.0;
@@ -61,41 +61,6 @@ MoskitoEOSIdealGas::drho_dpT(
   rho = this->rho(pressure, temperature);
   drho_dp = _molar_mass / (_R * temperature);
   drho_dT = -pressure * _molar_mass / (_R * temperature * temperature);
-}
-
-void
-MoskitoEOSIdealGas::drho_dpT_2(
-    Real pressure, Real temperature, Real & drho_dp_2, Real & drho_dT_2, Real & drho_dTdp) const
-{
-  Real rho = this->rho(pressure, temperature);
-  drho_dp_2 = 0.0;
-  drho_dT_2 = 2.0 * pressure * _molar_mass / (_R * temperature * temperature * temperature);
-  drho_dTdp = -_molar_mass / (_R * temperature * temperature);
-}
-
-Real
-MoskitoEOSIdealGas::p(Real density, Real temperature) const
-{
-  return density * _R * temperature / _molar_mass;
-}
-
-void
-MoskitoEOSIdealGas::dp_drhoT(
-    Real density, Real temperature, Real & pressure, Real & dp_drho, Real & dp_dT) const
-{
-  pressure = this->p(density, temperature);
-  dp_drho = _R * temperature / _molar_mass;
-  dp_dT = density * _R / _molar_mass;
-}
-
-void
-MoskitoEOSIdealGas::dp_drhoT_2(Real density,
-                               Real temperature,
-                               Real & dp_drho_2,
-                               Real & dp_dT_2) const
-{
-  dp_drho_2 = 0.0;
-  dp_dT_2 = 0.0;
 }
 
 Real

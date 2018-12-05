@@ -21,25 +21,25 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>  */
 /**************************************************************************/
 
-#include "MoskitoMass1P.h"
+#include "MoskitoMass.h"
 
-registerMooseObject("MoskitoApp", MoskitoMass1P);
+registerMooseObject("MoskitoApp", MoskitoMass);
 
 template <>
 InputParameters
-validParams<MoskitoMass1P>()
+validParams<MoskitoMass>()
 {
   InputParameters params = validParams<Kernel>();
 
   params.addRequiredCoupledVar("flowrate", "Volumetric flowrate nonlinear variable");
   params.addRequiredCoupledVar("enthalpy", "Specific enthalpy nonlinear variable");
-  params.addClassDescription("Mass conservation equation for 1 phase (either liquid or"
-                                      " gas) pipe flow and it returns pressure");
+  params.addClassDescription("Mass conservation equation for pipe flow and "
+        "it returns pressure");
 
   return params;
 }
 
-MoskitoMass1P::MoskitoMass1P(const InputParameters & parameters)
+MoskitoMass::MoskitoMass(const InputParameters & parameters)
   : Kernel(parameters),
   _q_vol(coupledValue("flowrate")),
   _grad_q_vol(coupledGradient("flowrate")),
@@ -51,60 +51,57 @@ MoskitoMass1P::MoskitoMass1P(const InputParameters & parameters)
   _well_dir(getMaterialProperty<RealVectorValue>("well_direction_vector")),
   _rho(getMaterialProperty<Real>("density")),
   _drho_dp(getMaterialProperty<Real>("drho_dp")),
-  _drho_dp_2(getMaterialProperty<Real>("drho_dp_2")),
-  _drho_dT(getMaterialProperty<Real>("drho_dT")),
-  _drho_dT_2(getMaterialProperty<Real>("drho_dT_2")),
-  _drho_dTdp(getMaterialProperty<Real>("drho_dTdp"))
+  _drho_dT(getMaterialProperty<Real>("drho_dT"))
 {
 }
 
 Real
-MoskitoMass1P::computeQpResidual()
+MoskitoMass::computeQpResidual()
 {
-  Real r = 0.0;
+  RealVectorValue r = 0.0;
 
-  r += _drho_dp[_qp] * _grad_u[_qp] * _well_dir[_qp];
-  r += _drho_dT[_qp] * _grad_h[_qp] * _well_dir[_qp] / _cp[_qp];
+  r += _drho_dp[_qp] * _grad_u[_qp];
+  r += _drho_dT[_qp] * _grad_h[_qp] / _cp[_qp];
   r *= _q_vol[_qp];
-  r += _grad_q_vol[_qp] * _well_dir[_qp] * _rho[_qp];
+  r += _grad_q_vol[_qp] * _rho[_qp];
+  r *= _test[_i][_qp] / _area[_qp];
 
-  return r * _test[_i][_qp] / _area[_qp];
+  return r * _well_dir[_qp];
 }
 
 Real
-MoskitoMass1P::computeQpJacobian()
+MoskitoMass::computeQpJacobian()
 {
-  Real j = 0.0;
+  RealVectorValue j = 0.0;
 
-  j += _drho_dp_2[_qp] * _phi[_j][_qp] * _grad_u[_qp] * _well_dir[_qp];
-  j += _drho_dp[_qp] * _grad_phi[_j][_qp] * _well_dir[_qp];
-  j += _drho_dTdp[_qp] * _phi[_j][_qp] * _grad_h[_qp] * _well_dir[_qp] / _cp[_qp];
+  j += _drho_dp[_qp] * _grad_phi[_j][_qp];
   j *= _q_vol[_qp];
-  j += _grad_q_vol[_qp] * _drho_dp[_qp] * _phi[_j][_qp] * _well_dir[_qp];
+  j += _grad_q_vol[_qp] * _drho_dp[_qp] * _phi[_j][_qp];
+  j *= _test[_i][_qp] / _area[_qp];
 
-  return j * _test[_i][_qp] / _area[_qp];
+  return j * _well_dir[_qp];
 }
 
 Real
-MoskitoMass1P::computeQpOffDiagJacobian(unsigned int jvar)
+MoskitoMass::computeQpOffDiagJacobian(unsigned int jvar)
 {
-  Real j = 0.0;
+  RealVectorValue j = 0.0;
   if (jvar == _q_vol_var_number)
   {
-    j += _drho_dp[_qp] * _grad_u[_qp] * _well_dir[_qp];
-    j += _drho_dT[_qp] * _grad_h[_qp] * _well_dir[_qp] / _cp[_qp];
+    j += _drho_dp[_qp] * _grad_u[_qp];
+    j += _drho_dT[_qp] * _grad_h[_qp] / _cp[_qp];
     j *= _phi[_j][_qp];
-    j += _grad_phi[_j][_qp] * _rho[_qp] * _well_dir[_qp];
+    j += _grad_phi[_j][_qp] * _rho[_qp];
+    j *= _test[_i][_qp] / _area[_qp];
   }
 
   if (jvar == _h_var_number)
   {
-    j += _drho_dTdp[_qp] * _phi[_j][_qp] * _grad_u[_qp] * _well_dir[_qp] / _cp[_qp];
-    j += _drho_dT_2[_qp] * _phi[_j][_qp] * _grad_h[_qp] * _well_dir[_qp] / (_cp[_qp] * _cp[_qp]);
-    j += _drho_dT[_qp] * _grad_phi[_j][_qp] * _well_dir[_qp] / _cp[_qp];
+    j += _drho_dT[_qp] * _grad_phi[_j][_qp];
     j *= _q_vol[_qp];
-    j += _grad_q_vol[_qp] * _well_dir[_qp] * _drho_dT[_qp] * _phi[_j][_qp] / _cp[_qp];
+    j += _grad_q_vol[_qp] * _drho_dT[_qp] * _phi[_j][_qp];
+    j *= _test[_i][_qp] / (_area[_qp] * _cp[_qp]);
   }
 
-  return j * _test[_i][_qp] / _area[_qp];
+  return j * _well_dir[_qp];
 }
