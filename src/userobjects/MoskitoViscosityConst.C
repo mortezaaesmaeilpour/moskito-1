@@ -29,14 +29,14 @@ template <>
 InputParameters
 validParams<MoskitoViscosityConst>()
 {
-  InputParameters params = validParams<MoskitoViscosity>();
+  InputParameters params = validParams<MoskitoViscosity1P>();
   params.addParam<Real>("viscosity", 0.001, "Constant viscosity value (Pa.s)");
 
   return params;
 }
 
 MoskitoViscosityConst::MoskitoViscosityConst(const InputParameters & parameters)
-  : MoskitoViscosity(parameters), _mu0(getParam<Real>("viscosity"))
+  : MoskitoViscosity1P(parameters), _mu0(getParam<Real>("viscosity"))
 {
 }
 

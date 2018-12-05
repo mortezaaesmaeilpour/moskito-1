@@ -29,7 +29,7 @@ template <>
 InputParameters
 validParams<MoskitoViscositySmith>()
 {
-  InputParameters params = validParams<MoskitoViscosity>();
+  InputParameters params = validParams<MoskitoViscosity1P>();
 
   /* The viscosity is based on Smith and Chapmann 1983 */
 
@@ -37,7 +37,7 @@ validParams<MoskitoViscositySmith>()
 }
 
 MoskitoViscositySmith::MoskitoViscositySmith(const InputParameters & parameters)
-  : MoskitoViscosity(parameters)
+  : MoskitoViscosity1P(parameters)
 {
 }
 

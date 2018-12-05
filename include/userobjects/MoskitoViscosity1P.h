@@ -21,21 +21,21 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>  */
 /**************************************************************************/
 
-#ifndef MOSKITOVISCOSITY_H
-#define MOSKITOVISCOSITY_H
+#ifndef MOSKITOVISCOSITY1P_H
+#define MOSKITOVISCOSITY1P_H
 
 #include "GeneralUserObject.h"
 
-class MoskitoViscosity;
+class MoskitoViscosity1P;
 
 template <>
-InputParameters validParams<MoskitoViscosity>();
+InputParameters validParams<MoskitoViscosity1P>();
 
-class MoskitoViscosity : public GeneralUserObject
+class MoskitoViscosity1P : public GeneralUserObject
 {
 public:
-  MoskitoViscosity(const InputParameters & parameters);
-  virtual ~MoskitoViscosity();
+  MoskitoViscosity1P(const InputParameters & parameters);
+  virtual ~MoskitoViscosity1P();
 
   virtual void execute() final {}
   virtual void initialize() final {}
@@ -49,4 +49,4 @@ public:
   dmu_dpT(Real pressure, Real temperature, Real & rho, Real & drho_dp, Real & drho_dT) const = 0;
 };
 
-#endif /* MOSKITOVISCOSITY_H */
+#endif /* MOSKITOVISCOSITY1P_H */

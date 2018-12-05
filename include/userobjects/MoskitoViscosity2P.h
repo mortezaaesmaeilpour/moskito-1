@@ -21,50 +21,50 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>  */
 /**************************************************************************/
 
-#include "MoskitoFluidWell1P.h"
+#ifndef MOSKITOVISCOSITY2P_H
+#define MOSKITOVISCOSITY2P_H
 
-registerMooseObject("MoskitoApp", MoskitoFluidWell1P);
+#include "GeneralUserObject.h"
+#include "MoskitoViscosity1P.h"
+
+class MoskitoViscosity2P;
 
 template <>
-InputParameters
-validParams<MoskitoFluidWell1P>()
+InputParameters validParams<MoskitoViscosity2P>();
+
+  /*
+  all these mixing approaches are based on M.M. Awad, Y.S. Muzychka, 2008
+  "Effective property models for homogeneous two-phase flows"
+  */
+
+class MoskitoViscosity2P : public GeneralUserObject
 {
-  InputParameters params = validParams<MoskitoFluidWellGeneral>();
-  params.addRequiredParam<UserObjectName>("eos_uo",
-        "The name of the userobject for EOS");
-  params.addRequiredParam<UserObjectName>("viscosity_uo",
-        "The name of the userobject for viscosity Eq");
+public:
+  MoskitoViscosity2P(const InputParameters & parameters);
+  virtual ~MoskitoViscosity2P();
 
-  return params;
-}
+  virtual void execute() final {}
+  virtual void initialize() final {}
+  virtual void finalize() final {}
 
-MoskitoFluidWell1P::MoskitoFluidWell1P(const InputParameters & parameters)
-  : MoskitoFluidWellGeneral(parameters),
-    eos_uo(getUserObject<MoskitoEOS1P>("eos_uo")),
-    viscosity_uo(getUserObject<MoskitoViscosity1P>("viscosity_uo")),
-    _cp(declareProperty<Real>("specific_heat")),
-    _rho(declareProperty<Real>("density")),
-    _drho_dp(declareProperty<Real>("drho_dp")),
-    _drho_dT(declareProperty<Real>("drho_dT"))
-{
-}
+  // mixture viscosity from pressure, temperature and mass fraction
+  Real mixture_mu(Real pressure, Real temperature, Real mass_fraction) const;
 
-void
-MoskitoFluidWell1P::computeQpProperties()
-{
-  _T[_qp] = eos_uo.h_to_T(_h[_qp]);
-  _cp[_qp] = eos_uo._cp;
+protected:
+  // Maxwell Eucken model 1 method
+  Real ME1_calc(Real mu_l, Real mu_g, Real x) const;
+  // Maxwell Eucken model 2 method
+  Real ME2_calc(Real mu_l, Real mu_g, Real x) const;
+  // Effective Medium Theory method
+  Real EMT_calc(Real mu_l, Real mu_g, Real x) const;
 
-  eos_uo.drho_dpT(_P[_qp], _T[_qp], _rho[_qp], _drho_dp[_qp], _drho_dT[_qp]);
+  // Userobject to viscosity equation for gas
+  const MoskitoViscosity1P & gas;
+  // Userobject to viscosity equation for liquid
+  const MoskitoViscosity1P & liquid;
+  // mixing approach
+  MooseEnum _mt;
+  enum MT {Series, Parallel, ME1, ME2, EMT, Mean_ME12};
+};
 
-  _dia[_qp] = _d;
-  _area[_qp] = PI * _d * _d / 4.0;
-
-  _u[_qp] = _flow[_qp] / _area[_qp];
-  _Re[_qp] = _rho[_qp] * _dia[_qp] * fabs(_u[_qp]) / viscosity_uo.mu(_P[_qp], _T[_qp]);
-
-  _lambda[_qp]  = (1.0 - (_d * _d) / std::pow(_d + _thickness , 2.0)) * _lambda0;
-  _lambda[_qp] += (_d * _d) / std::pow(_d + _thickness , 2.0) * eos_uo._lambda;
-
-  MoskitoFluidWellGeneral::computeQpProperties();
-}
+#endif /* MOSKITOVISCOSITY2P_H */

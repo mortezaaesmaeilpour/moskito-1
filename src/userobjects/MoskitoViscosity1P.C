@@ -21,19 +21,19 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>  */
 /**************************************************************************/
 
-#include "MoskitoViscosity.h"
+#include "MoskitoViscosity1P.h"
 
 template <>
 InputParameters
-validParams<MoskitoViscosity>()
+validParams<MoskitoViscosity1P>()
 {
   InputParameters params = validParams<GeneralUserObject>();
   return params;
 }
 
-MoskitoViscosity::MoskitoViscosity(const InputParameters & parameters)
+MoskitoViscosity1P::MoskitoViscosity1P(const InputParameters & parameters)
   : GeneralUserObject(parameters)
 {
 }
 
-MoskitoViscosity::~MoskitoViscosity() {}
+MoskitoViscosity1P::~MoskitoViscosity1P() {}

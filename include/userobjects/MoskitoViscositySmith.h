@@ -24,14 +24,14 @@
 #ifndef MOSKITOVISCOSITYSMITH_H
 #define MOSKITOVISCOSITYSMITH_H
 
-#include "MoskitoViscosity.h"
+#include "MoskitoViscosity1P.h"
 
 class MoskitoViscositySmith;
 
 template <>
 InputParameters validParams<MoskitoViscositySmith>();
 
-class MoskitoViscositySmith : public MoskitoViscosity
+class MoskitoViscositySmith : public MoskitoViscosity1P
 {
 public:
   MoskitoViscositySmith(const InputParameters & parameters);

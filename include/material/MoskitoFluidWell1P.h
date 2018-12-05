@@ -26,6 +26,7 @@
 
 #include "MoskitoFluidWellGeneral.h"
 #include "MoskitoEOS1P.h"
+#include "MoskitoViscosity1P.h"
 
 class MoskitoFluidWell1P;
 
@@ -42,7 +43,7 @@ protected:
   // Userobject to equation of state
   const MoskitoEOS1P & eos_uo;
   // Userobject to Viscosity Eq
-  const MoskitoViscosity & viscosity_uo;
+  const MoskitoViscosity1P & viscosity_uo;
 
   // The specific heat at constant pressure
   MaterialProperty<Real> & _cp;

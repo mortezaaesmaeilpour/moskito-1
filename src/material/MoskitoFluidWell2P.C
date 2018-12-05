@@ -32,12 +32,15 @@ validParams<MoskitoFluidWell2P>()
   InputParameters params = validParams<MoskitoFluidWellGeneral>();
   params.addRequiredParam<UserObjectName>("eos_uo",
         "The name of the userobject for 2 phase EOS");
+  params.addRequiredParam<UserObjectName>("viscosity_uo",
+        "The name of the userobject for 2 phase viscosity Eq");
   return params;
 }
 
 MoskitoFluidWell2P::MoskitoFluidWell2P(const InputParameters & parameters)
   : MoskitoFluidWellGeneral(parameters),
     eos_uo(getUserObject<MoskitoEOS2P>("eos_uo")),
+    viscosity_uo(getUserObject<MoskitoViscosity2P>("viscosity_uo")),
     _cp_m(declareProperty<Real>("specific_heat")),
     _rho_g(declareProperty<Real>("gas_density")),
     _rho_l(declareProperty<Real>("liquid_density")),
@@ -50,7 +53,7 @@ MoskitoFluidWell2P::MoskitoFluidWell2P(const InputParameters & parameters)
     _u_l(declareProperty<Real>("liquid_velocity")),
     _vfrac(getMaterialProperty<Real>("void_fraction")),
     _u_d(getMaterialProperty<Real>("drift_velocity")),
-    _c0(getMaterialProperty<Real>("flow_type")),
+    _c0(getMaterialProperty<Real>("flow_type_c0")),
     _dgamma_dz(declareProperty<Real>("dgamma_dz")),
     _dgamma_dz_uj_gphi(declareProperty<Real>("dgamma_dz_uj_gphi")),
     _dgamma_dz_uj_phi(declareProperty<Real>("dgamma_dz_uj_phi")),
@@ -70,6 +73,9 @@ MoskitoFluidWell2P::computeQpProperties()
   _rho_l[_qp] = eos_uo.liquid.rho(_P[_qp], _T[_qp]);
   _rho_g[_qp] = eos_uo.gas.rho   (_P[_qp], _T[_qp]);
 
+  _mfrac[_qp] = 0.0;
+  _cp_m[_qp] = 0.0;
+
   _rho_m[_qp] = _rho_g[_qp] * _vfrac[_qp] + (1.0 - _vfrac[_qp]) * _rho_l[_qp];
   _rho_pam[_qp] = _rho_g[_qp] * _c0[_qp]  * _vfrac[_qp] + (1.0 - _vfrac[_qp] * _c0[_qp]) * _rho_l[_qp];
 
@@ -86,8 +92,7 @@ MoskitoFluidWell2P::computeQpProperties()
   _dia[_qp] = _d;
   _area[_qp] = PI * _d * _d / 4.0;
 
-
-  // _Re[_qp] = rho_m * _dia[_qp] * fabs(_vel[_qp]) / viscosity_uo.mu(_P[_qp], _T[_qp]);
+  _Re[_qp] = _rho_m[_qp] * _dia[_qp] * fabs(_u[_qp]) / viscosity_uo.mixture_mu(_P[_qp], _T[_qp], _mfrac[_qp]);
 
   // _lambda[_qp]  = (1.0 - (_d * _d) / std::pow(_d + _thickness , 2.0)) * _lambda0;
   // _lambda[_qp] += (_d * _d) / std::pow(_d + _thickness , 2.0) * eos_uo._lambda;
