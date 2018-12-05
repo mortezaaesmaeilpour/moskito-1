@@ -63,16 +63,6 @@ MoskitoEOSIdealGas::drho_dpT(
   drho_dT = -pressure * _molar_mass / (_R * temperature * temperature);
 }
 
-void
-MoskitoEOSIdealGas::drho_dpT_2(
-    Real pressure, Real temperature, Real & drho_dp_2, Real & drho_dT_2, Real & drho_dTdp) const
-{
-  Real rho = this->rho(pressure, temperature);
-  drho_dp_2 = 0.0;
-  drho_dT_2 = 2.0 * pressure * _molar_mass / (_R * temperature * temperature * temperature);
-  drho_dTdp = -_molar_mass / (_R * temperature * temperature);
-}
-
 Real
 MoskitoEOSIdealGas::h_to_T(Real enthalpy) const
 {

@@ -39,8 +39,6 @@ public:
   virtual Real rho(Real pressure, Real temperature) const override;
   virtual void drho_dpT(
       Real pressure, Real temperature, Real & rho, Real & drho_dp, Real & drho_dT) const override;
-  virtual void drho_dpT_2(
-      Real pressure, Real temperature, Real & drho_dp_2, Real & drho_dT_2, Real & drho_dTdp) const override;
   virtual Real T_to_h(Real temperature) const override;
   virtual Real h_to_T(Real enthalpy) const override;
   void Pseudo_Critical_Calc(const Real & g);
