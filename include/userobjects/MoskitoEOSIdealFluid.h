@@ -41,11 +41,21 @@ public:
       Real pressure, Real temperature, Real & rho, Real & drho_dp, Real & drho_dT) const override;
   virtual Real h_to_T(Real enthalpy) const override;
   virtual Real T_to_h(Real temperature) const override;
+  virtual Real cp(Real temperature) const override;
+  virtual Real lambda(Real pressure, Real temperature) const override;
 
 protected:
-  // thermal expansion coefficient
+  // density at reference pressure and temperature
+  const Real _rho_ref = 0;
+  // reference temperature
+  const Real _T_ref = 0;
+  // reference pressure
+  const Real _P_ref = 0;
+  // reference enthalpy
+  const Real _h_ref = 0;
+  const Real _cp;
+  const Real _lambda;
   const Real _thermal_expansion;
-  // bulk modulus
   const Real _bulk_modulus;
 };
 

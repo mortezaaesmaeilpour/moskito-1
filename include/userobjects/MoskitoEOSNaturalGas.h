@@ -41,6 +41,8 @@ public:
       Real pressure, Real temperature, Real & rho, Real & drho_dp, Real & drho_dT) const override;
   virtual Real T_to_h(Real temperature) const override;
   virtual Real h_to_T(Real enthalpy) const override;
+  virtual Real cp(Real temperature) const override;
+  virtual Real lambda(Real pressure, Real temperature) const override;
   void Pseudo_Critical_Calc(const Real & g);
   Real z_factor(Real pressure, Real temperature) const;
 
@@ -55,6 +57,8 @@ protected:
   // Pseudo critical properties
   Real _P_pc;
   Real _T_pc;
+  const Real _cp;
+  const Real _lambda;
 
   // constants for z factor calculation based on Kareem et al 2016
   const std::array<Real, 20> a{

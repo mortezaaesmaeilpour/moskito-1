@@ -56,20 +56,11 @@ public:
   virtual Real
   h_to_T(Real enthalpy) const = 0;
 
-  // specific heat at constant pressure
-  Real _cp = 0;
-  // thermal conductivity
-  Real _lambda = 0;
+  // specific heat at constant pressure from temperature
+  virtual Real cp(Real temperature) const = 0;
 
-protected:
-  // density at reference pressure and temperature
-  Real _density_ref = 0;
-  // reference temperature
-  Real _T_ref = 0;
-  // reference pressure
-  Real _P_ref = 0;
-  // reference pressure
-  Real _h_ref = 0;
+  // thermal conductivity from pressure and temperature
+  virtual Real lambda(Real pressure, Real temperature) const = 0;
 };
 
 #endif /* MOSKITOEOS1P_H */

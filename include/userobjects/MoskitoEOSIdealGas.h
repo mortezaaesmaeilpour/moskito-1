@@ -41,11 +41,13 @@ public:
       Real pressure, Real temperature, Real & rho, Real & drho_dp, Real & drho_dT) const override;
   virtual Real T_to_h(Real temperature) const override;
   virtual Real h_to_T(Real enthalpy) const override;
+  virtual Real cp(Real temperature) const override;
+  virtual Real lambda(Real pressure, Real temperature) const override;
 
 protected:
-  // Molar mass of gas
+  const Real _cp;
+  const Real _lambda;
   const Real _molar_mass;
-
   // Universal Gas constant (J/mol.K)
   const Real _R;
 };

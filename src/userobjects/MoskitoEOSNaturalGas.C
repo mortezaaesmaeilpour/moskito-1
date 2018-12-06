@@ -23,11 +23,6 @@
 
 #include "MoskitoEOSNaturalGas.h"
 
-using std::pow;
-using std::exp;
-using std::ceil;
-using std::log10;
-
 registerMooseObject("MoskitoApp", MoskitoEOSNaturalGas);
 
 template <>
@@ -39,7 +34,7 @@ validParams<MoskitoEOSNaturalGas>()
   params.addRequiredParam<Real>("molar_mass", "Molar mass of the gas (kg/mol)");
   params.addParam<Real>("specific_gravity", 1.0,
         "Specific gravity (air = 1.0)");
-  params.addParam<Real>("cp", 1.0e3,
+  params.addParam<Real>("specific_heat", 1.0e3,
         "Constant specific heat capacity at constant pressure (J/kg/K)");
 
   return params;
@@ -49,13 +44,10 @@ MoskitoEOSNaturalGas::MoskitoEOSNaturalGas(const InputParameters & parameters)
   : MoskitoEOS1P(parameters),
     _molar_mass(getParam<Real>("molar_mass")),
     _gamma_g(getParam<Real>("specific_gravity")),
-    _R(8.3144598)
+    _R(8.3144598),
+    _cp(getParam<Real>("specific_heat")),
+    _lambda(0.0)
 {
-  _cp = getParam<Real>("cp");
-  _density_ref = 0.0;
-  _T_ref = 0.0;
-  _P_ref = 0.0;
-  _h_ref = 0.0;
   Pseudo_Critical_Calc(_gamma_g);
 }
 
@@ -95,20 +87,31 @@ MoskitoEOSNaturalGas::h_to_T(Real enthalpy) const
 Real
 MoskitoEOSNaturalGas::T_to_h(Real temperature) const
 {
-  return _cp * temperature;
+  return cp(temperature) * temperature;
+}
+
+Real
+MoskitoEOSNaturalGas::cp(Real temperature) const
+{
+  return _cp;
+}
+
+Real
+MoskitoEOSNaturalGas::lambda(Real pressure, Real temperature) const
+{
+  return _lambda;
 }
 
 void
 MoskitoEOSNaturalGas::Pseudo_Critical_Calc(const Real & g)
 {
   // Rankine scale
-  // _T_pc  = 169.2 + 349.5 * g - 74.0 * g * g;
   _T_pc  = 120.1 + 425.0 * g - 62.9 * g * g;
   // Kelvin
   _T_pc *= 5.0 / 9.0;
   // PSI
-  // _P_pc  = 756.8 - 131.07 * g - 3.6 * g * g;
   _P_pc  = 671.1 + 14.0 * g - 34.3 * g * g;
+  // pascal
   _P_pc *= 6894.7572931783;
 }
 
