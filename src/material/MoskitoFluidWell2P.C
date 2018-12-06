@@ -70,12 +70,15 @@ MoskitoFluidWell2P::MoskitoFluidWell2P(const InputParameters & parameters)
 void
 MoskitoFluidWell2P::computeQpProperties()
 {
+  _mfrac[_qp] = eos_uo.GasMassFraction(_h[_qp], _P[_qp]);
+  _T[_qp] = eos_uo.h_to_T(_h[_qp], _P[_qp]);
+
+  _cp_m[_qp] = eos_uo.cp(_mfrac[_qp], _T[_qp]);
+
+  // vfrac calculation from HK model should come here
+
   _rho_l[_qp] = eos_uo.liquid.rho(_P[_qp], _T[_qp]);
   _rho_g[_qp] = eos_uo.gas.rho   (_P[_qp], _T[_qp]);
-
-  _mfrac[_qp] = 0.0;
-  _cp_m[_qp] = 0.0;
-
   _rho_m[_qp] = _rho_g[_qp] * _vfrac[_qp] + (1.0 - _vfrac[_qp]) * _rho_l[_qp];
   _rho_pam[_qp] = _rho_g[_qp] * _c0[_qp]  * _vfrac[_qp] + (1.0 - _vfrac[_qp] * _c0[_qp]) * _rho_l[_qp];
 

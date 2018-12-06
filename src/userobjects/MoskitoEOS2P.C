@@ -44,8 +44,10 @@ MoskitoEOS2P::MoskitoEOS2P(const InputParameters & parameters)
 {
 }
 
+MoskitoEOS2P::~MoskitoEOS2P() {}
+
 Real
-MoskitoEOS2P::SteamMassFraction(const Real & enthalpy) const
+MoskitoEOS2P::GasMassFraction(const Real & enthalpy, const Real & pressure) const
 {
   return 0.0;
 }
@@ -57,9 +59,7 @@ MoskitoEOS2P::cp(const Real & massfraction, const Real & temperature) const
 }
 
 Real
-MoskitoEOS2P::h_to_T(const Real & enthalpy) const
+MoskitoEOS2P::h_to_T(const Real & enthalpy, const Real & pressure) const
 {
     return 0.0;
 }
-
-MoskitoEOS2P::~MoskitoEOS2P() {}
