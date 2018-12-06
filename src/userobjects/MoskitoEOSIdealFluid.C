@@ -64,14 +64,14 @@ MoskitoEOSIdealFluid::MoskitoEOSIdealFluid(const InputParameters & parameters)
 }
 
 Real
-MoskitoEOSIdealFluid::rho(Real pressure, Real temperature) const
+MoskitoEOSIdealFluid::rho(const Real & pressure, const Real & temperature) const
 {
   return _rho_ref * std::exp((pressure-_P_ref) / _bulk_modulus - _thermal_expansion * (temperature-_T_ref));
 }
 
 void
-MoskitoEOSIdealFluid::drho_dpT(
-    Real pressure, Real temperature, Real & rho, Real & drho_dp, Real & drho_dT) const
+MoskitoEOSIdealFluid::drho_dpT(const Real & pressure, const Real & temperature,
+                              Real & rho, Real & drho_dp, Real & drho_dT) const
 {
   rho = this->rho(pressure, temperature);
   drho_dp = rho / _bulk_modulus;
@@ -79,25 +79,25 @@ MoskitoEOSIdealFluid::drho_dpT(
 }
 
 Real
-MoskitoEOSIdealFluid::h_to_T(Real enthalpy) const
+MoskitoEOSIdealFluid::h_to_T(const Real & enthalpy) const
 {
   return (enthalpy - _h_ref) / _cp + _T_ref;
 }
 
 Real
-MoskitoEOSIdealFluid::T_to_h(Real temperature) const
+MoskitoEOSIdealFluid::T_to_h(const Real & temperature) const
 {
   return cp(temperature) * (temperature - _T_ref) + _h_ref;
 }
 
 Real
-MoskitoEOSIdealFluid::cp(Real temperature) const
+MoskitoEOSIdealFluid::cp(const Real & temperature) const
 {
   return _cp;
 }
 
 Real
-MoskitoEOSIdealFluid::lambda(Real pressure, Real temperature) const
+MoskitoEOSIdealFluid::lambda(const Real & pressure, const Real & temperature) const
 {
   return _lambda;
 }

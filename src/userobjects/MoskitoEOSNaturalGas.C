@@ -52,7 +52,7 @@ MoskitoEOSNaturalGas::MoskitoEOSNaturalGas(const InputParameters & parameters)
 }
 
 Real
-MoskitoEOSNaturalGas::rho(Real pressure, Real temperature) const
+MoskitoEOSNaturalGas::rho(const Real & pressure, const Real & temperature) const
 {
   Real z = z_factor(pressure, temperature);
 
@@ -60,8 +60,8 @@ MoskitoEOSNaturalGas::rho(Real pressure, Real temperature) const
 }
 
 void
-MoskitoEOSNaturalGas::drho_dpT(
-    Real pressure, Real temperature, Real & rho, Real & drho_dp, Real & drho_dT) const
+MoskitoEOSNaturalGas::drho_dpT(const Real & pressure, const Real & temperature,
+                              Real & rho, Real & drho_dp, Real & drho_dT) const
 {
   Real z = z_factor(pressure, temperature);
   rho = this->rho(pressure, temperature);
@@ -79,25 +79,25 @@ MoskitoEOSNaturalGas::drho_dpT(
 }
 
 Real
-MoskitoEOSNaturalGas::h_to_T(Real enthalpy) const
+MoskitoEOSNaturalGas::h_to_T(const Real & enthalpy) const
 {
   return enthalpy / _cp;
 }
 
 Real
-MoskitoEOSNaturalGas::T_to_h(Real temperature) const
+MoskitoEOSNaturalGas::T_to_h(const Real & temperature) const
 {
   return cp(temperature) * temperature;
 }
 
 Real
-MoskitoEOSNaturalGas::cp(Real temperature) const
+MoskitoEOSNaturalGas::cp(const Real & temperature) const
 {
   return _cp;
 }
 
 Real
-MoskitoEOSNaturalGas::lambda(Real pressure, Real temperature) const
+MoskitoEOSNaturalGas::lambda(const Real & pressure, const Real & temperature) const
 {
   return _lambda;
 }
@@ -116,7 +116,7 @@ MoskitoEOSNaturalGas::Pseudo_Critical_Calc(const Real & g)
 }
 
 Real
-MoskitoEOSNaturalGas::z_factor(Real pressure, Real temperature) const
+MoskitoEOSNaturalGas::z_factor(const Real & pressure, const Real & temperature) const
 {
   Real T_pr, P_pr, t, z, y, A, B, C, D, E, F, G;
 

@@ -42,6 +42,10 @@ public:
   virtual void initialize() final {}
   virtual void finalize() final {}
 
+  Real SteamMassFraction(const Real & enthalpy) const;
+  Real cp(const Real & massfraction, const Real & temperature) const;
+  Real h_to_T(const Real & enthalpy) const;
+
   // Userobject to equation of state for gas
   const MoskitoEOS1P & gas;
   // Userobject to equation of state for liquid

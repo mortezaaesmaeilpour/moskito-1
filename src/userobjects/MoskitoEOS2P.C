@@ -44,4 +44,22 @@ MoskitoEOS2P::MoskitoEOS2P(const InputParameters & parameters)
 {
 }
 
+Real
+MoskitoEOS2P::SteamMassFraction(const Real & enthalpy) const
+{
+  return 0.0;
+}
+
+Real
+MoskitoEOS2P::cp(const Real & massfraction, const Real & temperature) const
+{
+  return gas.cp(temperature) * massfraction + liquid.cp(temperature) * (1.0 - massfraction);
+}
+
+Real
+MoskitoEOS2P::h_to_T(const Real & enthalpy) const
+{
+    return 0.0;
+}
+
 MoskitoEOS2P::~MoskitoEOS2P() {}

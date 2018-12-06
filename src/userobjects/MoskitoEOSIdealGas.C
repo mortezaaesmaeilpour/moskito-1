@@ -48,14 +48,14 @@ MoskitoEOSIdealGas::MoskitoEOSIdealGas(const InputParameters & parameters)
 }
 
 Real
-MoskitoEOSIdealGas::rho(Real pressure, Real temperature) const
+MoskitoEOSIdealGas::rho(const Real & pressure, const Real & temperature) const
 {
   return pressure * _molar_mass / (_R * temperature);
 }
 
 void
-MoskitoEOSIdealGas::drho_dpT(
-    Real pressure, Real temperature, Real & rho, Real & drho_dp, Real & drho_dT) const
+MoskitoEOSIdealGas::drho_dpT(const Real & pressure, const Real & temperature,
+                            Real & rho, Real & drho_dp, Real & drho_dT) const
 {
   rho = this->rho(pressure, temperature);
   drho_dp = _molar_mass / (_R * temperature);
@@ -63,25 +63,25 @@ MoskitoEOSIdealGas::drho_dpT(
 }
 
 Real
-MoskitoEOSIdealGas::h_to_T(Real enthalpy) const
+MoskitoEOSIdealGas::h_to_T(const Real & enthalpy) const
 {
   return enthalpy / _cp;
 }
 
 Real
-MoskitoEOSIdealGas::T_to_h(Real temperature) const
+MoskitoEOSIdealGas::T_to_h(const Real & temperature) const
 {
   return cp(temperature) * temperature;
 }
 
 Real
-MoskitoEOSIdealGas::cp(Real temperature) const
+MoskitoEOSIdealGas::cp(const Real & temperature) const
 {
   return _cp;
 }
 
 Real
-MoskitoEOSIdealGas::lambda(Real pressure, Real temperature) const
+MoskitoEOSIdealGas::lambda(const Real & pressure, const Real & temperature) const
 {
   return _lambda;
 }

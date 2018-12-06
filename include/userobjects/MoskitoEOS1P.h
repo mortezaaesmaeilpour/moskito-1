@@ -42,25 +42,23 @@ public:
   virtual void finalize() final {}
 
   // Density from pressure and temperature (kg/m^3)
-  virtual Real rho(Real pressure, Real temperature) const = 0;
+  virtual Real rho(const Real & pressure, const Real & temperature) const = 0;
 
   // Density from pressure and temperature and its derivatives wrt pressure and temperature
-  virtual void
-  drho_dpT(Real pressure, Real temperature, Real & rho, Real & drho_dp, Real & drho_dT) const = 0;
+  virtual void drho_dpT(const Real & pressure, const Real & temperature,
+                        Real & rho, Real & drho_dp, Real & drho_dT) const = 0;
 
   // The conversion function from temperature to specific enthalpy
-  virtual Real
-  T_to_h(Real temperature) const = 0;
+  virtual Real T_to_h(const Real & temperature) const = 0;
 
   // The conversion function from specific enthalpy to temperature
-  virtual Real
-  h_to_T(Real enthalpy) const = 0;
+  virtual Real h_to_T(const Real & enthalpy) const = 0;
 
   // specific heat at constant pressure from temperature
-  virtual Real cp(Real temperature) const = 0;
+  virtual Real cp(const Real & temperature) const = 0;
 
   // thermal conductivity from pressure and temperature
-  virtual Real lambda(Real pressure, Real temperature) const = 0;
+  virtual Real lambda(const Real & pressure, const Real & temperature) const = 0;
 };
 
 #endif /* MOSKITOEOS1P_H */
