@@ -8,11 +8,18 @@
 
 [UserObjects]
   [./eos_g]
-    type = MoskitoEOSIdealGas
-    molar_mass = 2.16e-2
+    type = MoskitoEOSIdealFluid
+    reference_density = 1
+    reference_enthalpy = 0
+    reference_pressure = 0
+    reference_temperature = 0
   [../]
   [./eos_l]
     type = MoskitoEOSIdealFluid
+    reference_density = 1000
+    reference_enthalpy = 0
+    reference_pressure = 0
+    reference_temperature = 0
   [../]
   [./eos_2p]
     type = MoskitoEOS2P
@@ -35,25 +42,27 @@
   [../]
 []
 
-[Functions]
-  [./void]
-    type = ParsedFunction
-    value = 'x'
-  [../]
-[]
+# [Functions]
+#   [./void]
+#     type = ParsedFunction
+#     value = 'x'
+#   [../]
+# []
 
 [Materials]
   [./g]
     type = GenericConstantMaterial
-    prop_names = 'drift_velocity flow_type_c0'
-    prop_values = '0.0 1.0'
-  [../]
-  [./v]
-    type = GenericFunctionMaterial
-    prop_names = 'void_fraction'
-    prop_values = 'void'
+    prop_names = 'drift_velocity flow_type_c0 void_fraction'
+    prop_values = '1.094 1.0 0.65'
+    output_properties = 'void_fraction drift_velocity'
     outputs = exodus
   [../]
+  # [./v]
+  #   type = GenericFunctionMaterial
+  #   prop_names = 'void_fraction'
+  #   prop_values = 'void'
+  #   outputs = exodus
+  # [../]
   [./area0]
     type = MoskitoFluidWell2P
     pressure = p
@@ -62,9 +71,9 @@
     well_direction = x
     eos_uo = eos_2p
     viscosity_uo = ve_2p
-    well_diameter = 0.152
-    roughness_type = smooth
-    gravity = '0 -9.8 0'
+    well_diameter = 0.2034
+    manual_friction_factor = 0
+    output_properties = 'well_area gas_velocity liquid_velocity profile_mixture_density gas_density liquid_density density well_velocity'
     outputs = exodus
   [../]
 []
@@ -75,6 +84,7 @@
   [./p]
   [../]
   [./q]
+    initial_condition = 0.040759
   [../]
 []
 

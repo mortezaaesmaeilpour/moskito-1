@@ -49,7 +49,7 @@ MoskitoFluidWell2P::MoskitoFluidWell2P(const InputParameters & parameters)
     _drho_m_dp(declareProperty<Real>("drho_dp")),
     _drho_m_dT(declareProperty<Real>("drho_dT")),
     _mfrac(declareProperty<Real>("mass_fraction")),
-    _u_g(declareProperty<Real>("gas velocity")),
+    _u_g(declareProperty<Real>("gas_velocity")),
     _u_l(declareProperty<Real>("liquid_velocity")),
     _vfrac(getMaterialProperty<Real>("void_fraction")),
     _u_d(getMaterialProperty<Real>("drift_velocity")),
@@ -75,6 +75,9 @@ MoskitoFluidWell2P::computeQpProperties()
 
   _cp_m[_qp] = eos_uo.cp(_mfrac[_qp], _T[_qp]);
 
+  _dia[_qp] = _d;
+  _area[_qp] = PI * _d * _d / 4.0;
+
   // vfrac calculation from HK model should come here
 
   _rho_l[_qp] = eos_uo.liquid.rho(_P[_qp], _T[_qp]);
@@ -83,17 +86,18 @@ MoskitoFluidWell2P::computeQpProperties()
   _rho_pam[_qp] = _rho_g[_qp] * _c0[_qp]  * _vfrac[_qp] + (1.0 - _vfrac[_qp] * _c0[_qp]) * _rho_l[_qp];
 
   _u[_qp] = _flow[_qp] / _area[_qp];
+  // _u_g[_qp]  = _c0[_qp] * _u[_qp] + _u_d[_qp];
+  // _u_l[_qp]  = (1.0 - _vfrac[_qp] * _c0[_qp]) * _u[_qp] - _vfrac[_qp] * _u_d[_qp];
+  // _u_l[_qp] /= 1.0 - _vfrac[_qp];
 
   _u_g[_qp]  = _c0[_qp] * _rho_m[_qp] * _u[_qp] + _rho_l[_qp] * _u_d[_qp];
   _u_g[_qp] /= _rho_pam[_qp];
 
   _u_l[_qp]  = (1.0 - _vfrac[_qp] * _c0[_qp]) * _rho_m[_qp]  * _u[_qp] - _rho_g[_qp] * _vfrac[_qp] * _u_d[_qp];
-  _u_l[_qp] /= ((1.0 - _vfrac[_qp]) * _rho_pam[_qp]);
+  _u_l[_qp] /= (1.0 - _vfrac[_qp]) * _rho_pam[_qp];
 
   DriftFluxMomentumEq();
 
-  _dia[_qp] = _d;
-  _area[_qp] = PI * _d * _d / 4.0;
 
   _Re[_qp] = _rho_m[_qp] * _dia[_qp] * fabs(_u[_qp]) / viscosity_uo.mixture_mu(_P[_qp], _T[_qp], _mfrac[_qp]);
 
