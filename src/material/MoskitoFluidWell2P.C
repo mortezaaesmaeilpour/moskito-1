@@ -22,6 +22,7 @@
 /**************************************************************************/
 
 #include "MoskitoFluidWell2P.h"
+#include "MoskitoDFHK.h"
 
 registerMooseObject("MoskitoApp", MoskitoFluidWell2P);
 
@@ -51,9 +52,9 @@ MoskitoFluidWell2P::MoskitoFluidWell2P(const InputParameters & parameters)
     _mfrac(declareProperty<Real>("mass_fraction")),
     _u_g(declareProperty<Real>("gas_velocity")),
     _u_l(declareProperty<Real>("liquid_velocity")),
-    _vfrac(getMaterialProperty<Real>("void_fraction")),
-    _u_d(getMaterialProperty<Real>("drift_velocity")),
-    _c0(getMaterialProperty<Real>("flow_type_c0")),
+    _vfrac(declareProperty<Real>("void_fraction")),
+    _u_d(declareProperty<Real>("drift_velocity")),
+    _c0(declareProperty<Real>("flow_type_c0")),
     _dgamma_dz(declareProperty<Real>("dgamma_dz")),
     _dgamma_dz_uj_gphi(declareProperty<Real>("dgamma_dz_uj_gphi")),
     _dgamma_dz_uj_phi(declareProperty<Real>("dgamma_dz_uj_phi")),
@@ -78,14 +79,26 @@ MoskitoFluidWell2P::computeQpProperties()
   _dia[_qp] = _d;
   _area[_qp] = PI * _d * _d / 4.0;
 
-  // vfrac calculation from HK model should come here
-
   _rho_l[_qp] = eos_uo.liquid.rho(_P[_qp], _T[_qp]);
   _rho_g[_qp] = eos_uo.gas.rho   (_P[_qp], _T[_qp]);
+
+  _u[_qp] = _flow[_qp] / _area[_qp];
+
+  MoskitoFluidWellGeneral::computeQpProperties();
+
+  // vfrac calculation from HK model should come here
+  // vfrac and re has relationship so friction is dependent
+  MoskitoDFHK maz (_u[_qp], _rho_g[_qp], _rho_l[_qp], _mfrac[_qp],
+    0.028803, _dia[_qp], _dir[_qp], 0.01345,
+    _gravity[_qp], _well_unit_vect[_qp]);
+
+  int temp;
+  maz.DFMCalculator();
+  maz.DFMOutput(temp, _vfrac[_qp], _c0[_qp], _u_d[_qp]);
+
   _rho_m[_qp] = _rho_g[_qp] * _vfrac[_qp] + (1.0 - _vfrac[_qp]) * _rho_l[_qp];
   _rho_pam[_qp] = _rho_g[_qp] * _c0[_qp]  * _vfrac[_qp] + (1.0 - _vfrac[_qp] * _c0[_qp]) * _rho_l[_qp];
 
-  _u[_qp] = _flow[_qp] / _area[_qp];
   // _u_g[_qp]  = _c0[_qp] * _u[_qp] + _u_d[_qp];
   // _u_l[_qp]  = (1.0 - _vfrac[_qp] * _c0[_qp]) * _u[_qp] - _vfrac[_qp] * _u_d[_qp];
   // _u_l[_qp] /= 1.0 - _vfrac[_qp];
@@ -98,13 +111,10 @@ MoskitoFluidWell2P::computeQpProperties()
 
   DriftFluxMomentumEq();
 
-
   _Re[_qp] = _rho_m[_qp] * _dia[_qp] * fabs(_u[_qp]) / viscosity_uo.mixture_mu(_P[_qp], _T[_qp], _mfrac[_qp]);
 
   // _lambda[_qp]  = (1.0 - (_d * _d) / std::pow(_d + _thickness , 2.0)) * _lambda0;
   // _lambda[_qp] += (_d * _d) / std::pow(_d + _thickness , 2.0) * eos_uo._lambda;
-
-  MoskitoFluidWellGeneral::computeQpProperties();
 }
 
 void

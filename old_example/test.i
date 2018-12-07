@@ -3,7 +3,7 @@
   dim = 1
   xmin = 0
   xmax = 1
-  nx = 1000
+  nx = 5
 []
 
 [UserObjects]

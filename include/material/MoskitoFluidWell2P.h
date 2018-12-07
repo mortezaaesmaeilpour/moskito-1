@@ -68,11 +68,11 @@ protected:
   MaterialProperty<Real> & _u_l;
 
   // void_fraction
-  const MaterialProperty<Real> & _vfrac;
+  MaterialProperty<Real> & _vfrac;
   // drift velocity
-  const MaterialProperty<Real> & _u_d;
+  MaterialProperty<Real> & _u_d;
   // flow type parameter
-  const MaterialProperty<Real> & _c0;
+  MaterialProperty<Real> & _c0;
 
   //refer to DriftFluxMomentumEq function
   // residual for dgamma_dz in the momentum conservation
