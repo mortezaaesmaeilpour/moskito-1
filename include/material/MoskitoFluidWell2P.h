@@ -27,6 +27,7 @@
 #include "MoskitoFluidWellGeneral.h"
 #include "MoskitoEOS2P.h"
 #include "MoskitoViscosity2P.h"
+#include "MoskitoDriftFlux.h"
 
 class MoskitoFluidWell2P;
 
@@ -45,6 +46,8 @@ protected:
   const MoskitoEOS2P & eos_uo;
   // Userobject to Viscosity Eq
   const MoskitoViscosity2P & viscosity_uo;
+  // Userobject to Drift Fluc model
+  const MoskitoDriftFlux & dfm_uo;
 
   // The specific heat of mixture at constant pressure
   MaterialProperty<Real> & _cp_m;
@@ -73,6 +76,8 @@ protected:
   MaterialProperty<Real> & _u_d;
   // flow type parameter
   MaterialProperty<Real> & _c0;
+  // flow pattern
+  MaterialProperty<int> & _flow_pat;
 
   //refer to DriftFluxMomentumEq function
   // residual for dgamma_dz in the momentum conservation

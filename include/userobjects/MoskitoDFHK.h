@@ -26,47 +26,54 @@
 
 #include "MoskitoDriftFlux.h"
 
+class MoskitoDFHK;
+
+template <>
+InputParameters validParams<MoskitoDFHK>();
+
+// forward declaration
+class MoskitoHKLVar;
+
 class MoskitoDFHK : public MoskitoDriftFlux
 {
 public:
-  MoskitoDFHK(const Real & v_m, const Real & rho_g, const Real & rho_l,
-    const Real & mfrac, const Real & surf_ten, const Real & dia,
-    const Real & dir, const Real & friction, const RealVectorValue & gravity,
-    const RealVectorValue & well_dir);
+  MoskitoDFHK(const InputParameters & parameters);
 
-  virtual void DFMCalculator() override;
+  virtual void DFMCalculator(MoskitoDFGVar & input) const override;
+
   // Preparation of HK individual parameters
-  void HKinitialisation(Real & v_sg, Real & v_sl, Real & vd_tb, Real & vd_b, Real & v_ms, Real & v_gb, Real & v_gc, Real & vd_mix);
+  void HKinitialisation(MoskitoDFGVar & input, MoskitoHKLVar & LVar) const;
   // final calculator
-  void HKcalculator(const Real & vd_tb, const Real & v_sg, const Real & v_sl, const Real & v_ms, const Real & v_gc, const Real & v_gb, const Real & vd_b, const Real & vd_mix);
+  void HKcalculator(MoskitoDFGVar & input, MoskitoHKLVar & LVar) const;
   // Calculation of Void fraction
-  void HKvfrac(const Real & v_sg);
+  void HKvfrac(MoskitoDFGVar & input, MoskitoHKLVar & LVar) const;
 
 protected:
   // Main code determination of flow pattern, C0, vd and void fraction
-  void cal_v_s(Real & v_sg, Real & v_sl);
+  void cal_v_s(MoskitoDFGVar & input, MoskitoHKLVar & LVar) const;
 
   // Equations for calcualation of bubbly / Taylor rise velocities
-  Real cal_vd_b();
-  Real cal_vd_tb();
-  Real cal_vd_mix(const Real & vd_b, const Real & vd_tb, const Real & v_gb, const Real & v_sg);
+  void cal_vd_b(MoskitoDFGVar & input, MoskitoHKLVar & LVar) const;
+  void cal_vd_tb(MoskitoDFGVar & input, MoskitoHKLVar & LVar) const;
+  void cal_vd_mix(MoskitoDFGVar & input, MoskitoHKLVar & LVar) const;
 
   // Calculation of thresholds of transitions
-  Real cal_v_gb(const Real & v_sl, const Real & vd_b);
-  Real cal_v_gc();
-  Real cal_v_ms(const Real & v_sg);
+  void cal_v_gb(MoskitoDFGVar & input, MoskitoHKLVar & LVar) const;
+  void cal_v_gc(MoskitoDFGVar & input, MoskitoHKLVar & LVar) const;
+  void cal_v_ms(MoskitoDFGVar & input, MoskitoHKLVar & LVar) const;
 
   // Determine drift flow parameters for each flow pattern
-  void Det_db_flow(const Real & vd_b);
-  void Det_bubbly_flow(const Real & vd_b);
-  void Det_churn_flow(const Real & v_ms, const Real & vd_mix);
-  void Det_annular_flow(const Real & v_gc, const Real & v_sg);
-  void Det_slug_flow(const Real & v_gb, const Real & v_sg, const Real & vd_mix);
+  void Det_db_flow(MoskitoDFGVar & input, MoskitoHKLVar & LVar) const;
+  void Det_bubbly_flow(MoskitoDFGVar & input, MoskitoHKLVar & LVar) const;
+  void Det_churn_flow(MoskitoDFGVar & input, MoskitoHKLVar & LVar) const;
+  void Det_annular_flow(MoskitoDFGVar & input, MoskitoHKLVar & LVar) const;
+  void Det_slug_flow(MoskitoDFGVar & input, MoskitoHKLVar & LVar) const;
 
   // Interpolation between different C0
-  Real interpol(const Real & C0_1, const Real & C0_2, const Real & v_denom, const Real & v_num);
+  Real interpol(const Real & C0_1, const Real & C0_2, const Real & v_denom, const Real & v_num) const;
 
 private:
+  const Real _surf_ten;
   const Real _C0b = 1.2;
   const Real _C0db = 1.2;
   const Real _C0s_u = 1.2;
@@ -74,10 +81,27 @@ private:
   const Real _C0c_u = 1.15;
   const Real _C0c_d = 1.12;
   const Real _C0a = 1.0;
-
-  Real _grav;
-  // Angle between gravity vector and well_unity_vector
-  Real _angle = 0.0; // fucntion to calculaute angle from gravity and well_unit_vect;
 };
 
-#endif
+class MoskitoHKLVar
+{
+public:
+  // Superficial gas velocity in m/s
+  Real v_sg= 0.0;
+  // Superficial fluid velocity in m/s
+  Real v_sl= 0.0;
+  // velocity of dispersed bubbles
+  Real vd_b= 0.0;
+  // velocity of Taylor bubbles
+  Real vd_tb= 0.0;
+  // mixture velocity between Taylor bubbles velocity and dispersed bubble velocity for slug and churn flow
+  Real vd_mix= 0.0;
+  //  Thereshold for transition from bubbly to slug flow
+  Real v_gb= 0.0;
+  //  Thereshold for transition from churn to annular flow
+  Real v_gc= 0.0;
+  // Thereshold for transition from bubbly / slug flow to d_dubbly and slug to churn flow
+  Real v_ms= 0.0;
+};
+
+#endif /* MOSKITODFHK_H */

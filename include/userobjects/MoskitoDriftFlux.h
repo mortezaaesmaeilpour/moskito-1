@@ -21,30 +21,33 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>  */
 /**************************************************************************/
 
-#include "MoskitoDriftFlux.h"
+#ifndef MOSKITODRIFTFLUX_H
+#define MOSKITODRIFTFLUX_H
 
-MoskitoDriftFlux::MoskitoDriftFlux(const Real & v_m, const Real & rho_g,
-  const Real & rho_l, const Real & mfrac, const Real & surf_ten, const Real & dia,
-  const Real & dir, const Real & friction, const RealVectorValue & gravity,
-  const RealVectorValue & well_dir)
-  : _v_m(v_m),
-    _rho_g(rho_g),
-    _rho_l(rho_l),
-    _mfrac(mfrac),
-    _surf_ten(surf_ten),
-    _dia(dia),
-    _dir(dir),
-    _friction(friction),
-    _gravity(gravity),
-    _well_dir(well_dir)
-{
-}
+#include "GeneralUserObject.h"
+#include "MoskitoDFGVar.h"
 
-void
-MoskitoDriftFlux::DFMOutput(int & FlowPat, Real & vfrac, Real & C0, Real & vd)
+class MoskitoDriftFlux;
+
+template <>
+InputParameters validParams<MoskitoDriftFlux>();
+
+class MoskitoDriftFlux : public GeneralUserObject
 {
-  FlowPat = _FlowPat;
-  vfrac = _vfrac;
-  C0 = _C0;
-  vd = _vd;
-}
+public:
+  MoskitoDriftFlux(const InputParameters & parameters);
+  virtual ~MoskitoDriftFlux();
+
+  virtual void execute() final {}
+  virtual void initialize() final {}
+  virtual void finalize() final {}
+
+  virtual void DFMCalculator(MoskitoDFGVar & input) const = 0;
+protected:
+  // Convert from Si units to American system
+  const Real m_to_ft    = 3.2808398;
+  const Real m3_to_ft3  = 35.3146667;
+  const Real kg_to_lbm  = 2.2046225;
+};
+
+#endif /* MOSKITODRIFTFLUX_H */

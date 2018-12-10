@@ -1,0 +1,72 @@
+/**************************************************************************/
+/*  MOSKITO - Multiphysics cOupled Simulator toolKIT for wellbOres        */
+/*                                                                        */
+/*  Copyright (C) 2017 by Maziar Gholami Korzani                          */
+/*  Karlsruhe Institute of Technology, Institute of Applied Geosciences   */
+/*  Division of Geothermal Research                                       */
+/*                                                                        */
+/*  This file is part of MOSKITO App                                      */
+/*                                                                        */
+/*  This program is free software: you can redistribute it and/or modify  */
+/*  it under the terms of the GNU General Public License as published by  */
+/*  the Free Software Foundation, either version 3 of the License, or     */
+/*  (at your option) any later version.                                   */
+/*                                                                        */
+/*  This program is distributed in the hope that it will be useful,       */
+/*  but WITHOUT ANY WARRANTY; without even the implied warranty of        */
+/*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the          */
+/*  GNU General Public License for more details.                          */
+/*                                                                        */
+/*  You should have received a copy of the GNU General Public License     */
+/*  along with this program.  If not, see <http://www.gnu.org/licenses/>  */
+/**************************************************************************/
+
+#ifndef MOSKITODFGVAR_H
+#define MOSKITODFGVAR_H
+
+#include "Material.h"
+
+// it is for storing global variables for drift flux uo
+class MoskitoDFGVar
+{
+public:
+  MoskitoDFGVar(const Real & v_m, const Real & rho_g, const Real & rho_l,
+    const Real & mfrac, const Real & dia, const Real & dir,
+    const Real & friction, const RealVectorValue & gravity,
+    const RealVectorValue & well_dir);
+
+  void DFMOutput(int & FlowPat, Real & vfrac, Real & C0, Real & vd);
+
+  // Flow pattern 0 = nothing, 1 = bubbly, 2 = dispersed_bubbly, 3 = slug, 4 = churn, 5 = annular
+  int _FlowPat;
+  // Volumetric fraction of void phase
+  Real _vfrac;
+  // Drift Flux parameters
+  Real _C0;
+  Real _vd;
+
+  // mixture velocity of 2P-system
+  const Real _v_m;
+  // Gas density
+  const Real _rho_g;
+  // Liquid density
+  const Real _rho_l;
+  // Mass fraction of void phase
+  const Real _mfrac;
+  // Well diameter
+  const Real _dia;
+  // Flow direction
+  const Real _dir;
+  // Well friction
+  const Real _friction;
+  // The gravity acceleration as a vector
+  const RealVectorValue _gravity;
+  // unit vector along well
+  const RealVectorValue _well_dir;
+  // gravity acceleration value
+  const Real _grav;
+  // Angle between gravity vector and well_unity_vector
+  const Real _angle;
+};
+
+#endif /* MOSKITODFGVAR_H */
