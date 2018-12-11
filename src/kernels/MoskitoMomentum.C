@@ -33,8 +33,8 @@ validParams<MoskitoMomentum>()
 
   params.addRequiredCoupledVar("pressure", "Pressure nonlinear variable");
   params.addRequiredCoupledVar("enthalpy", "Specific enthalpy nonlinear variable");
-  params.addClassDescription("Momentum conservation equation for 1 phase "
-        "(either liquid or gas) pipe flow and it returns flowrate. A positive "
+  params.addClassDescription("Momentum conservation equation for 2 phase "
+        "(liquid and gas) pipe flow and it returns flowrate. A positive "
         "value in BCs is the production scenario and the flow is in the opposite"
         " way of the well direction as defined in the material, and vice versa");
   return params;
@@ -57,6 +57,17 @@ MoskitoMomentum::MoskitoMomentum(const InputParameters & parameters)
     _well_dir(getMaterialProperty<RealVectorValue>("well_direction_vector")),
     _flow_dir(getMaterialProperty<Real>("flow_direction"))
 {
+  if (hasMaterialProperty<Real>("dgamma_dz"))
+  {
+    _dgamma_dz = &getMaterialProperty<Real>("dgamma_dz");
+    _dgamma_dz_uj_gphi = &getMaterialProperty<Real>("dgamma_dz_uj_gphi");
+    _dgamma_dz_uj_phi = &getMaterialProperty<Real>("dgamma_dz_uj_phi");
+    _dgamma_dz_pj_gphi = &getMaterialProperty<Real>("dgamma_dz_pj_gphi");
+    _dgamma_dz_pj_phi = &getMaterialProperty<Real>("dgamma_dz_pj_phi");
+    _dgamma_dz_hj_gphi = &getMaterialProperty<Real>("dgamma_dz_hj_gphi");
+    _dgamma_dz_hj_phi = &getMaterialProperty<Real>("dgamma_dz_hj_phi");
+    _2p_ind = true;
+  }
 }
 
 Real
@@ -71,6 +82,8 @@ MoskitoMomentum::computeQpResidual()
   r += _flow_dir[_qp] * _f[_qp] * _rho[_qp] * _u[_qp] * _u[_qp]
         * _well_dir[_qp] / (2.0 * _d[_qp]);
   r /= (_area[_qp] * _area[_qp]);
+  if (_2p_ind)
+    r += (*_dgamma_dz)[_qp] * _well_dir[_qp];
   r -= _grad_p[_qp];
   r += _rho[_qp] * _gravity[_qp];
   r *= _test[_i][_qp];
@@ -84,13 +97,18 @@ MoskitoMomentum::computeQpJacobian()
   RealVectorValue j = 0.0;
 
   j += _drho_dp[_qp] * _grad_p[_qp];
-  j += _drho_dT[_qp] * _grad_h[_qp]/ _cp[_qp];
+  j += _drho_dT[_qp] * _grad_h[_qp] / _cp[_qp];
   j *= _flow_dir[_qp] * 2.0 * _phi[_j][_qp] * _u[_qp];
   j += _flow_dir[_qp] * 2.0 * _rho[_qp] * (_phi[_j][_qp]  * _grad_u[_qp]
         + _u[_qp] * _grad_phi[_j][_qp]);
   j += _flow_dir[_qp] * _f[_qp] * _rho[_qp] * _phi[_j][_qp]
         * _u[_qp]  * _well_dir[_qp] / _d[_qp];
   j /= (_area[_qp] * _area[_qp]);
+  if (_2p_ind)
+  {
+    j += (*_dgamma_dz_uj_phi)[_qp] * _phi[_j][_qp] * _well_dir[_qp];
+    j += (*_dgamma_dz_uj_gphi)[_qp] * _grad_phi[_j][_qp];
+  }
   j *= _test[_i][_qp];
 
   return j * _well_dir[_qp];
@@ -111,6 +129,11 @@ MoskitoMomentum::computeQpOffDiagJacobian(unsigned int jvar)
     j /= (_area[_qp] * _area[_qp]);
     j -= _grad_phi[_j][_qp];
     j += _drho_dp[_qp] * _phi[_j][_qp] * _gravity[_qp];
+    if (_2p_ind)
+    {
+      j += (*_dgamma_dz_pj_phi)[_qp] * _phi[_j][_qp] * _well_dir[_qp];
+      j += (*_dgamma_dz_pj_gphi)[_qp] * _grad_phi[_j][_qp];
+    }
     j *= _test[_i][_qp];
   }
 
@@ -123,7 +146,13 @@ MoskitoMomentum::computeQpOffDiagJacobian(unsigned int jvar)
           * _u[_qp] * _well_dir[_qp] / (2.0 * _d[_qp]);
     j /= (_area[_qp] * _area[_qp]);
     j += _drho_dT[_qp] * _phi[_j][_qp] * _gravity[_qp];
-    j *= _test[_i][_qp] / _cp[_qp];
+    j /= _cp[_qp];
+    if (_2p_ind)
+    {
+      j += (*_dgamma_dz_hj_phi)[_qp] * _phi[_j][_qp] * _well_dir[_qp];
+      j += (*_dgamma_dz_hj_gphi)[_qp] * _grad_phi[_j][_qp];
+    }
+    j *= _test[_i][_qp];
   }
 
   return j * _well_dir[_qp];

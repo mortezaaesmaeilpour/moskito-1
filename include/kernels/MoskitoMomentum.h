@@ -50,15 +50,14 @@ protected:
   unsigned _p_var_number;
   unsigned _h_var_number;
 
-  // The specific heat at constant pressure
+  // The specific heat of mixture at constant pressure
   const MaterialProperty<Real> & _cp;
-  // The density
+  // The mixture density
   const MaterialProperty<Real> & _rho;
-  // The first derivative of density wrt pressure
+  // The first derivative of mixture density wrt pressure
   const MaterialProperty<Real> & _drho_dp;
-  // The first derivative of density wrt temperature
+  // The first derivative of mixture density wrt temperature
   const MaterialProperty<Real> & _drho_dT;
-
   // The pipe diameter
   const MaterialProperty<Real> & _d;
   // The pipe Moody friction factor
@@ -71,6 +70,21 @@ protected:
   const MaterialProperty<RealVectorValue> & _well_dir;
   // The flow direction
   const MaterialProperty<Real> & _flow_dir;
+
+  // residual for dgamma_dz in the momentum conservation
+  const MaterialProperty<Real> * _dgamma_dz = NULL;
+  // diagonal jacobian of the residual wrt uj for dgamma_dz in the momentum conservation
+  const MaterialProperty<Real> * _dgamma_dz_uj_gphi = NULL;
+  const MaterialProperty<Real> * _dgamma_dz_uj_phi = NULL;
+  // diagonal jacobian of the residual wrt pj for dgamma_dz in the momentum conservation
+  const MaterialProperty<Real> * _dgamma_dz_pj_gphi = NULL;
+  const MaterialProperty<Real> * _dgamma_dz_pj_phi = NULL;
+  // diagonal jacobian of the residual wrt hj for dgamma_dz in the momentum conservation
+  const MaterialProperty<Real> * _dgamma_dz_hj_gphi = NULL;
+  const MaterialProperty<Real> * _dgamma_dz_hj_phi = NULL;
+private:
+  // an indicator for 2 phase flow model
+  bool _2p_ind = false;
 };
 
 #endif // MOSKITOMOMENTUM_H
