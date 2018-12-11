@@ -73,7 +73,7 @@ protected:
   Real interpol(const Real & C0_1, const Real & C0_2, const Real & v_denom, const Real & v_num) const;
 
 private:
-  const Real _surf_ten;
+  Real _surf_ten;
   const Real _C0b = 1.2;
   const Real _C0db = 1.2;
   const Real _C0s_u = 1.2;

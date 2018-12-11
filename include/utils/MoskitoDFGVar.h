@@ -30,8 +30,8 @@
 class MoskitoDFGVar
 {
 public:
-  MoskitoDFGVar(const Real & v_m, const Real & rho_g, const Real & rho_l,
-    const Real & mfrac, const Real & dia, const Real & dir,
+  MoskitoDFGVar(Real v_m, Real rho_g, Real rho_l,
+    const Real & mfrac, Real dia, const Real & dir,
     const Real & friction, const RealVectorValue & gravity,
     const RealVectorValue & well_dir);
 
@@ -46,15 +46,15 @@ public:
   Real _vd;
 
   // mixture velocity of 2P-system
-  const Real _v_m;
+  Real _v_m;
   // Gas density
-  const Real _rho_g;
+  Real _rho_g;
   // Liquid density
-  const Real _rho_l;
+  Real _rho_l;
   // Mass fraction of void phase
   const Real _mfrac;
   // Well diameter
-  const Real _dia;
+  Real _dia;
   // Flow direction
   const Real _dir;
   // Well friction
@@ -64,7 +64,7 @@ public:
   // unit vector along well
   const RealVectorValue _well_dir;
   // gravity acceleration value
-  const Real _grav;
+  Real _grav;
   // Angle between gravity vector and well_unity_vector
   const Real _angle;
 };

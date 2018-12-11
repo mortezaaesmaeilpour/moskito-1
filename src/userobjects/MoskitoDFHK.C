@@ -45,14 +45,21 @@ MoskitoDFHK::MoskitoDFHK(const InputParameters & parameters)
 void
 MoskitoDFHK::DFMCalculator(MoskitoDFGVar & input) const
 {
-  // conversion
-  input._rho_g *= kg_to_lbm / m3m3_to_ft3;
+  // conversion SI --> American petroleum units
+  input._rho_g *= kg_to_lbm / m3_to_ft3;
+  input._rho_l *= kg_to_lbm / m3_to_ft3;
+  input._grav *= m_to_ft;
+  input._dia *= m_to_ft;
+  input._v_m *= m_to_ft;
 
   MoskitoHKLVar tmp;
 
   HKinitialisation(input, tmp);
   HKcalculator(input, tmp);
   HKvfrac(input, tmp);
+
+  input._vd *= m_to_ft;
+
   std::cout<<tmp.v_sg<<","<<tmp.v_sl<<","<<input._FlowPat<<","<<input._vfrac<<std::endl;
 }
 
@@ -83,7 +90,7 @@ MoskitoDFHK::HKcalculator(MoskitoDFGVar & input, MoskitoHKLVar & LVar) const
   if (input._vfrac <= 0.25 && LVar.vd_tb > input._vd)
   {
       // Check transition between dispersed bubbly and bubbly flow
-      if (LVar.v_ms < (input._v_m * m_to_ft)) //TODO - Check
+      if (LVar.v_ms < input._v_m ) //TODO - Check
         Det_db_flow(input, LVar);
       else
         Det_bubbly_flow(input, LVar);
@@ -91,7 +98,7 @@ MoskitoDFHK::HKcalculator(MoskitoDFGVar & input, MoskitoHKLVar & LVar) const
   else
   {
     // Check transition from slug to churn flow and from d_bubbly to churn flow
-    if (LVar.v_sg > 1.08 * LVar.v_sl && LVar.v_ms < (input._v_m * m_to_ft))
+    if (LVar.v_sg > 1.08 * LVar.v_sl && LVar.v_ms < input._v_m )
     {
       // Check transition between churn and annular flow
       if (LVar.v_sg < LVar.v_gc)
@@ -102,7 +109,7 @@ MoskitoDFHK::HKcalculator(MoskitoDFGVar & input, MoskitoHKLVar & LVar) const
     else
     {
       // Check transition between slug and dispersed bubbly flow
-      if ((input._v_m * m_to_ft) < LVar.v_ms)
+      if (input._v_m < LVar.v_ms)
         Det_slug_flow(input, LVar);
       else
         Det_db_flow(input, LVar);
@@ -113,7 +120,7 @@ MoskitoDFHK::HKcalculator(MoskitoDFGVar & input, MoskitoHKLVar & LVar) const
 void
 MoskitoDFHK::HKvfrac(MoskitoDFGVar & input, MoskitoHKLVar & LVar) const
 {
-  input._vfrac = LVar.v_sg / (input._C0 * fabs(input._v_m * m_to_ft) + input._vd * input._dir);
+  input._vfrac = LVar.v_sg / (input._C0 * fabs(input._v_m) + input._vd * input._dir);
 
   if (input._vfrac < 0.0)
     input._vfrac = 0.0;
@@ -122,29 +129,27 @@ MoskitoDFHK::HKvfrac(MoskitoDFGVar & input, MoskitoHKLVar & LVar) const
 void
 MoskitoDFHK::cal_v_s(MoskitoDFGVar & input, MoskitoHKLVar & LVar) const
 {
-  if (input._dir == 1.0) // production, upflow
+  if (input._dir == 1.0 || input._dir == -1.0) // cocurrent flow
     LVar.v_sg =  input._v_m * input._rho_l * input._mfrac  / ( - input._mfrac * input._rho_g + input._rho_l * input._mfrac + input._rho_g);
-  else                 // injection, downflow
-    LVar.v_sg =  - input._v_m * input._rho_l * input._mfrac / ( - input._mfrac * input._rho_g  - input._rho_l * input._mfrac + input._rho_g);
+  // else                 // countercurrent
+  //   LVar.v_sg =  - input._v_m * input._rho_l * input._mfrac / ( - input._mfrac * input._rho_g  - input._rho_l * input._mfrac + input._rho_g);
 
-  LVar.v_sg *= m_to_ft;
-
-  if (input._dir == 1.0) // production, upflow
-    LVar.v_sl = input._v_m * m_to_ft - LVar.v_sg;
-  else          // injection, downflow
-    LVar.v_sl = LVar.v_sg - input._v_m * m_to_ft;
+  if (input._dir == 1.0 || input._dir == -1.0) // cocurrent flow
+    LVar.v_sl = input._v_m - LVar.v_sg;
+  // else          // countercurrent
+  //   LVar.v_sl = LVar.v_sg - input._v_m;
 }
 
 void
 MoskitoDFHK::cal_vd_b(MoskitoDFGVar & input, MoskitoHKLVar & LVar) const
 {
-  LVar.vd_b = 1.53 * std::pow(m_to_ft * input._grav * _surf_ten  * (input._rho_l - input._rho_g) / (std::pow(input._rho_l,2.0) / m3_to_ft3),1.0 / 4.0);
+  LVar.vd_b = 1.53 * std::pow(input._grav * _surf_ten  * (input._rho_l - input._rho_g) / std::pow(input._rho_l,2.0),1.0 / 4.0);
 }
 
 void
 MoskitoDFHK::cal_vd_tb(MoskitoDFGVar & input, MoskitoHKLVar & LVar) const
 {
-  LVar.vd_tb = 0.35 * std::pow(input._grav * m_to_ft * input._dia * m_to_ft * (input._rho_l - input._rho_g) /
+  LVar.vd_tb = 0.35 * std::pow(input._grav * input._dia  * (input._rho_l - input._rho_g) /
         input._rho_l ,0.5) * std::pow(std::cos(input._angle),0.5) *
         std::pow(1.0 + std::sin(input._angle),1.2);
 }
@@ -164,17 +169,16 @@ MoskitoDFHK::cal_v_gb(MoskitoDFGVar & input, MoskitoHKLVar & LVar) const
 void
 MoskitoDFHK::cal_v_gc(MoskitoDFGVar & input, MoskitoHKLVar & LVar) const
 {
-  LVar.v_gc = 3.1 * std::pow(m_to_ft * input._grav * _surf_ten * kg_to_lbm * (input._rho_l - input._rho_g) * kg_to_lbm / m3_to_ft3 / (std::pow(input._rho_g * kg_to_lbm / m3_to_ft3,2.0)),1.0 / 4.0);
+  LVar.v_gc = 3.1 * std::pow(input._grav * _surf_ten * (input._rho_l - input._rho_g) / (std::pow(input._rho_g,2.0)),1.0 / 4.0);
 }
 
 void
 MoskitoDFHK::cal_v_ms(MoskitoDFGVar & input, MoskitoHKLVar & LVar) const
 {
-  LVar.v_ms = std::pow((0.725 + 4.15 * std::pow(LVar.v_sg / input._v_m / m_to_ft, 0.5)) /
+  LVar.v_ms = std::pow((0.725 + 4.15 * std::pow(LVar.v_sg / input._v_m, 0.5)) /
           (2.0 * std::pow(0.4 * _surf_ten  / ((input._rho_l - input._rho_g ) *
-          input._grav / m3_to_ft3 * m_to_ft),0.5) * std::pow(input._rho_l /
-          (_surf_ten * m3_to_ft3) ,0.6) * std::pow(input._friction /
-          (2.0 * input._dia * m_to_ft), 0.4)), 1.0 / 1.2);
+          input._grav),0.5) * std::pow(input._rho_l / _surf_ten ,0.6) *
+          std::pow(input._friction / (2.0 * input._dia ), 0.4)), 1.0 / 1.2);
 }
 
 void
