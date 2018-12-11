@@ -21,51 +21,33 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>  */
 /**************************************************************************/
 
-#ifndef MOSKITODFGVAR_H
-#define MOSKITODFGVAR_H
+#include "MoskitoMassFlowRate.h"
 
-#include "Material.h"
+registerMooseObject("MoskitoApp", MoskitoMassFlowRate);
 
-// it is for storing global variables for drift flux uo
-class MoskitoDFGVar
+template <>
+InputParameters
+validParams<MoskitoMassFlowRate>()
 {
-public:
-  MoskitoDFGVar(Real v_m, Real rho_g, Real rho_l, const Real & mfrac, Real dia,
-    const Real & dir, const Real & friction, const RealVectorValue & gravity,
-    const RealVectorValue & well_dir);
+  InputParameters params = validParams<NodalBC>();
+  params.addRequiredParam<Real>("mass_flowrate",
+        "The mass flowrate of the mixture (kg/s)");
+  params.addRequiredParam<Real>("mixture_density",
+        "The density of mixture (kg/m^3)");
+  params.addClassDescription("Implements a NodalBC (Dirichlet) which calculates"
+                            " mass weighted flow rate for momentum eq");
+  return params;
+}
 
-  void DFMOutput(int & FlowPat, Real & vfrac, Real & C0, Real & vd);
+MoskitoMassFlowRate::MoskitoMassFlowRate(const InputParameters & parameters)
+  : NodalBC(parameters),
+    _m_dot(getParam<Real>("mass_flowrate")),
+    _rho_m(getParam<Real>("mixture_density"))
+{
+}
 
-  // Flow pattern 0 = nothing, 1 = bubbly, 2 = dispersed_bubbly, 3 = slug, 4 = churn, 5 = annular
-  int _FlowPat;
-  // Volumetric fraction of void phase
-  Real _vfrac;
-  // Drift Flux parameters
-  Real _C0;
-  Real _vd;
-
-  // mixture velocity of 2P-system
-  Real _v_m;
-  // Gas density
-  Real _rho_g;
-  // Liquid density
-  Real _rho_l;
-  // Mass fraction of void phase
-  const Real _mfrac;
-  // Well diameter
-  Real _dia;
-  // Flow direction
-  const Real _dir;
-  // Well friction
-  const Real _friction;
-  // The gravity acceleration as a vector
-  const RealVectorValue _gravity;
-  // unit vector along well
-  const RealVectorValue _well_dir;
-  // gravity acceleration value
-  Real _grav;
-  // Angle between gravity vector and well_unity_vector
-  const Real _angle;
-};
-
-#endif /* MOSKITODFGVAR_H */
+Real
+MoskitoMassFlowRate::computeQpResidual()
+{
+  return _u[_qp] - (_m_dot / _rho_m);
+}
