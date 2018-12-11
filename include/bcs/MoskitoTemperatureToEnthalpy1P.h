@@ -21,21 +21,21 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>  */
 /**************************************************************************/
 
-#ifndef MOSKITOENTHALPYTEMPERATUREDBC_H
-#define MOSKITOENTHALPYTEMPERATUREDBC_H
+#ifndef MOSKITOTEMPERATURETOENTHALPY1P_H
+#define MOSKITOTEMPERATURETOENTHALPY1P_H
 
 #include "NodalBC.h"
 #include "MoskitoEOS1P.h"
 
-class MoskitoEnthalpyTemperatureDBC;
+class MoskitoTemperatureToEnthalpy1P;
 
 template <>
-InputParameters validParams<MoskitoEnthalpyTemperatureDBC>();
+InputParameters validParams<MoskitoTemperatureToEnthalpy1P>();
 
-class MoskitoEnthalpyTemperatureDBC : public NodalBC
+class MoskitoTemperatureToEnthalpy1P : public NodalBC
 {
 public:
-  MoskitoEnthalpyTemperatureDBC(const InputParameters & parameters);
+  MoskitoTemperatureToEnthalpy1P(const InputParameters & parameters);
 
 protected:
   virtual Real computeQpResidual() override;
@@ -47,4 +47,4 @@ protected:
   const MoskitoEOS1P & _eos_uo;
 };
 
-#endif // MOSKITOENTHALPYTEMPERATUREDBC_H
+#endif // MOSKITOTEMPERATURETOENTHALPY1P_H
