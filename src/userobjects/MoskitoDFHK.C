@@ -58,7 +58,8 @@ MoskitoDFHK::DFMCalculator(MoskitoDFGVar & input) const
   HKcalculator(input, tmp);
   HKvfrac(input, tmp);
 
-  input._vd *= m_to_ft;
+  // conversion back to SI
+  input._vd /= m_to_ft;
 }
 
 void
