@@ -59,8 +59,6 @@ MoskitoDFHK::DFMCalculator(MoskitoDFGVar & input) const
   HKvfrac(input, tmp);
 
   input._vd *= m_to_ft;
-
-  std::cout<<tmp.v_sg<<","<<tmp.v_sl<<","<<input._FlowPat<<","<<input._vfrac<<std::endl;
 }
 
 void

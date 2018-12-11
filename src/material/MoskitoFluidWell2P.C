@@ -79,48 +79,37 @@ MoskitoFluidWell2P::computeQpProperties()
 
   _cp_m[_qp] = eos_uo.cp(_mfrac[_qp], _T[_qp]);
 
-  _dia[_qp] = _d;
-  _area[_qp] = PI * _d * _d / 4.0;
-
   _rho_l[_qp] = eos_uo.liquid.rho(_P[_qp], _T[_qp]);
   _rho_g[_qp] = eos_uo.gas.rho   (_P[_qp], _T[_qp]);
 
+  _dia[_qp] = _d;
+  _area[_qp] = PI * _d * _d / 4.0;
+
   _u[_qp] = _flow[_qp] / _area[_qp];
+
+  _rho_m[_qp] = 1.0 / (_mfrac[_qp] / _rho_g[_qp] + (1.0 - _mfrac[_qp]) / _rho_l[_qp]);
+  _Re[_qp] = _rho_m[_qp] * _dia[_qp] * fabs(_u[_qp]) / viscosity_uo.mixture_mu(_P[_qp], _T[_qp], _mfrac[_qp]);
 
   MoskitoFluidWellGeneral::computeQpProperties();
 
-// std::cout<<_u[_qp]<<"   "<<_rho_g[_qp]<<"   "<<_rho_l[_qp]<<"   "<<_mfrac[_qp]<<"   "<<
-//   _dia[_qp]<<"   "<<_dir[_qp]<<"   "<<_friction[_qp]<<"   "<<_gravity[_qp]<<"   "<<_well_unit_vect[_qp]<<std::endl;
-//   abort();
-  for (int i = 1; i < 601; ++i)
-    for (int j = 1; j < 501; ++j)
-    {
-      _u[_qp] = 0.0003 * pow(10.0,(i / 100.0 )); // kg/s = 0.198 x 10⁶ lbm/h
-      _mfrac[_qp] = 0.00001 * pow(10.0,(j / 100.0));
-
-
-  // vfrac and re has relationship so friction is dependent
   MoskitoDFGVar DFinp(_u[_qp], _rho_g[_qp], _rho_l[_qp], _mfrac[_qp],
     _dia[_qp], _dir[_qp], _friction[_qp], _gravity[_qp], _well_unit_vect[_qp]);
 
   dfm_uo.DFMCalculator(DFinp);
   DFinp.DFMOutput(_flow_pat[_qp], _vfrac[_qp], _c0[_qp], _u_d[_qp]);
-  }
-  abort();
 
   _rho_m[_qp] = _rho_g[_qp] * _vfrac[_qp] + (1.0 - _vfrac[_qp]) * _rho_l[_qp];
   _rho_pam[_qp] = _rho_g[_qp] * _c0[_qp]  * _vfrac[_qp] + (1.0 - _vfrac[_qp] * _c0[_qp]) * _rho_l[_qp];
 
-  _Re[_qp] = _rho_m[_qp] * _dia[_qp] * fabs(_u[_qp]) / viscosity_uo.mixture_mu(_P[_qp], _T[_qp], _mfrac[_qp]);
-
-
+  // based on volumetric mixture flow rate
   // _u_g[_qp]  = _c0[_qp] * _u[_qp] + _u_d[_qp];
   // _u_l[_qp]  = (1.0 - _vfrac[_qp] * _c0[_qp]) * _u[_qp] - _vfrac[_qp] * _u_d[_qp];
   // _u_l[_qp] /= 1.0 - _vfrac[_qp];
 
+  // based on mass mixing flow relate
+  // momentum eq is valid only by mass mixing flow rate
   _u_g[_qp]  = _c0[_qp] * _rho_m[_qp] * _u[_qp] + _rho_l[_qp] * _u_d[_qp];
   _u_g[_qp] /= _rho_pam[_qp];
-
   _u_l[_qp]  = (1.0 - _vfrac[_qp] * _c0[_qp]) * _rho_m[_qp]  * _u[_qp] - _rho_g[_qp] * _vfrac[_qp] * _u_d[_qp];
   _u_l[_qp] /= (1.0 - _vfrac[_qp]) * _rho_pam[_qp];
 
