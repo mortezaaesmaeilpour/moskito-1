@@ -21,35 +21,50 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>  */
 /**************************************************************************/
 
-#ifndef MOSKITOEOS2P_H
-#define MOSKITOEOS2P_H
+#ifndef MOSKITOVISCOSITY2P_H
+#define MOSKITOVISCOSITY2P_H
 
 #include "GeneralUserObject.h"
-#include "MoskitoEOS1P.h"
+#include "MoskitoViscosity1P.h"
 
-class MoskitoEOS2P;
+class MoskitoViscosity2P;
 
 template <>
-InputParameters validParams<MoskitoEOS2P>();
+InputParameters validParams<MoskitoViscosity2P>();
 
-class MoskitoEOS2P : public GeneralUserObject
+  /*
+  all these mixing approaches are based on M.M. Awad, Y.S. Muzychka, 2008
+  "Effective property models for homogeneous two-phase flows"
+  */
+
+class MoskitoViscosity2P : public GeneralUserObject
 {
 public:
-  MoskitoEOS2P(const InputParameters & parameters);
-  virtual ~MoskitoEOS2P();
+  MoskitoViscosity2P(const InputParameters & parameters);
+  virtual ~MoskitoViscosity2P();
 
   virtual void execute() final {}
   virtual void initialize() final {}
   virtual void finalize() final {}
 
-  Real GasMassFraction(const Real & enthalpy, const Real & pressure) const;
-  Real cp(const Real & massfraction, const Real & temperature) const;
-  Real h_to_T(const Real & enthalpy, const Real & pressure) const;
+  // mixture viscosity from pressure, temperature and mass fraction
+  Real mixture_mu(Real pressure, Real temperature, Real mass_fraction) const;
 
-  // Userobject to equation of state for gas
-  const MoskitoEOS1P & gas;
-  // Userobject to equation of state for liquid
-  const MoskitoEOS1P & liquid;
+protected:
+  // Maxwell Eucken model 1 method
+  Real ME1_calc(Real mu_l, Real mu_g, Real x) const;
+  // Maxwell Eucken model 2 method
+  Real ME2_calc(Real mu_l, Real mu_g, Real x) const;
+  // Effective Medium Theory method
+  Real EMT_calc(Real mu_l, Real mu_g, Real x) const;
+
+  // Userobject to viscosity equation for gas
+  const MoskitoViscosity1P & gas;
+  // Userobject to viscosity equation for liquid
+  const MoskitoViscosity1P & liquid;
+  // mixing approach
+  MooseEnum _mt;
+  enum MT {Series, Parallel, ME1, ME2, EMT, Mean_ME12};
 };
 
-#endif /* MOSKITOEOS2P_H */
+#endif /* MOSKITOVISCOSITY2P_H */

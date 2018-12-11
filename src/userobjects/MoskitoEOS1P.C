@@ -31,6 +31,7 @@ validParams<MoskitoEOS1P>()
   return params;
 }
 
-MoskitoEOS1P::MoskitoEOS1P(const InputParameters & parameters) : GeneralUserObject(parameters) {}
+MoskitoEOS1P::MoskitoEOS1P(const InputParameters & parameters)
+  : GeneralUserObject(parameters) {}
 
 MoskitoEOS1P::~MoskitoEOS1P() {}

@@ -21,35 +21,19 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>  */
 /**************************************************************************/
 
-#ifndef MOSKITOEOS2P_H
-#define MOSKITOEOS2P_H
-
-#include "GeneralUserObject.h"
-#include "MoskitoEOS1P.h"
-
-class MoskitoEOS2P;
+#include "MoskitoViscosity1P.h"
 
 template <>
-InputParameters validParams<MoskitoEOS2P>();
-
-class MoskitoEOS2P : public GeneralUserObject
+InputParameters
+validParams<MoskitoViscosity1P>()
 {
-public:
-  MoskitoEOS2P(const InputParameters & parameters);
-  virtual ~MoskitoEOS2P();
+  InputParameters params = validParams<GeneralUserObject>();
+  return params;
+}
 
-  virtual void execute() final {}
-  virtual void initialize() final {}
-  virtual void finalize() final {}
+MoskitoViscosity1P::MoskitoViscosity1P(const InputParameters & parameters)
+  : GeneralUserObject(parameters)
+{
+}
 
-  Real GasMassFraction(const Real & enthalpy, const Real & pressure) const;
-  Real cp(const Real & massfraction, const Real & temperature) const;
-  Real h_to_T(const Real & enthalpy, const Real & pressure) const;
-
-  // Userobject to equation of state for gas
-  const MoskitoEOS1P & gas;
-  // Userobject to equation of state for liquid
-  const MoskitoEOS1P & liquid;
-};
-
-#endif /* MOSKITOEOS2P_H */
+MoskitoViscosity1P::~MoskitoViscosity1P() {}

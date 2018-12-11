@@ -36,16 +36,18 @@ class MoskitoEOSIdealGas : public MoskitoEOS1P
 public:
   MoskitoEOSIdealGas(const InputParameters & parameters);
 
-  virtual Real rho(Real pressure, Real temperature) const override;
-  virtual void drho_dpT(
-      Real pressure, Real temperature, Real & rho, Real & drho_dp, Real & drho_dT) const override;
-  virtual Real T_to_h(Real temperature) const override;
-  virtual Real h_to_T(Real enthalpy) const override;
+  virtual Real rho(const Real & pressure, const Real & temperature) const override;
+  virtual void drho_dpT(const Real & pressure, const Real & temperature,
+                        Real & rho, Real & drho_dp, Real & drho_dT) const override;
+  virtual Real T_to_h(const Real & temperature) const override;
+  virtual Real h_to_T(const Real & enthalpy) const override;
+  virtual Real cp(const Real & temperature) const override;
+  virtual Real lambda(const Real & pressure, const Real & temperature) const override;
 
 protected:
-  // Molar mass of gas
+  const Real _cp;
+  const Real _lambda;
   const Real _molar_mass;
-
   // Universal Gas constant (J/mol.K)
   const Real _R;
 };

@@ -21,35 +21,35 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>  */
 /**************************************************************************/
 
-#ifndef MOSKITOEOS2P_H
-#define MOSKITOEOS2P_H
+#include "MoskitoDFGVar.h"
 
-#include "GeneralUserObject.h"
-#include "MoskitoEOS1P.h"
-
-class MoskitoEOS2P;
-
-template <>
-InputParameters validParams<MoskitoEOS2P>();
-
-class MoskitoEOS2P : public GeneralUserObject
+MoskitoDFGVar::MoskitoDFGVar(Real v_m, Real rho_g,
+  Real rho_l, const Real & mfrac, Real dia,
+  const Real & dir, const Real & friction, const RealVectorValue & gravity,
+  const RealVectorValue & well_dir)
+  : _FlowPat(0),
+    _vfrac(0.0),
+    _C0(0.0),
+    _vd(0.0),
+    _v_m(v_m),
+    _rho_g(rho_g),
+    _rho_l(rho_l),
+    _mfrac(mfrac),
+    _dia(dia),
+    _dir(dir),
+    _friction(friction),
+    _gravity(gravity),
+    _well_dir(well_dir),
+    _grav(_gravity.norm()),
+    _angle(acos(fabs(_gravity / _grav * _well_dir)))
 {
-public:
-  MoskitoEOS2P(const InputParameters & parameters);
-  virtual ~MoskitoEOS2P();
+}
 
-  virtual void execute() final {}
-  virtual void initialize() final {}
-  virtual void finalize() final {}
-
-  Real GasMassFraction(const Real & enthalpy, const Real & pressure) const;
-  Real cp(const Real & massfraction, const Real & temperature) const;
-  Real h_to_T(const Real & enthalpy, const Real & pressure) const;
-
-  // Userobject to equation of state for gas
-  const MoskitoEOS1P & gas;
-  // Userobject to equation of state for liquid
-  const MoskitoEOS1P & liquid;
-};
-
-#endif /* MOSKITOEOS2P_H */
+void
+MoskitoDFGVar::DFMOutput(int & FlowPat, Real & vfrac, Real & C0, Real & vd)
+{
+  FlowPat = _FlowPat;
+  vfrac = _vfrac;
+  C0 = _C0;
+  vd = _vd;
+}

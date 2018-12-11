@@ -32,31 +32,30 @@ validParams<MoskitoEOSIdealGas>()
   InputParameters params = validParams<MoskitoEOS1P>();
 
   params.addRequiredParam<Real>("molar_mass", "Molar mass of the gas (kg/mol)");
-  params.addParam<Real>(
-      "cp", 1.005e3, "Constant specific heat capacity at constant pressure (J/kg/K)");
+  params.addParam<Real>("specific_heat", 1.005e3,
+        "Constant specific heat capacity at constant pressure (J/kg/K)");
 
   return params;
 }
 
 MoskitoEOSIdealGas::MoskitoEOSIdealGas(const InputParameters & parameters)
-  : MoskitoEOS1P(parameters), _molar_mass(getParam<Real>("molar_mass")), _R(8.3144598)
+  : MoskitoEOS1P(parameters),
+    _cp(getParam<Real>("specific_heat")),
+    _lambda(0.0),
+    _molar_mass(getParam<Real>("molar_mass")),
+    _R(8.3144598)
 {
-  _cp = getParam<Real>("cp");
-  _density_ref = 0.0;
-  _T_ref = 0.0;
-  _P_ref = 0.0;
-  _h_ref = 0.0;
 }
 
 Real
-MoskitoEOSIdealGas::rho(Real pressure, Real temperature) const
+MoskitoEOSIdealGas::rho(const Real & pressure, const Real & temperature) const
 {
   return pressure * _molar_mass / (_R * temperature);
 }
 
 void
-MoskitoEOSIdealGas::drho_dpT(
-    Real pressure, Real temperature, Real & rho, Real & drho_dp, Real & drho_dT) const
+MoskitoEOSIdealGas::drho_dpT(const Real & pressure, const Real & temperature,
+                            Real & rho, Real & drho_dp, Real & drho_dT) const
 {
   rho = this->rho(pressure, temperature);
   drho_dp = _molar_mass / (_R * temperature);
@@ -64,13 +63,25 @@ MoskitoEOSIdealGas::drho_dpT(
 }
 
 Real
-MoskitoEOSIdealGas::h_to_T(Real enthalpy) const
+MoskitoEOSIdealGas::h_to_T(const Real & enthalpy) const
 {
   return enthalpy / _cp;
 }
 
 Real
-MoskitoEOSIdealGas::T_to_h(Real temperature) const
+MoskitoEOSIdealGas::T_to_h(const Real & temperature) const
 {
-  return _cp * temperature;
+  return cp(temperature) * temperature;
+}
+
+Real
+MoskitoEOSIdealGas::cp(const Real & temperature) const
+{
+  return _cp;
+}
+
+Real
+MoskitoEOSIdealGas::lambda(const Real & pressure, const Real & temperature) const
+{
+  return _lambda;
 }

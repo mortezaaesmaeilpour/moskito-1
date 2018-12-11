@@ -16,7 +16,7 @@
     type = MoskitoEOSNaturalGas
     molar_mass = 2.16e-2
     specific_gravity = 0.75
-    cp = 1000
+    specific_heat = 1000
   [../]
   [./viscosity]
     type = MoskitoViscosityConst

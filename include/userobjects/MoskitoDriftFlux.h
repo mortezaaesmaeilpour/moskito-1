@@ -21,35 +21,33 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>  */
 /**************************************************************************/
 
-#ifndef MOSKITOEOS2P_H
-#define MOSKITOEOS2P_H
+#ifndef MOSKITODRIFTFLUX_H
+#define MOSKITODRIFTFLUX_H
 
 #include "GeneralUserObject.h"
-#include "MoskitoEOS1P.h"
+#include "MoskitoDFGVar.h"
 
-class MoskitoEOS2P;
+class MoskitoDriftFlux;
 
 template <>
-InputParameters validParams<MoskitoEOS2P>();
+InputParameters validParams<MoskitoDriftFlux>();
 
-class MoskitoEOS2P : public GeneralUserObject
+class MoskitoDriftFlux : public GeneralUserObject
 {
 public:
-  MoskitoEOS2P(const InputParameters & parameters);
-  virtual ~MoskitoEOS2P();
+  MoskitoDriftFlux(const InputParameters & parameters);
+  virtual ~MoskitoDriftFlux();
 
   virtual void execute() final {}
   virtual void initialize() final {}
   virtual void finalize() final {}
 
-  Real GasMassFraction(const Real & enthalpy, const Real & pressure) const;
-  Real cp(const Real & massfraction, const Real & temperature) const;
-  Real h_to_T(const Real & enthalpy, const Real & pressure) const;
-
-  // Userobject to equation of state for gas
-  const MoskitoEOS1P & gas;
-  // Userobject to equation of state for liquid
-  const MoskitoEOS1P & liquid;
+  virtual void DFMCalculator(MoskitoDFGVar & input) const = 0;
+protected:
+  // Convert from Si units to American system
+  const Real m_to_ft    = 3.2808398;
+  const Real m3_to_ft3  = 35.3146667;
+  const Real kg_to_lbm  = 2.2046225;
 };
 
-#endif /* MOSKITOEOS2P_H */
+#endif /* MOSKITODRIFTFLUX_H */

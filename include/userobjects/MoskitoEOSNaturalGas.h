@@ -36,13 +36,15 @@ class MoskitoEOSNaturalGas : public MoskitoEOS1P
 public:
   MoskitoEOSNaturalGas(const InputParameters & parameters);
 
-  virtual Real rho(Real pressure, Real temperature) const override;
-  virtual void drho_dpT(
-      Real pressure, Real temperature, Real & rho, Real & drho_dp, Real & drho_dT) const override;
-  virtual Real T_to_h(Real temperature) const override;
-  virtual Real h_to_T(Real enthalpy) const override;
+  virtual Real rho(const Real & pressure, const Real & temperature) const override;
+  virtual void drho_dpT(const Real & pressure, const Real & temperature,
+                        Real & rho, Real & drho_dp, Real & drho_dT) const override;
+  virtual Real T_to_h(const Real & temperature) const override;
+  virtual Real h_to_T(const Real & enthalpy) const override;
+  virtual Real cp(const Real & temperature) const override;
+  virtual Real lambda(const Real & pressure, const Real & temperature) const override;
   void Pseudo_Critical_Calc(const Real & g);
-  Real z_factor(Real pressure, Real temperature) const;
+  Real z_factor(const Real & pressure, const Real & temperature) const;
 
 
 protected:
@@ -55,6 +57,8 @@ protected:
   // Pseudo critical properties
   Real _P_pc;
   Real _T_pc;
+  const Real _cp;
+  const Real _lambda;
 
   // constants for z factor calculation based on Kareem et al 2016
   const std::array<Real, 20> a{
