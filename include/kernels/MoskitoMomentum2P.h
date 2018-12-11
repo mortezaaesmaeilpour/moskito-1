@@ -51,21 +51,13 @@ protected:
   unsigned _h_var_number;
 
   // The specific heat of mixture at constant pressure
-  const MaterialProperty<Real> & _cp_m;
+  const MaterialProperty<Real> & _cp;
   // The mixture density
-  const MaterialProperty<Real> & _rho_m;
+  const MaterialProperty<Real> & _rho;
   // The first derivative of mixture density wrt pressure
-  const MaterialProperty<Real> & _drho_m_dp;
-  // The second derivative of mixture density wrt pressure
-  const MaterialProperty<Real> & _drho_m_dp_2;
+  const MaterialProperty<Real> & _drho_dp;
   // The first derivative of mixture density wrt temperature
-  const MaterialProperty<Real> & _drho_m_dT;
-  // The second derivative of mixture density wrt temperature
-  const MaterialProperty<Real> & _drho_m_dT_2;
-  // The second derivative of mixture density wrt temperature & pressure
-  const MaterialProperty<Real> & _drho_m_dTdp;
-  // The second derivative of mixture density wrt pressure & temperature
-  const MaterialProperty<Real> & _drho_m_dpdT;
+  const MaterialProperty<Real> & _drho_dT;
   // The pipe diameter
   const MaterialProperty<Real> & _d;
   // The pipe Moody friction factor
@@ -76,6 +68,8 @@ protected:
   const MaterialProperty<Real> & _area;
   // The unit vector of well direction
   const MaterialProperty<RealVectorValue> & _well_dir;
+  // The flow direction
+  const MaterialProperty<Real> & _flow_dir;
 
   // residual for dgamma_dz in the momentum conservation
   const MaterialProperty<Real> & _dgamma_dz;

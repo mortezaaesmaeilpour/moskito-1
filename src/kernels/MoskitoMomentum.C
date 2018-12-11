@@ -84,7 +84,7 @@ MoskitoMomentum::computeQpJacobian()
   RealVectorValue j = 0.0;
 
   j += _drho_dp[_qp] * _grad_p[_qp];
-  j += _drho_dT[_qp] * _grad_h[_qp]/ _cp[_qp];
+  j += _drho_dT[_qp] * _grad_h[_qp] / _cp[_qp];
   j *= _flow_dir[_qp] * 2.0 * _phi[_j][_qp] * _u[_qp];
   j += _flow_dir[_qp] * 2.0 * _rho[_qp] * (_phi[_j][_qp]  * _grad_u[_qp]
         + _u[_qp] * _grad_phi[_j][_qp]);
