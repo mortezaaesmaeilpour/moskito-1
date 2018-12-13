@@ -29,7 +29,7 @@ template <>
 InputParameters
 validParams<MoskitoTimeEnergy>()
 {
-  InputParameters params = validParams<Kernel>();
+  InputParameters params = validParams<TimeKernel>();
 
   params.addRequiredCoupledVar("pressure", "Pressure nonlinear variable");
   params.addRequiredCoupledVar("flowrate", "Volumetric flowrate nonlinear variable");
@@ -40,7 +40,7 @@ validParams<MoskitoTimeEnergy>()
 }
 
 MoskitoTimeEnergy::MoskitoTimeEnergy(const InputParameters & parameters)
-  : Kernel(parameters),
+  : TimeKernel(parameters),
     _q(coupledValue("flowrate")),
     _p_dot(coupledDot("pressure")),
     _q_dot(coupledDot("flowrate")),

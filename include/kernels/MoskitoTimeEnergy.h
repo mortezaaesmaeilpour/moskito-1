@@ -24,14 +24,14 @@
 #ifndef MOSKITOTIMEENERGY_H
 #define MOSKITOTIMEENERGY_H
 
-#include "Kernel.h"
+#include "TimeKernel.h"
 
 class MoskitoTimeEnergy;
 
 template <>
 InputParameters validParams<MoskitoTimeEnergy>();
 
-class MoskitoTimeEnergy : public Kernel
+class MoskitoTimeEnergy : public TimeKernel
 {
 public:
   MoskitoTimeEnergy(const InputParameters & parameters);

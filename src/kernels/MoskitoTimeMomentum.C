@@ -29,7 +29,7 @@ template <>
 InputParameters
 validParams<MoskitoTimeMomentum>()
 {
-  InputParameters params = validParams<Kernel>();
+  InputParameters params = validParams<TimeKernel>();
 
   params.addRequiredCoupledVar("pressure", "Pressure nonlinear variable");
   params.addRequiredCoupledVar("enthalpy", "Specific enthalpy nonlinear variable");
@@ -40,7 +40,7 @@ validParams<MoskitoTimeMomentum>()
 }
 
 MoskitoTimeMomentum::MoskitoTimeMomentum(const InputParameters & parameters)
-  : Kernel(parameters),
+  : TimeKernel(parameters),
     _p_dot(coupledDot("pressure")),
     _h_dot(coupledDot("enthalpy")),
     _dp_dot(coupledDotDu("pressure")),
