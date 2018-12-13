@@ -46,27 +46,7 @@
   [../]
 []
 
-# [Functions]
-#   [./void]
-#     type = ParsedFunction
-#     value = 'x'
-#   [../]
-# []
-
 [Materials]
-  # [./g]
-  #   type = GenericConstantMaterial
-  #   prop_names = 'drift_velocity flow_type_c0 void_fraction'
-  #   prop_values = '1.094 1.0 0.65'
-  #   output_properties = 'void_fraction drift_velocity'
-  #   outputs = exodus
-  # [../]
-  # [./v]
-  #   type = GenericFunctionMaterial
-  #   prop_names = 'void_fraction'
-  #   prop_values = 'void'
-  #   outputs = exodus
-  # [../]
   [./area0]
     type = MoskitoFluidWell2P
     pressure = p
@@ -90,7 +70,6 @@
   [./p]
   [../]
   [./q]
-    initial_condition = 1
   [../]
 []
 

@@ -29,7 +29,7 @@ template <>
 InputParameters
 validParams<MoskitoTimeMass>()
 {
-  InputParameters params = validParams<Kernel>();
+  InputParameters params = validParams<TimeKernel>();
 
   params.addRequiredCoupledVar("enthalpy", "Specific enthalpy nonlinear variable");
   params.addClassDescription("Time derivative part of mass conservation equation for "
@@ -39,7 +39,7 @@ validParams<MoskitoTimeMass>()
 }
 
 MoskitoTimeMass::MoskitoTimeMass(const InputParameters & parameters)
-  : Kernel(parameters),
+  : TimeKernel(parameters),
     _h_dot(coupledDot("enthalpy")),
     _dh_dot(coupledDotDu("enthalpy")),
     _h_var_number(coupled("enthalpy")),

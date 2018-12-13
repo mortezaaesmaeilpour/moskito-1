@@ -21,24 +21,26 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>  */
 /**************************************************************************/
 
-#include "MoskitoEnthalpyTemperatureDBC.h"
+#include "MoskitoTemperatureToEnthalpy1P.h"
 
-registerMooseObject("MoskitoApp", MoskitoEnthalpyTemperatureDBC);
+registerMooseObject("MoskitoApp", MoskitoTemperatureToEnthalpy1P);
 
 template <>
 InputParameters
-validParams<MoskitoEnthalpyTemperatureDBC>()
+validParams<MoskitoTemperatureToEnthalpy1P>()
 {
   InputParameters params = validParams<NodalBC>();
-  params.addRequiredParam<UserObjectName>("eos_uo", "The name of the userobject for EOS");
+  params.addRequiredParam<UserObjectName>("eos_uo",
+        "The name of the userobject for EOS");
   params.addRequiredParam<Real>("temperature", "Temperature value of the BC");
   params.declareControllable("temperature");
   params.addClassDescription("Implements a NodalBC (Dirichlet) which calculates "
-                            "specific enthalpy using temperature based on EOS ");
+                            "specific enthalpy using temperature based on EOS "
+                            " for 1 phase flow");
   return params;
 }
 
-MoskitoEnthalpyTemperatureDBC::MoskitoEnthalpyTemperatureDBC(const InputParameters & parameters)
+MoskitoTemperatureToEnthalpy1P::MoskitoTemperatureToEnthalpy1P(const InputParameters & parameters)
   : NodalBC(parameters),
     _T(getParam<Real>("temperature")),
     _eos_uo(getUserObject<MoskitoEOS1P>("eos_uo"))
@@ -46,7 +48,7 @@ MoskitoEnthalpyTemperatureDBC::MoskitoEnthalpyTemperatureDBC(const InputParamete
 }
 
 Real
-MoskitoEnthalpyTemperatureDBC::computeQpResidual()
+MoskitoTemperatureToEnthalpy1P::computeQpResidual()
 {
   return _u[_qp] - _eos_uo.T_to_h(_T);
 }

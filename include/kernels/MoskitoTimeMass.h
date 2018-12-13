@@ -24,14 +24,14 @@
 #ifndef MOSKITOTIMEMASS_H
 #define MOSKITOTIMEMASS_H
 
-#include "Kernel.h"
+#include "TimeKernel.h"
 
 class MoskitoTimeMass;
 
 template <>
 InputParameters validParams<MoskitoTimeMass>();
 
-class MoskitoTimeMass : public Kernel
+class MoskitoTimeMass : public TimeKernel
 {
 public:
   MoskitoTimeMass(const InputParameters & parameters);

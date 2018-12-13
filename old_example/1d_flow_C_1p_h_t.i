@@ -3,7 +3,7 @@
   dim = 1
   xmin = 0
   xmax = 1000
-  nx = 1000
+  nx = 100
 []
 
 [MeshModifiers]
@@ -18,7 +18,11 @@
 [UserObjects]
   [./eos]
     type = MoskitoEOSIdealFluid
+    # to have relative pressure to atmosphere
     reference_pressure = 0
+    reference_density = 998.29
+    # to see more compressibility
+    bulk_modulus = 1e+08
   [../]
   [./viscosity]
     type = MoskitoViscosityConst
@@ -37,6 +41,7 @@
     well_diameter = 0.2
     roughness_type = smooth
     output_properties = 'temperature density well_velocity well_reynolds_no well_moody_friction'
+    outputs = exodus
     block = 0
   [../]
   [./area1]
@@ -47,9 +52,10 @@
     well_direction = x
     eos_uo = eos
     viscosity_uo = viscosity
-    well_diameter = 0.35
+    well_diameter = 0.4
     roughness_type = smooth
     output_properties = 'temperature density well_velocity well_reynolds_no well_moody_friction'
+    outputs = exodus
     block = 1
   [../]
 []
@@ -68,7 +74,7 @@
     value = 0.1
   [../]
   [./hbc]
-    type = MoskitoEnthalpyTemperatureDBC
+    type = MoskitoTemperatureToEnthalpy1P
     variable = h
     boundary = left
     temperature = 300
@@ -82,7 +88,6 @@
     initial_condition = 83950
   [../]
   [./p]
-    # initial_condition = 2e5
   [../]
   [./q]
     scaling = 1e-6
@@ -91,36 +96,36 @@
 
 [Kernels]
   [./hkernel]
-    type = MoskitoEnergy1P
+    type = MoskitoEnergy
     variable = h
     pressure = p
     flowrate = q
   [../]
   [./htkernel]
-    type = MoskitoTimeEnergy1P
+    type = MoskitoTimeEnergy
     variable = h
     pressure = p
     flowrate = q
   [../]
   [./pkernel]
-    type = MoskitoMass1P
+    type = MoskitoMass
     variable = p
     flowrate = q
     enthalpy = h
   [../]
   [./ptkernel]
-    type = MoskitoTimeMass1P
+    type = MoskitoTimeMass
     variable = p
     enthalpy = h
   [../]
   [./qkernel]
-    type = MoskitoMomentum1P
+    type = MoskitoMomentum
     variable = q
     pressure = p
     enthalpy = h
   [../]
   [./qtkernel]
-    type = MoskitoTimeMomentum1P
+    type = MoskitoTimeMomentum
     variable = q
     pressure = p
     enthalpy = h
@@ -128,7 +133,7 @@
 []
 
 [Preconditioning]
-  active = 'p3'
+  active = 'p2'
   [./p1]
     type = SMP
     full = true
@@ -155,7 +160,7 @@
   # num_steps = 50
   l_tol = 1e-10
   l_max_its = 50
-  nl_rel_tol = 1e-9
+  nl_rel_tol = 1e-8
   nl_abs_tol = 1e-10
   nl_max_its = 50
   solve_type = NEWTON
@@ -165,30 +170,6 @@
   [../]
 []
 
-# [Postprocessors]
-#   [./h]
-#     type = VariableResidual
-#     variable = h
-#   [../]
-#   [./p]
-#     type = VariableResidual
-#     variable = p
-#   [../]
-#   [./q]
-#     type = VariableResidual
-#     variable = q
-#   [../]
-# []
-
 [Outputs]
-  # exodus = true
-  print_linear_residuals = true
-  [./test]
-    type = Exodus
-    output_material_properties = true
-  [../]
-  # [./debug]
-  # type = VariableResidualNormsDebugOutput
-  # output_nonlinear = true
-  # [../]
+  exodus = true
 []

@@ -21,30 +21,33 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>  */
 /**************************************************************************/
 
-#ifndef MOSKITOENTHALPYTEMPERATUREDBC_H
-#define MOSKITOENTHALPYTEMPERATUREDBC_H
+#include "MoskitoMassFlowRate.h"
 
-#include "NodalBC.h"
-#include "MoskitoEOS1P.h"
-
-class MoskitoEnthalpyTemperatureDBC;
+registerMooseObject("MoskitoApp", MoskitoMassFlowRate);
 
 template <>
-InputParameters validParams<MoskitoEnthalpyTemperatureDBC>();
-
-class MoskitoEnthalpyTemperatureDBC : public NodalBC
+InputParameters
+validParams<MoskitoMassFlowRate>()
 {
-public:
-  MoskitoEnthalpyTemperatureDBC(const InputParameters & parameters);
+  InputParameters params = validParams<NodalBC>();
+  params.addRequiredParam<Real>("mass_flowrate",
+        "The mass flowrate of the mixture (kg/s)");
+  params.addRequiredParam<Real>("mixture_density",
+        "The density of mixture (kg/m^3)");
+  params.addClassDescription("Implements a NodalBC (Dirichlet) which calculates"
+                            " mass weighted flow rate for momentum eq");
+  return params;
+}
 
-protected:
-  virtual Real computeQpResidual() override;
+MoskitoMassFlowRate::MoskitoMassFlowRate(const InputParameters & parameters)
+  : NodalBC(parameters),
+    _m_dot(getParam<Real>("mass_flowrate")),
+    _rho_m(getParam<Real>("mixture_density"))
+{
+}
 
-  // temperature value
-  const Real & _T;
-
-  // Userobject to equation of state
-  const MoskitoEOS1P & _eos_uo;
-};
-
-#endif // MOSKITOENTHALPYTEMPERATUREDBC_H
+Real
+MoskitoMassFlowRate::computeQpResidual()
+{
+  return _u[_qp] - (_m_dot / _rho_m);
+}

@@ -21,51 +21,26 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>  */
 /**************************************************************************/
 
-#ifndef MOSKITODFGVAR_H
-#define MOSKITODFGVAR_H
+#ifndef MOSKITOMASSFLOWRATE_H
+#define MOSKITOMASSFLOWRATE_H
 
-#include "Material.h"
+#include "NodalBC.h"
 
-// it is for storing global variables for drift flux uo
-class MoskitoDFGVar
+class MoskitoMassFlowRate;
+
+template <>
+InputParameters validParams<MoskitoMassFlowRate>();
+
+class MoskitoMassFlowRate : public NodalBC
 {
 public:
-  MoskitoDFGVar(Real v_m, Real rho_g, Real rho_l, const Real & mfrac, Real dia,
-    const Real & dir, const Real & friction, const RealVectorValue & gravity,
-    const RealVectorValue & well_dir);
+  MoskitoMassFlowRate(const InputParameters & parameters);
 
-  void DFMOutput(int & FlowPat, Real & vfrac, Real & C0, Real & vd);
+protected:
+  virtual Real computeQpResidual() override;
 
-  // Flow pattern 0 = nothing, 1 = bubbly, 2 = dispersed_bubbly, 3 = slug, 4 = churn, 5 = annular
-  int _FlowPat;
-  // Volumetric fraction of void phase
-  Real _vfrac;
-  // Drift Flux parameters
-  Real _C0;
-  Real _vd;
-
-  // mixture velocity of 2P-system
-  Real _v_m;
-  // Gas density
-  Real _rho_g;
-  // Liquid density
-  Real _rho_l;
-  // Mass fraction of void phase
-  const Real _mfrac;
-  // Well diameter
-  Real _dia;
-  // Flow direction
-  const Real _dir;
-  // Well friction
-  const Real _friction;
-  // The gravity acceleration as a vector
-  const RealVectorValue _gravity;
-  // unit vector along well
-  const RealVectorValue _well_dir;
-  // gravity acceleration value
-  Real _grav;
-  // Angle between gravity vector and well_unity_vector
-  const Real _angle;
+  const Real & _m_dot;
+  const Real & _rho_m;
 };
 
-#endif /* MOSKITODFGVAR_H */
+#endif // MOSKITOMASSFLOWRATE_H
