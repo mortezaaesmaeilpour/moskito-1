@@ -28,33 +28,10 @@ InputParameters
 validParams<MoskitoEOS2P>()
 {
   InputParameters params = validParams<GeneralUserObject>();
-  params.addRequiredParam<UserObjectName>("eos_uo_gas",
-        "The name of the EOS userobject for gas");
-  params.addRequiredParam<UserObjectName>("eos_uo_liquid",
-        "The name of the EOS userobject for liquid");
   return params;
 }
 
 MoskitoEOS2P::MoskitoEOS2P(const InputParameters & parameters)
-  : FluidProperties(parameters),
-    _liquid_name(isParamValid("eos_uo_liquid") ? getParam<UserObjectName>("eos_uo_liquid")
-                                           : UserObjectName(name() + ":liquid")),
-    _gas_name(isParamValid("eos_uo_gas") ? getParam<UserObjectName>("eos_uo_gas")
-                                         : UserObjectName(name() + ":gas"))
+  : FluidProperties(parameters)
 {
-  if (!isParamValid("eos_uo_liquid"))
-    if (_tid == 0 && _fe_problem.hasUserObject(_liquid_name))
-      paramError("eos_uo_liquid",
-                 "The two-phase fluid properties object '" + name() + "' is ",
-                 "trying to create a single-phase fluid properties object with ",
-                 "name '", _liquid_name, "', but a single-phase fluid properties ",
-                 "object with this name already exists.");
-
-  if (!isParamValid("eos_uo_gas"))
-    if (_tid == 0 && _fe_problem.hasUserObject(_gas_name))
-      paramError("eos_uo_gas",
-                 "The two-phase fluid properties object '" + name() + "' is ",
-                 "trying to create a single-phase fluid properties object with ",
-                 "name '", _gas_name, "', but a single-phase fluid properties ",
-                 "object with this name already exists.");
 }

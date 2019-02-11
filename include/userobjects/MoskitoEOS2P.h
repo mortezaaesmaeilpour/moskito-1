@@ -37,23 +37,9 @@ class MoskitoEOS2P : public FluidProperties
 public:
   MoskitoEOS2P(const InputParameters & parameters);
 
-  virtual const UserObjectName & getGasName() const { return _gas_name; }
-  virtual const UserObjectName & getLiquidName() const { return _liquid_name; }
-
-  virtual Real GasMassFraction(const Real & pressure, const Real & enthalpy) const = 0;
+  virtual void GMFrac_from_p_h(const Real & p, const Real & h, Real & gmfrac, Real & T) const = 0;
   virtual Real T_from_p_h(const Real & pressure, const Real & enthalpy) const = 0;
   virtual Real h_lat(const Real & pressure, const Real & temperature) const = 0;
-
-  // Userobject to equation of state for gas
-  const SinglePhaseFluidProperties * gas;
-  // Userobject to equation of state for liquid
-  const SinglePhaseFluidProperties * liquid;
-
-protected:
-  /// The name of the user object that provides liquid phase fluid properties
-  const UserObjectName _liquid_name;
-  /// The name of the user object that provides gas phase fluid properties
-  const UserObjectName _gas_name;
 };
 
 #endif /* MOSKITOEOS2P_H */
