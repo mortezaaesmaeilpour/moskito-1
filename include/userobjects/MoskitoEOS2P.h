@@ -40,6 +40,9 @@ public:
   virtual void GMFrac_from_p_h(const Real & p, const Real & h, Real & gmfrac, Real & T) const = 0;
   virtual Real T_from_p_h(const Real & pressure, const Real & enthalpy) const = 0;
   virtual Real h_lat(const Real & pressure, const Real & temperature) const = 0;
+
+  const MoskitoEOS1P * liquid;
+  const MoskitoEOS1P * gas;
 };
 
 #endif /* MOSKITOEOS2P_H */

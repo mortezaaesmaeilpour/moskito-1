@@ -55,7 +55,7 @@ MoskitoFluidWell1P::computeQpProperties()
   _T[_qp] = eos_uo.h_to_T(_h[_qp]);
   _cp[_qp] = eos_uo.cp(_T[_qp]);
 
-  eos_uo.drho_dpT(_P[_qp], _T[_qp], _rho[_qp], _drho_dp[_qp], _drho_dT[_qp]);
+  eos_uo.rho_from_p_T(_P[_qp], _T[_qp], _rho[_qp], _drho_dp[_qp], _drho_dT[_qp]);
 
   _dia[_qp] = _d;
   _area[_qp] = PI * _d * _d / 4.0;

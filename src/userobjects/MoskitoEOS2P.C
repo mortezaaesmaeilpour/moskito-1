@@ -28,6 +28,7 @@ InputParameters
 validParams<MoskitoEOS2P>()
 {
   InputParameters params = validParams<GeneralUserObject>();
+
   return params;
 }
 
