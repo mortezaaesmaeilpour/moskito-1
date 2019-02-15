@@ -21,67 +21,43 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>  */
 /**************************************************************************/
 
-#include "MoskitoEOSIdealGas.h"
+#ifndef MOSKITOPUREWATER2P_H
+#define MOSKITOPUREWATER2P_H
 
-registerMooseObject("MoskitoApp", MoskitoEOSIdealGas);
+#include "MoskitoEOS2P.h"
+#include "MoskitoWater97FluidProperties.h"
+
+class MoskitoPureWater2P;
 
 template <>
-InputParameters
-validParams<MoskitoEOSIdealGas>()
+InputParameters validParams<MoskitoPureWater2P>();
+
+class MoskitoPureWater2P : public MoskitoEOS2P
 {
-  InputParameters params = validParams<MoskitoEOS1P>();
+public:
+  MoskitoPureWater2P(const InputParameters & parameters);
 
-  params.addRequiredParam<Real>("molar_mass", "Molar mass of the gas (kg/mol)");
-  params.addParam<Real>("specific_heat", 1.005e3,
-        "Constant specific heat capacity at constant pressure (J/kg/K)");
+  virtual void VMFrac_from_p_h(
+      const Real & pressure, const Real & enthalpy, Real & vmfrac, Real & temperature) const override;
 
-  return params;
-}
+  virtual Real rho_g_from_p_T(Real pressure, Real temperature) const override;
 
-MoskitoEOSIdealGas::MoskitoEOSIdealGas(const InputParameters & parameters)
-  : MoskitoEOS1P(parameters),
-    _cp(getParam<Real>("specific_heat")),
-    _lambda(0.0),
-    _molar_mass(getParam<Real>("molar_mass")),
-    _R(8.3144598)
-{
-}
+  virtual void rho_g_from_p_T(
+      Real pressure, Real temperature, Real & rho, Real & drho_dp, Real & drho_dT) const override;
 
-Real
-MoskitoEOSIdealGas::rho_from_p_T(const Real & pressure, const Real & temperature) const
-{
-  return pressure * _molar_mass / (_R * temperature);
-}
+  virtual Real rho_l_from_p_T(Real pressure, Real temperature) const override;
 
-void
-MoskitoEOSIdealGas::rho_from_p_T(const Real & pressure, const Real & temperature,
-                            Real & rho, Real & drho_dp, Real & drho_dT) const
-{
-  rho = this->rho_from_p_T(pressure, temperature);
-  drho_dp = _molar_mass / (_R * temperature);
-  drho_dT = -pressure * _molar_mass / (_R * temperature * temperature);
-}
+  virtual void rho_l_from_p_T(
+      Real pressure, Real temperature, Real & rho, Real & drho_dp, Real & drho_dT) const override;
 
-Real
-MoskitoEOSIdealGas::h_to_T(const Real & enthalpy) const
-{
-  return enthalpy / _cp;
-}
+  virtual Real cp_m_from_p_T(
+      const Real & pressure, const Real & temperature, const Real & vmfrac) const override;
 
-Real
-MoskitoEOSIdealGas::T_to_h(const Real & temperature) const
-{
-  return cp(temperature) * temperature;
-}
+protected:
+  const MoskitoWater97FluidProperties * _eos_lg;
 
-Real
-MoskitoEOSIdealGas::cp(const Real & temperature) const
-{
-  return _cp;
-}
+  virtual void h_lat(
+      const Real & pressure, const Real & temperature, Real & hsatl, Real & hsatg) const override;
+};
 
-Real
-MoskitoEOSIdealGas::lambda(const Real & pressure, const Real & temperature) const
-{
-  return _lambda;
-}
+#endif /* MOSKITOPUREWATER2P_H */

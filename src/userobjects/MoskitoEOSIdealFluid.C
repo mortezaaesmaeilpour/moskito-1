@@ -64,16 +64,16 @@ MoskitoEOSIdealFluid::MoskitoEOSIdealFluid(const InputParameters & parameters)
 }
 
 Real
-MoskitoEOSIdealFluid::rho(const Real & pressure, const Real & temperature) const
+MoskitoEOSIdealFluid::rho_from_p_T(const Real & pressure, const Real & temperature) const
 {
   return _rho_ref * std::exp((pressure-_P_ref) / _bulk_modulus - _thermal_expansion * (temperature-_T_ref));
 }
 
 void
-MoskitoEOSIdealFluid::drho_dpT(const Real & pressure, const Real & temperature,
+MoskitoEOSIdealFluid::rho_from_p_T(const Real & pressure, const Real & temperature,
                               Real & rho, Real & drho_dp, Real & drho_dT) const
 {
-  rho = this->rho(pressure, temperature);
+  rho = this->rho_from_p_T(pressure, temperature);
   drho_dp = rho / _bulk_modulus;
   drho_dT = -_thermal_expansion * rho;
 }

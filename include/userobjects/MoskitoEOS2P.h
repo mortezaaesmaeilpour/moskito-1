@@ -24,32 +24,36 @@
 #ifndef MOSKITOEOS2P_H
 #define MOSKITOEOS2P_H
 
-#include "GeneralUserObject.h"
-#include "MoskitoEOS1P.h"
+#include "FluidProperties.h"
 
 class MoskitoEOS2P;
 
 template <>
 InputParameters validParams<MoskitoEOS2P>();
 
-class MoskitoEOS2P : public GeneralUserObject
+class MoskitoEOS2P : public FluidProperties
 {
 public:
   MoskitoEOS2P(const InputParameters & parameters);
-  virtual ~MoskitoEOS2P();
 
-  virtual void execute() final {}
-  virtual void initialize() final {}
-  virtual void finalize() final {}
+  virtual void VMFrac_from_p_h(
+      const Real & pressure, const Real & enthalpy, Real & vmfrac, Real & temperature) const = 0;
 
-  Real GasMassFraction(const Real & enthalpy, const Real & pressure) const;
-  Real cp(const Real & massfraction, const Real & temperature) const;
-  Real h_to_T(const Real & enthalpy, const Real & pressure) const;
+  virtual Real rho_g_from_p_T(Real pressure, Real temperature) const = 0;
 
-  // Userobject to equation of state for gas
-  const MoskitoEOS1P & gas;
-  // Userobject to equation of state for liquid
-  const MoskitoEOS1P & liquid;
+  virtual void rho_g_from_p_T(
+      Real pressure, Real temperature, Real & rho, Real & drho_dp, Real & drho_dT) const = 0;
+
+  virtual Real rho_l_from_p_T(Real pressure, Real temperature) const = 0;
+
+  virtual void rho_l_from_p_T(
+      Real pressure, Real temperature, Real & rho, Real & drho_dp, Real & drho_dT) const = 0;
+
+  virtual Real cp_m_from_p_T(
+      const Real & pressure, const Real & temperature, const Real & vmfrac) const = 0;
+
+protected:
+  virtual void h_lat(const Real & pressure, const Real & temperature, Real & hsatl, Real & hsatg) const = 0;
 };
 
 #endif /* MOSKITOEOS2P_H */

@@ -42,10 +42,10 @@ public:
   virtual void finalize() final {}
 
   // Density from pressure and temperature (kg/m^3)
-  virtual Real rho(const Real & pressure, const Real & temperature) const = 0;
+  virtual Real rho_from_p_T(const Real & pressure, const Real & temperature) const = 0;
 
   // Density from pressure and temperature and its derivatives wrt pressure and temperature
-  virtual void drho_dpT(const Real & pressure, const Real & temperature,
+  virtual void rho_from_p_T(const Real & pressure, const Real & temperature,
                         Real & rho, Real & drho_dp, Real & drho_dT) const = 0;
 
   // The conversion function from temperature to specific enthalpy

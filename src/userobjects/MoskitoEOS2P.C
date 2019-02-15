@@ -23,43 +23,16 @@
 
 #include "MoskitoEOS2P.h"
 
-registerMooseObject("MoskitoApp", MoskitoEOS2P);
-
 template <>
 InputParameters
 validParams<MoskitoEOS2P>()
 {
   InputParameters params = validParams<GeneralUserObject>();
-  params.addRequiredParam<UserObjectName>("eos_uo_gas",
-        "The name of the EOS userobject for gas");
-  params.addRequiredParam<UserObjectName>("eos_uo_liquid",
-        "The name of the EOS userobject for liquid");
+
   return params;
 }
 
 MoskitoEOS2P::MoskitoEOS2P(const InputParameters & parameters)
-  : GeneralUserObject(parameters),
-    gas(getUserObject<MoskitoEOS1P>("eos_uo_gas")),
-    liquid(getUserObject<MoskitoEOS1P>("eos_uo_liquid"))
+  : FluidProperties(parameters)
 {
-}
-
-MoskitoEOS2P::~MoskitoEOS2P() {}
-
-Real
-MoskitoEOS2P::GasMassFraction(const Real & enthalpy, const Real & pressure) const
-{
-  return 0.0;
-}
-
-Real
-MoskitoEOS2P::cp(const Real & massfraction, const Real & temperature) const
-{
-  return gas.cp(temperature) * massfraction + liquid.cp(temperature) * (1.0 - massfraction);
-}
-
-Real
-MoskitoEOS2P::h_to_T(const Real & enthalpy, const Real & pressure) const
-{
-    return 0.0;
 }

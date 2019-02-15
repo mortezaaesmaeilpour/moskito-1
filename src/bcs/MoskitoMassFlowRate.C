@@ -32,8 +32,10 @@ validParams<MoskitoMassFlowRate>()
   InputParameters params = validParams<NodalBC>();
   params.addRequiredParam<Real>("mass_flowrate",
         "The mass flowrate of the mixture (kg/s)");
+  params.declareControllable("mass_flowrate");
   params.addRequiredParam<Real>("mixture_density",
         "The density of mixture (kg/m^3)");
+  params.declareControllable("mixture_density");
   params.addClassDescription("Implements a NodalBC (Dirichlet) which calculates"
                             " mass weighted flow rate for momentum eq");
   return params;
