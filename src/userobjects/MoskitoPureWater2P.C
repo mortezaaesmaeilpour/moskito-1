@@ -21,38 +21,73 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>  */
 /**************************************************************************/
 
-#ifndef MOSKITOEOS2P_H
-#define MOSKITOEOS2P_H
+#include "MoskitoPureWater2P.h"
 
-#include "FluidProperties.h"
-
-class MoskitoEOS2P;
+registerMooseObject("MoskitoApp", MoskitoPureWater2P);
 
 template <>
-InputParameters validParams<MoskitoEOS2P>();
-
-class MoskitoEOS2P : public FluidProperties
+InputParameters
+validParams<MoskitoPureWater2P>()
 {
-public:
-  MoskitoEOS2P(const InputParameters & parameters);
+  InputParameters params = validParams<MoskitoEOS2P>();
+  return params;
+}
 
-  virtual void VMFrac_from_p_h(
-      const Real & pressure, const Real & enthalpy, Real & vmfrac, Real & temperature) const = 0;
+MoskitoPureWater2P::MoskitoPureWater2P(const InputParameters & parameters)
+  : MoskitoEOS2P(parameters)
+{
+  std::string eos_name = UserObjectName(name() + ":LiquidGas");
+  {
+    std::string class_name = "MoskitoWater97FluidProperties";
+    InputParameters params = _app.getFactory().getValidParams(class_name);
+    _fe_problem.addUserObject(class_name, eos_name, params);
+  }
+  _eos_lg = &_fe_problem.getUserObject<MoskitoWater97FluidProperties>(eos_name);
+}
 
-  virtual void h_lat(const Real & pressure, const Real & temperature, Real & hsatl, Real & hsatg) const = 0;
+void
+MoskitoPureWater2P::VMFrac_from_p_h(
+  const Real & pressure, const Real & enthalpy, Real & vmfrac, Real & temperature) const
+{
 
-  virtual Real rho_g_from_p_T(Real pressure, Real temperature) const = 0;
+}
 
-  virtual void rho_g_from_p_T(
-      Real pressure, Real temperature, Real & rho, Real & drho_dp, Real & drho_dT) const = 0;
+void
+MoskitoPureWater2P::h_lat(
+  const Real & pressure, const Real & temperature, Real & hsatl, Real & hsatg) const
+{
+  
+}
 
-  virtual Real rho_l_from_p_T(Real pressure, Real temperature) const = 0;
+Real
+MoskitoPureWater2P::rho_g_from_p_T(Real pressure, Real temperature) const
+{
+  return 0;
+}
 
-  virtual void rho_l_from_p_T(
-      Real pressure, Real temperature, Real & rho, Real & drho_dp, Real & drho_dT) const = 0;
+void
+MoskitoPureWater2P::rho_g_from_p_T(
+  Real pressure, Real temperature, Real & rho, Real & drho_dp, Real & drho_dT) const
+{
 
-  virtual Real cp_m_from_p_T(
-      const Real & pressure, const Real & temperature, const Real & vmfrac) const = 0;
-};
+}
 
-#endif /* MOSKITOEOS2P_H */
+Real
+MoskitoPureWater2P::rho_l_from_p_T(Real pressure, Real temperature) const
+{
+  return 0;
+}
+
+void
+MoskitoPureWater2P::rho_l_from_p_T(
+  Real pressure, Real temperature, Real & rho, Real & drho_dp, Real & drho_dT) const
+{
+
+}
+
+Real
+MoskitoPureWater2P::cp_m_from_p_T(
+      const Real & pressure, const Real & temperature, const Real & vmfrac) const
+{
+  return 0;
+}

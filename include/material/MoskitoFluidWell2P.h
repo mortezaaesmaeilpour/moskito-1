@@ -64,7 +64,7 @@ protected:
   // The first derivative of mixture density wrt temperature
   MaterialProperty<Real> & _drho_m_dT;
   // mass_fraction
-  MaterialProperty<Real> & _mfrac;
+  MaterialProperty<Real> & _vmfrac;
   // Gas velocity
   MaterialProperty<Real> & _u_g;
   // Liquid velocity

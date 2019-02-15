@@ -736,6 +736,48 @@ MoskitoWater97FluidProperties::h_from_p_T(Real pressure, Real temperature) const
   return enthalpy;
 }
 
+Real
+MoskitoWater97FluidProperties::h_from_p_T(Real pressure, Real temperature, unsigned int region) const
+{
+  Real enthalpy, pi, tau, delta;
+
+  switch (region)
+  {
+    case 1:
+      pi = pressure / _p_star[0];
+      tau = _T_star[0] / temperature;
+      enthalpy = _Rw * _T_star[0] * dgamma1_dtau(pi, tau);
+      break;
+
+    case 2:
+      pi = pressure / _p_star[1];
+      tau = _T_star[1] / temperature;
+      enthalpy = _Rw * _T_star[1] * dgamma2_dtau(pi, tau);
+      break;
+
+    case 3:
+    {
+      // Calculate density first, then use that in Helmholtz free energy
+      Real density3 = densityRegion3(pressure, temperature);
+      delta = density3 / _rho_critical;
+      tau = _T_star[2] / temperature;
+      enthalpy =
+          _Rw * temperature * (tau * dphi3_dtau(delta, tau) + delta * dphi3_ddelta(delta, tau));
+      break;
+    }
+
+    case 5:
+      pi = pressure / _p_star[4];
+      tau = _T_star[4] / temperature;
+      enthalpy = _Rw * _T_star[4] * dgamma5_dtau(pi, tau);
+      break;
+
+    default:
+      mooseError("MoskitoWater97FluidProperties::inRegion has given an incorrect region");
+  }
+  return enthalpy;
+}
+
 void
 MoskitoWater97FluidProperties::h_from_p_T(
     Real pressure, Real temperature, Real & h, Real & dh_dp, Real & dh_dT) const
@@ -1573,10 +1615,13 @@ MoskitoWater97FluidProperties::inRegionPH(Real pressure, Real enthalpy) const
   if (pressure >= p273 && pressure <= p623)
   {
     if (enthalpy >= h_from_p_T(pressure, 273.15) &&
-        enthalpy <= h_from_p_T(pressure, vaporTemperature(pressure)))
+        enthalpy <= h_from_p_T(pressure, vaporTemperature(pressure),1))
       region = 1;
-    else if (enthalpy > h_from_p_T(pressure, vaporTemperature(pressure)) &&
-             enthalpy <= h_from_p_T(pressure, 1073.15))
+    else if (enthalpy > h_from_p_T(pressure, vaporTemperature(pressure),1) &&
+             enthalpy < h_from_p_T(pressure, vaporTemperature(pressure),2))
+      region = 4;
+    else if (enthalpy >= h_from_p_T(pressure, vaporTemperature(pressure),2) &&
+            enthalpy <= h_from_p_T(pressure, 1073.15))
       region = 2;
     else if (enthalpy > h_from_p_T(pressure, 1073.15) && enthalpy <= h_from_p_T(pressure, 2273.15))
       region = 5;
@@ -1706,6 +1751,10 @@ MoskitoWater97FluidProperties::temperature_from_ph(Real pressure, Real enthalpy)
         temperature = temperature_from_ph3b(pressure, enthalpy);
       break;
     }
+
+    case 4:
+      temperature = vaporTemperature(pressure);
+      break;
 
     case 5:
       mooseError(name(), ": temperature_from_ph() not implemented for region 5");

@@ -21,38 +21,43 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>  */
 /**************************************************************************/
 
-#ifndef MOSKITOEOS2P_H
-#define MOSKITOEOS2P_H
+#ifndef MOSKITOPUREWATER2P_H
+#define MOSKITOPUREWATER2P_H
 
-#include "FluidProperties.h"
+#include "MoskitoEOS2P.h"
+#include "MoskitoWater97FluidProperties.h"
 
-class MoskitoEOS2P;
+class MoskitoPureWater2P;
 
 template <>
-InputParameters validParams<MoskitoEOS2P>();
+InputParameters validParams<MoskitoPureWater2P>();
 
-class MoskitoEOS2P : public FluidProperties
+class MoskitoPureWater2P : public MoskitoEOS2P
 {
 public:
-  MoskitoEOS2P(const InputParameters & parameters);
+  MoskitoPureWater2P(const InputParameters & parameters);
 
   virtual void VMFrac_from_p_h(
-      const Real & pressure, const Real & enthalpy, Real & vmfrac, Real & temperature) const = 0;
+      const Real & pressure, const Real & enthalpy, Real & vmfrac, Real & temperature) const override;
 
-  virtual void h_lat(const Real & pressure, const Real & temperature, Real & hsatl, Real & hsatg) const = 0;
+  virtual void h_lat(
+      const Real & pressure, const Real & temperature, Real & hsatl, Real & hsatg) const override;
 
-  virtual Real rho_g_from_p_T(Real pressure, Real temperature) const = 0;
+  virtual Real rho_g_from_p_T(Real pressure, Real temperature) const override;
 
   virtual void rho_g_from_p_T(
-      Real pressure, Real temperature, Real & rho, Real & drho_dp, Real & drho_dT) const = 0;
+      Real pressure, Real temperature, Real & rho, Real & drho_dp, Real & drho_dT) const override;
 
-  virtual Real rho_l_from_p_T(Real pressure, Real temperature) const = 0;
+  virtual Real rho_l_from_p_T(Real pressure, Real temperature) const override;
 
   virtual void rho_l_from_p_T(
-      Real pressure, Real temperature, Real & rho, Real & drho_dp, Real & drho_dT) const = 0;
+      Real pressure, Real temperature, Real & rho, Real & drho_dp, Real & drho_dT) const override;
 
   virtual Real cp_m_from_p_T(
-      const Real & pressure, const Real & temperature, const Real & vmfrac) const = 0;
+      const Real & pressure, const Real & temperature, const Real & vmfrac) const override;
+
+protected:
+  const MoskitoWater97FluidProperties * _eos_lg;
 };
 
-#endif /* MOSKITOEOS2P_H */
+#endif /* MOSKITOPUREWATER2P_H */

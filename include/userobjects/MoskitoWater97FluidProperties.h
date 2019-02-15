@@ -118,6 +118,7 @@ public:
   virtual void s_from_p_T(Real p, Real T, Real & s, Real & ds_dp, Real & ds_dT) const override;
 
   virtual Real h_from_p_T(Real pressure, Real temperature) const override;
+  Real h_from_p_T(Real pressure, Real temperature, unsigned int region) const;
 
   virtual void
   h_from_p_T(Real pressure, Real temperature, Real & h, Real & dh_dp, Real & dh_dT) const override;
