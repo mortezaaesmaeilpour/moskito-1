@@ -69,19 +69,20 @@ MoskitoFluidWell2P::MoskitoFluidWell2P(const InputParameters & parameters)
     _grad_h(coupledGradient("enthalpy")),
     _grad_p(coupledGradient("pressure"))
 {
-  // Real h,p;
-  // h=1000000;
-  // std::cout<<h<<"  "<<std::endl;
-  // for (int i=1; i<= 300; i++)
-  // {
-  //   p=i*10000;
-  //   std::cout<<p<<"  ";
-  //   std::cout<<eos_uo._eos_lg->temperature_from_ph(p, h)-273.15<<"  ";
-  //   std::cout<<eos_uo._eos_lg->inRegionPH(p, h)<<"  ";
-  //   std::cout<<std::endl;
-  // }
-  //
-  // abort();
+  Real h,p,x,Temp;
+  p=100000;
+  std::cout<<p<<"  "<<std::endl;
+  for (int i=1; i<= 400; i++)
+  {
+    h=i*10000;
+    eos_uo.VMFrac_from_p_h(p, h, x, Temp);
+    std::cout<<h<<"  ";
+    std::cout<<Temp-273.15<<"  ";
+    std::cout<<x<<"  ";
+    std::cout<<std::endl;
+  }
+
+  abort();
 }
 
 void

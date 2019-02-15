@@ -49,45 +49,83 @@ void
 MoskitoPureWater2P::VMFrac_from_p_h(
   const Real & pressure, const Real & enthalpy, Real & vmfrac, Real & temperature) const
 {
+  unsigned int region = _eos_lg->inRegionPH(pressure, enthalpy);
+  temperature = _eos_lg->temperature_from_ph(pressure, enthalpy);
+  switch (region)
+  {
+    case 1:
+      vmfrac = 0.0;
+      break;
 
+    case 2 ... 3:
+      vmfrac = 1.0;
+      break;
+
+    case 4:
+      {
+        Real h_sat_g,h_sat_l;
+        h_lat(pressure, temperature, h_sat_l, h_sat_g);
+        vmfrac  = enthalpy - h_sat_l;
+        vmfrac /= h_sat_g - h_sat_l;
+        break;
+      }
+
+    case 5:
+      vmfrac = 1.0;
+      break;
+
+    default:
+      mooseError(name(), ": inRegionPH() has given an incorrect region");
+  }
 }
 
 void
 MoskitoPureWater2P::h_lat(
   const Real & pressure, const Real & temperature, Real & hsatl, Real & hsatg) const
 {
-  
+  hsatl = _eos_lg->h_from_p_T(pressure, temperature, 1);
+  hsatg = _eos_lg->h_from_p_T(pressure, temperature, 2);
 }
 
 Real
 MoskitoPureWater2P::rho_g_from_p_T(Real pressure, Real temperature) const
 {
-  return 0;
+  return _eos_lg->rho_from_p_T(pressure, temperature);
 }
 
 void
 MoskitoPureWater2P::rho_g_from_p_T(
   Real pressure, Real temperature, Real & rho, Real & drho_dp, Real & drho_dT) const
 {
-
+  _eos_lg->rho_from_p_T(pressure, temperature, rho, drho_dp, drho_dT);
 }
 
 Real
 MoskitoPureWater2P::rho_l_from_p_T(Real pressure, Real temperature) const
 {
-  return 0;
+  return _eos_lg->rho_from_p_T(pressure, temperature);
 }
 
 void
 MoskitoPureWater2P::rho_l_from_p_T(
   Real pressure, Real temperature, Real & rho, Real & drho_dp, Real & drho_dT) const
 {
-
+  _eos_lg->rho_from_p_T(pressure, temperature, rho, drho_dp, drho_dT);
 }
 
 Real
 MoskitoPureWater2P::cp_m_from_p_T(
       const Real & pressure, const Real & temperature, const Real & vmfrac) const
 {
-  return 0;
+  Real cp = 0.0;
+
+  if (vmfrac > 0.0 && vmfrac<1.0)
+  {
+    cp  = _eos_lg->cp_from_p_T(pressure, temperature, 2) * vmfrac;
+    cp += _eos_lg->cp_from_p_T(pressure, temperature, 1) * (1.0 - vmfrac);
+  }
+  else
+    cp = _eos_lg->cp_from_p_T(pressure, temperature);
+
+  return cp;
 }

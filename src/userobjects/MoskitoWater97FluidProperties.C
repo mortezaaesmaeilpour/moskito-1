@@ -430,6 +430,53 @@ MoskitoWater97FluidProperties::cp_from_p_T(Real pressure, Real temperature) cons
 }
 
 Real
+MoskitoWater97FluidProperties::cp_from_p_T(Real pressure, Real temperature, unsigned int region) const
+{
+  Real specific_heat, pi, tau, delta;
+
+  switch (region)
+  {
+    case 1:
+      pi = pressure / _p_star[0];
+      tau = _T_star[0] / temperature;
+      specific_heat = -_Rw * tau * tau * d2gamma1_dtau2(pi, tau);
+      break;
+
+    case 2:
+      pi = pressure / _p_star[1];
+      tau = _T_star[1] / temperature;
+      specific_heat = -_Rw * tau * tau * d2gamma2_dtau2(pi, tau);
+      break;
+
+    case 3:
+    {
+      // Calculate density first, then use that in Helmholtz free energy
+      Real density3 = densityRegion3(pressure, temperature);
+      delta = density3 / _rho_critical;
+      tau = _T_star[2] / temperature;
+      specific_heat =
+          _Rw *
+          (-tau * tau * d2phi3_dtau2(delta, tau) +
+           (delta * dphi3_ddelta(delta, tau) - delta * tau * d2phi3_ddeltatau(delta, tau)) *
+               (delta * dphi3_ddelta(delta, tau) - delta * tau * d2phi3_ddeltatau(delta, tau)) /
+               (2.0 * delta * dphi3_ddelta(delta, tau) +
+                delta * delta * d2phi3_ddelta2(delta, tau)));
+      break;
+    }
+
+    case 5:
+      pi = pressure / _p_star[4];
+      tau = _T_star[4] / temperature;
+      specific_heat = -_Rw * tau * tau * d2gamma5_dtau2(pi, tau);
+      break;
+
+    default:
+      mooseError(name(), ": inRegion() has given an incorrect region");
+  }
+  return specific_heat;
+}
+
+Real
 MoskitoWater97FluidProperties::cv_from_p_T(Real pressure, Real temperature) const
 {
   Real specific_heat, pi, tau, delta;

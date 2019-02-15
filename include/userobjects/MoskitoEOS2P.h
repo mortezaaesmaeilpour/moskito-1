@@ -39,8 +39,6 @@ public:
   virtual void VMFrac_from_p_h(
       const Real & pressure, const Real & enthalpy, Real & vmfrac, Real & temperature) const = 0;
 
-  virtual void h_lat(const Real & pressure, const Real & temperature, Real & hsatl, Real & hsatg) const = 0;
-
   virtual Real rho_g_from_p_T(Real pressure, Real temperature) const = 0;
 
   virtual void rho_g_from_p_T(
@@ -53,6 +51,9 @@ public:
 
   virtual Real cp_m_from_p_T(
       const Real & pressure, const Real & temperature, const Real & vmfrac) const = 0;
+
+protected:
+  virtual void h_lat(const Real & pressure, const Real & temperature, Real & hsatl, Real & hsatg) const = 0;
 };
 
 #endif /* MOSKITOEOS2P_H */

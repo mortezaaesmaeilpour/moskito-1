@@ -40,9 +40,6 @@ public:
   virtual void VMFrac_from_p_h(
       const Real & pressure, const Real & enthalpy, Real & vmfrac, Real & temperature) const override;
 
-  virtual void h_lat(
-      const Real & pressure, const Real & temperature, Real & hsatl, Real & hsatg) const override;
-
   virtual Real rho_g_from_p_T(Real pressure, Real temperature) const override;
 
   virtual void rho_g_from_p_T(
@@ -58,6 +55,9 @@ public:
 
 protected:
   const MoskitoWater97FluidProperties * _eos_lg;
+
+  virtual void h_lat(
+      const Real & pressure, const Real & temperature, Real & hsatl, Real & hsatg) const override;
 };
 
 #endif /* MOSKITOPUREWATER2P_H */
