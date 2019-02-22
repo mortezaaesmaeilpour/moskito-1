@@ -118,6 +118,41 @@ MoskitoWater97FluidProperties::rho_from_p_T(Real pressure, Real temperature) con
   return density;
 }
 
+Real
+MoskitoWater97FluidProperties::rho_from_p_T(Real pressure, Real temperature, unsigned int region) const
+{
+  Real density, pi, tau;
+
+  switch (region)
+  {
+    case 1:
+      pi = pressure / _p_star[0];
+      tau = _T_star[0] / temperature;
+      density = pressure / (pi * _Rw * temperature * dgamma1_dpi(pi, tau));
+      break;
+
+    case 2:
+      pi = pressure / _p_star[1];
+      tau = _T_star[1] / temperature;
+      density = pressure / (pi * _Rw * temperature * dgamma2_dpi(pi, tau));
+      break;
+
+    case 3:
+      density = densityRegion3(pressure, temperature);
+      break;
+
+    case 5:
+      pi = pressure / _p_star[4];
+      tau = _T_star[4] / temperature;
+      density = pressure / (pi * _Rw * temperature * dgamma5_dpi(pi, tau));
+      break;
+
+    default:
+      mooseError(name(), ": inRegion() has given an incorrect region");
+  }
+  return density;
+}
+
 void
 MoskitoWater97FluidProperties::rho_from_p_T(
     Real pressure, Real temperature, Real & rho, Real & drho_dp, Real & drho_dT) const
@@ -126,6 +161,70 @@ MoskitoWater97FluidProperties::rho_from_p_T(
 
   // Determine which region the point is in
   unsigned int region = inRegion(pressure, temperature);
+
+  switch (region)
+  {
+    case 1:
+    {
+      pi = pressure / _p_star[0];
+      tau = _T_star[0] / temperature;
+      Real dgdp = dgamma1_dpi(pi, tau);
+      ddensity_dp = -d2gamma1_dpi2(pi, tau) / (_Rw * temperature * dgdp * dgdp);
+      ddensity_dT = -pressure * (dgdp - tau * d2gamma1_dpitau(pi, tau)) /
+                    (_Rw * pi * temperature * temperature * dgdp * dgdp);
+      break;
+    }
+
+    case 2:
+    {
+      pi = pressure / _p_star[1];
+      tau = _T_star[1] / temperature;
+      Real dgdp = dgamma2_dpi(pi, tau);
+      ddensity_dp = -d2gamma2_dpi2(pi, tau) / (_Rw * temperature * dgdp * dgdp);
+      ddensity_dT = -pressure * (dgdp - tau * d2gamma2_dpitau(pi, tau)) /
+                    (_Rw * pi * temperature * temperature * dgdp * dgdp);
+      break;
+    }
+
+    case 3:
+    {
+      // Calculate density first, then use that in Helmholtz free energy
+      Real density = densityRegion3(pressure, temperature);
+      Real delta = density / _rho_critical;
+      tau = _T_star[2] / temperature;
+      Real dpdd = dphi3_ddelta(delta, tau);
+      Real d2pdd2 = d2phi3_ddelta2(delta, tau);
+      ddensity_dp = 1.0 / (_Rw * temperature * delta * (2.0 * dpdd + delta * d2pdd2));
+      ddensity_dT = density * (tau * d2phi3_ddeltatau(delta, tau) - dpdd) / temperature /
+                    (2.0 * dpdd + delta * d2pdd2);
+      break;
+    }
+
+    case 5:
+    {
+      pi = pressure / _p_star[4];
+      tau = _T_star[4] / temperature;
+      Real dgdp = dgamma5_dpi(pi, tau);
+      ddensity_dp = -d2gamma5_dpi2(pi, tau) / (_Rw * temperature * dgdp * dgdp);
+      ddensity_dT = -pressure * (dgdp - tau * d2gamma5_dpitau(pi, tau)) /
+                    (_Rw * pi * temperature * temperature * dgdp * dgdp);
+      break;
+    }
+
+    default:
+      mooseError(name(), ": inRegion() has given an incorrect region");
+  }
+
+  rho = this->rho_from_p_T(pressure, temperature);
+  drho_dp = ddensity_dp;
+  drho_dT = ddensity_dT;
+}
+
+void
+MoskitoWater97FluidProperties::rho_from_p_T(
+    Real pressure, Real temperature, Real & rho, Real & drho_dp, Real & drho_dT, unsigned int region) const
+{
+  Real pi, tau, ddensity_dp, ddensity_dT;
 
   switch (region)
   {

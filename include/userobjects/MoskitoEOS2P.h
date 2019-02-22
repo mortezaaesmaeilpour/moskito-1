@@ -37,20 +37,23 @@ public:
   MoskitoEOS2P(const InputParameters & parameters);
 
   virtual void VMFrac_from_p_h(
-      const Real & pressure, const Real & enthalpy, Real & vmfrac, Real & temperature) const = 0;
+      const Real & pressure, const Real & enthalpy, Real & vmfrac, Real & temperature, unsigned int & phase) const = 0;
 
-  virtual Real rho_g_from_p_T(Real pressure, Real temperature) const = 0;
+  virtual Real rho_g_from_p_T(const Real & pressure, const Real & temperature, const unsigned int & phase) const = 0;
 
   virtual void rho_g_from_p_T(
-      Real pressure, Real temperature, Real & rho, Real & drho_dp, Real & drho_dT) const = 0;
+      const Real & pressure, const Real & temperature, Real & rho, Real & drho_dp, Real & drho_dT, const unsigned int & phase) const = 0;
 
-  virtual Real rho_l_from_p_T(Real pressure, Real temperature) const = 0;
+  virtual Real rho_l_from_p_T(const Real & pressure, const Real & temperature, const unsigned int & phase) const = 0;
 
   virtual void rho_l_from_p_T(
-      Real pressure, Real temperature, Real & rho, Real & drho_dp, Real & drho_dT) const = 0;
+      const Real & pressure, const Real & temperature, Real & rho, Real & drho_dp, Real & drho_dT, const unsigned int & phase) const = 0;
 
   virtual Real cp_m_from_p_T(
-      const Real & pressure, const Real & temperature, const Real & vmfrac) const = 0;
+      const Real & pressure, const Real & temperature, const Real & vmfrac, const unsigned int & phase) const = 0;
+
+  virtual Real rho_m_from_p_T(
+      const Real & pressure, const Real & temperature, const Real & vmfrac, const unsigned int & phase) const;
 
 protected:
   virtual void h_lat(const Real & pressure, const Real & temperature, Real & hsatl, Real & hsatg) const = 0;

@@ -38,20 +38,20 @@ public:
   MoskitoPureWater2P(const InputParameters & parameters);
 
   virtual void VMFrac_from_p_h(
-      const Real & pressure, const Real & enthalpy, Real & vmfrac, Real & temperature) const override;
+      const Real & pressure, const Real & enthalpy, Real & vmfrac, Real & temperature, unsigned int & phase) const override;
 
-  virtual Real rho_g_from_p_T(Real pressure, Real temperature) const override;
+  virtual Real rho_g_from_p_T(const Real & pressure, const Real & temperature, const unsigned int & phase) const override;
 
   virtual void rho_g_from_p_T(
-      Real pressure, Real temperature, Real & rho, Real & drho_dp, Real & drho_dT) const override;
+      const Real & pressure, const Real & temperature, Real & rho, Real & drho_dp, Real & drho_dT, const unsigned int & phase) const override;
 
-  virtual Real rho_l_from_p_T(Real pressure, Real temperature) const override;
+  virtual Real rho_l_from_p_T(const Real & pressure, const Real & temperature, const unsigned int & phase) const override;
 
   virtual void rho_l_from_p_T(
-      Real pressure, Real temperature, Real & rho, Real & drho_dp, Real & drho_dT) const override;
+      const Real & pressure, const Real & temperature, Real & rho, Real & drho_dp, Real & drho_dT, const unsigned int & phase) const override;
 
   virtual Real cp_m_from_p_T(
-      const Real & pressure, const Real & temperature, const Real & vmfrac) const override;
+      const Real & pressure, const Real & temperature, const Real & vmfrac, const unsigned int & phase) const override;
 
 protected:
   const MoskitoWater97FluidProperties * _eos_lg;

@@ -6,18 +6,18 @@
   type = GeneratedMesh
   dim = 1
   xmin = 0
-  xmax = 90
-  nx = 9
+  xmax = 3000
+  nx = 300
 []
 
 [UserObjects]
   [./viscosity_gas]
     type = MoskitoViscosityConst
-    viscosity = 0.001
+    viscosity = 0.0001
   [../]
   [./viscosity_liqid]
     type = MoskitoViscosityConst
-    viscosity = 0.01
+    viscosity = 0.001
   [../]
   [./viscosity_2p]
     type = MoskitoViscosity2P
@@ -43,19 +43,36 @@
     well_direction = x
     well_diameter = 0.152
     roughness_type = smooth
+    gravity = '9.8 0 0'
+    outputs = exodus
+    output_properties = 'gas_density liquid_density mass_fraction density current_phase specific_heat temperature'
     eos_uo = eos
   [../]
 []
 
 [Variables]
   [./h]
-    initial_condition = 10000
+    initial_condition = 0.6e6
   [../]
   [./p]
-    initial_condition = 1
+    # initial_condition = 101325
+    [./InitialCondition]
+      type = FunctionIC
+      function = 101325+1000*x
+      variable = p
+    [../]
   [../]
   [./q]
     initial_condition = 0
+  [../]
+[]
+
+[BCs]
+  [./p]
+    type = DirichletBC
+    variable = p
+    boundary = left
+    value = 101325
   [../]
 []
 
@@ -67,6 +84,8 @@
   [./pkernel]
     type = NullKernel
     variable = p
+    enthalpy = h
+    flowrate = q
   [../]
   [./qkernel]
     type = NullKernel

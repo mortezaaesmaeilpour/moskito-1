@@ -72,6 +72,8 @@ protected:
 
   // void_fraction
   MaterialProperty<Real> & _vfrac;
+  // current phase
+  MaterialProperty<unsigned int> & _phase;
   // drift velocity
   MaterialProperty<Real> & _u_d;
   // flow type parameter

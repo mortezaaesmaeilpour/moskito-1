@@ -59,8 +59,13 @@ public:
 
   virtual Real rho_from_p_T(Real pressure, Real temperature) const override;
 
+  virtual Real rho_from_p_T(Real pressure, Real temperature, unsigned int region) const;
+
   virtual void rho_from_p_T(
       Real pressure, Real temperature, Real & rho, Real & drho_dp, Real & drho_dT) const override;
+
+  virtual void rho_from_p_T(
+      Real pressure, Real temperature, Real & rho, Real & drho_dp, Real & drho_dT, unsigned int region) const;
 
   virtual Real e_from_p_T(Real pressure, Real temperature) const override;
 
