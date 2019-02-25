@@ -38,7 +38,7 @@ public:
   MoskitoPureWater2P(const InputParameters & parameters);
 
   virtual void VMFrac_from_p_h(
-      const Real & pressure, const Real & enthalpy, Real & vmfrac, Real & temperature, unsigned int & phase) const override;
+      const Real & pressure, const Real & enthalpy, Real & vmfrac, Real & temperature, Real & phase) const override;
 
   virtual Real rho_g_from_p_T(const Real & pressure, const Real & temperature, const unsigned int & phase) const override;
 

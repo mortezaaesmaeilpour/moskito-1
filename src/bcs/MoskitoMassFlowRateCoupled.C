@@ -60,10 +60,10 @@ MoskitoMassFlowRateCoupled::computeQpResidual()
   // Local variable of mass fraction
   Real vmfrac;
   // Temperature depending on p,H conditions
-  Real T;
+  Real T, phase;
 
-  eos_uo.VMFrac_from_p_h(_p[_qp], _h[_qp], vmfrac, T);
-  One_by_rho_m = (vmfrac / eos_uo.rho_g_from_p_T(_p[_qp], T) + (1.0 - vmfrac) / eos_uo.rho_l_from_p_T(_p[_qp], T));
+  eos_uo.VMFrac_from_p_h(_p[_qp], _h[_qp], vmfrac, T, phase);
+  One_by_rho_m = (vmfrac / eos_uo.rho_g_from_p_T(_p[_qp], T, phase) + (1.0 - vmfrac) / eos_uo.rho_l_from_p_T(_p[_qp], T, phase));
 
   return _u[_qp] - _m_dot * One_by_rho_m;
 }
@@ -74,20 +74,20 @@ MoskitoMassFlowRateCoupled::computeQpOffDiagJacobian(unsigned int jvar)
   // Local variable of mass fraction
   Real vmfrac;
   // Temperature depending on p,H conditions
-  Real T;
+  Real T, phase;
 
-  eos_uo.VMFrac_from_p_h(_p[_qp], _h[_qp], vmfrac, T);
+  eos_uo.VMFrac_from_p_h(_p[_qp], _h[_qp], vmfrac, T, phase);
 
   // The specific heat at constant pressure
   Real cp;
-  cp = eos_uo.cp_m_from_p_T(_p[_qp], T, vmfrac);
+  cp = eos_uo.cp_m_from_p_T(_p[_qp], T, vmfrac, phase);
 
 
   // Derivates of Densities
   Real rho_l, rho_g, drho_l_dp, drho_l_dT, drho_g_dp, drho_g_dT;
 
-  eos_uo.rho_l_from_p_T(_p[_qp], T, rho_l, drho_l_dp, drho_l_dT);
-  eos_uo.rho_g_from_p_T(_p[_qp], T, rho_g, drho_g_dp, drho_g_dT);
+  eos_uo.rho_l_from_p_T(_p[_qp], T, rho_l, drho_l_dp, drho_l_dT, phase);
+  eos_uo.rho_g_from_p_T(_p[_qp], T, rho_g, drho_g_dp, drho_g_dT, phase);
 
   // Assumption _mfrac has no derivative of p and h
   Real j = 0.0;

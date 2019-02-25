@@ -1,7 +1,3 @@
-# "Applied multiphase flow in pipes and flow assurance oil and gas production"
-# Al-Safran, E., Brill, J. P., 2017
-# Example 2.1: Determine the pipeline inlet pressure?
-
 [Mesh]
   type = GeneratedMesh
   dim = 1
@@ -45,22 +41,27 @@
     roughness_type = smooth
     gravity = '9.8 0 0'
     outputs = exodus
-    output_properties = 'gas_density liquid_density mass_fraction density current_phase specific_heat temperature'
+    output_properties = 'gas_density liquid_density mass_fraction density specific_heat temperature'
     eos_uo = eos
   [../]
 []
 
 [Variables]
   [./h]
-    initial_condition = 0.6e6
-  [../]
-  [./p]
-    # initial_condition = 101325
+    # initial_condition = 0.7e6
     [./InitialCondition]
       type = FunctionIC
-      function = 101325+1000*x
-      variable = p
+      function = 600000+1000*x
+      variable = h
     [../]
+  [../]
+  [./p]
+    initial_condition = 101325
+    # [./InitialCondition]
+    #   type = FunctionIC
+    #   function = 101325+1000*x
+    #   variable = p
+    # [../]
   [../]
   [./q]
     initial_condition = 0
@@ -82,7 +83,7 @@
     variable = h
   [../]
   [./pkernel]
-    type = NullKernel
+    type = MoskitoMass
     variable = p
     enthalpy = h
     flowrate = q

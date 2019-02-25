@@ -55,10 +55,10 @@ MoskitoFluidWell2P::MoskitoFluidWell2P(const InputParameters & parameters)
     _u_g(declareProperty<Real>("gas_velocity")),
     _u_l(declareProperty<Real>("liquid_velocity")),
     _vfrac(declareProperty<Real>("void_fraction")),
-    _phase(declareProperty<unsigned int>("current_phase")),
+    _phase(declareProperty<Real>("current_phase")),
     _u_d(declareProperty<Real>("drift_velocity")),
     _c0(declareProperty<Real>("flow_type_c0")),
-    _flow_pat(declareProperty<int>("flow_pattern")),
+    _flow_pat(declareProperty<Real>("flow_pattern")),
     _dgamma_dz(declareProperty<Real>("dgamma_dz")),
     _dgamma_dz_uj_gphi(declareProperty<Real>("dgamma_dz_uj_gphi")),
     _dgamma_dz_uj_phi(declareProperty<Real>("dgamma_dz_uj_phi")),
@@ -70,24 +70,6 @@ MoskitoFluidWell2P::MoskitoFluidWell2P(const InputParameters & parameters)
     _grad_h(coupledGradient("enthalpy")),
     _grad_p(coupledGradient("pressure"))
 {
-  // Real h,p,x,Temp;
-  // unsigned int phase;
-  // p=19809000;
-  // std::cout<<p<<"  "<<std::endl;
-  // for (int i=10; i<= 400; i++)
-  // {
-  //   h=i*10000;
-  //   eos_uo.VMFrac_from_p_h(p, h, x, Temp, phase);
-  //   std::cout<<h<<"  ";
-  //   std::cout<<Temp-273.15<<"  ";
-  //   std::cout<<eos_uo.rho_l_from_p_T(p, Temp, phase)<<"  ";
-  //   std::cout<<eos_uo.rho_g_from_p_T(p, Temp, phase)<<"  ";
-  //   std::cout<<x<<"  ";
-  //   std::cout<<phase<<"  ";
-  //   std::cout<<std::endl;
-  // }
-  //
-  // abort();
 }
 
 void
@@ -110,13 +92,31 @@ MoskitoFluidWell2P::computeQpProperties()
 
   MoskitoFluidWellGeneral::computeQpProperties();
 
-  MoskitoDFGVar DFinp(_u[_qp], _rho_g[_qp], _rho_l[_qp], _vmfrac[_qp],
-    _dia[_qp], _dir[_qp], _friction[_qp], _gravity[_qp], _well_unit_vect[_qp]);
+  if (_phase[_qp] == 2)
+  {
+    MoskitoDFGVar DFinp(_u[_qp], _rho_g[_qp], _rho_l[_qp], _vmfrac[_qp],
+      _dia[_qp], _dir[_qp], _friction[_qp], _gravity[_qp], _well_unit_vect[_qp]);
 
-  dfm_uo.DFMCalculator(DFinp);
-  DFinp.DFMOutput(_flow_pat[_qp], _vfrac[_qp], _c0[_qp], _u_d[_qp]);
+    dfm_uo.DFMCalculator(DFinp);
+    DFinp.DFMOutput(_flow_pat[_qp], _vfrac[_qp], _c0[_qp], _u_d[_qp]);
+    // std::cout<<_vfrac[_qp]<<std::endl;
+  }
+  else
+  {
+    _flow_pat[_qp] = 0;
+    _c0[_qp] = 1.0;
+    _u_d[_qp] = 0.0;
+    if (_phase[_qp] == 1)
+      _vfrac[_qp] = 1.0;
+    else
+      _vfrac[_qp] = 0.0;
+  }
 
-  // _rho_m[_qp] = _rho_g[_qp] * _vfrac[_qp] + (1.0 - _vfrac[_qp]) * _rho_l[_qp];
+  //bypass vfrac calculation of drift flux model
+  // _vfrac[_qp]  = _rho_m[_qp] - _rho_l[_qp];
+  // _vfrac[_qp] /= _rho_g[_qp] - _rho_l[_qp];
+
+  _rho_m[_qp] = _rho_g[_qp] * _vfrac[_qp] + (1.0 - _vfrac[_qp]) * _rho_l[_qp];
   _rho_pam[_qp] = _rho_g[_qp] * _c0[_qp]  * _vfrac[_qp] + (1.0 - _vfrac[_qp] * _c0[_qp]) * _rho_l[_qp];
 
   // based on volume weighted flow rate

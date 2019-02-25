@@ -73,13 +73,13 @@ protected:
   // void_fraction
   MaterialProperty<Real> & _vfrac;
   // current phase
-  MaterialProperty<unsigned int> & _phase;
+  MaterialProperty<Real> & _phase;
   // drift velocity
   MaterialProperty<Real> & _u_d;
   // flow type parameter
   MaterialProperty<Real> & _c0;
   // flow pattern
-  MaterialProperty<int> & _flow_pat;
+  MaterialProperty<Real> & _flow_pat;
 
   //refer to DriftFluxMomentumEq function
   // residual for dgamma_dz in the momentum conservation

@@ -54,8 +54,9 @@ MoskitoEOS2P::rho_m_from_p_T(
       break;
 
     case 2:
-      rho  = rho_g_from_p_T(pressure, temperature, phase) * vmfrac;
-      rho += rho_l_from_p_T(pressure, temperature, phase) * (1.0 - vmfrac);
+      rho  = vmfrac / rho_g_from_p_T(pressure, temperature, phase);
+      rho += (1.0 - vmfrac) / rho_l_from_p_T(pressure, temperature, phase);
+      rho  = 1.0 / rho;
       break;
 
     case 3:

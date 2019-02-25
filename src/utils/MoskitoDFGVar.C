@@ -45,7 +45,7 @@ MoskitoDFGVar::MoskitoDFGVar(Real v_m, Real rho_g, Real rho_l, const Real & mfra
 }
 
 void
-MoskitoDFGVar::DFMOutput(int & FlowPat, Real & vfrac, Real & C0, Real & vd)
+MoskitoDFGVar::DFMOutput(Real & FlowPat, Real & vfrac, Real & C0, Real & vd)
 {
   FlowPat = _FlowPat;
   vfrac = _vfrac;
