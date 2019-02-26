@@ -30,7 +30,7 @@ MoskitoDFGVar::MoskitoDFGVar(Real v_m, Real rho_g, Real rho_l, const Real & mfra
     _vfrac(0.0),
     _C0(0.0),
     _vd(0.0),
-    _v_m(v_m),
+    _v_m(fabs(v_m)),
     _rho_g(rho_g),
     _rho_l(rho_l),
     _mfrac(mfrac),
@@ -40,7 +40,7 @@ MoskitoDFGVar::MoskitoDFGVar(Real v_m, Real rho_g, Real rho_l, const Real & mfra
     _gravity(gravity),
     _well_dir(well_dir),
     _grav(_gravity.norm()),
-    _angle(acos(fabs(_gravity / _grav * _well_dir)))
+    _angle(acos(fabs(_gravity * _well_dir / _grav)))
 {
 }
 

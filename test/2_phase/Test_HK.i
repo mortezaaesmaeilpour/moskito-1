@@ -6,13 +6,13 @@
   nx = 900
 []
 
-# [MeshModifiers]
-#   [./rotate]
-#     type = Transform
-#     transform = ROTATE
-#     vector_value = '7 0 0'
-#   [../]
-# []
+[MeshModifiers]
+  [./rotate]
+    type = Transform
+    transform = ROTATE
+    vector_value = '83 0 0'
+  [../]
+[]
 
 [UserObjects]
   [./viscosity_gas]
@@ -30,6 +30,7 @@
   [../]
   [./df]
     type = MoskitoDFHK
+    surface_tension = 0.1
   [../]
   [./eos]
     type = MoskitoPureWater2P
@@ -54,24 +55,24 @@
   [../]
 []
 
-[BCs]
-  [./pbc]
-    type = DirichletBC
-    variable = p
-    boundary = left
-    value = '2.07e6'
-  [../]
-  [./qbc]
-    type = DirichletBC
-    variable = q
-    boundary = right
-    value = 0.046296296
-  [../]
-[]
+# [BCs]
+#   [./pbc]
+#     type = DirichletBC
+#     variable = p
+#     boundary = left
+#     value = '2.07e6'
+#   [../]
+#   [./qbc]
+#     type = DirichletBC
+#     variable = q
+#     boundary = right
+#     value = 0.046296296
+#   [../]
+# []
 
 [Variables]
   [./h]
-    initial_condition = 1000000
+    initial_condition =1500000
   [../]
   [./p]
     initial_condition = 2.07e6
@@ -88,16 +89,12 @@
     variable = h
   [../]
   [./pkernel]
-    type = MoskitoMass
+    type = NullKernel
     variable = p
-    flowrate = q
-    enthalpy = h
   [../]
   [./qkernel]
-    type = MoskitoMomentum
+    type = NullKernel
     variable = q
-    pressure = p
-    enthalpy = h
   [../]
 []
 

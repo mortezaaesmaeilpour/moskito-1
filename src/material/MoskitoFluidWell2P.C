@@ -92,26 +92,13 @@ MoskitoFluidWell2P::computeQpProperties()
 
   MoskitoFluidWellGeneral::computeQpProperties();
 
-  if (_phase[_qp] == 2)
-  {
-    MoskitoDFGVar DFinp(_u[_qp], _rho_g[_qp], _rho_l[_qp], _vmfrac[_qp],
+      MoskitoDFGVar DFinp(_u[_qp], _rho_g[_qp], _rho_l[_qp], _vmfrac[_qp],
       _dia[_qp], _dir[_qp], _friction[_qp], _gravity[_qp], _well_unit_vect[_qp]);
 
     dfm_uo.DFMCalculator(DFinp);
     DFinp.DFMOutput(_flow_pat[_qp], _vfrac[_qp], _c0[_qp], _u_d[_qp]);
     // std::cout<<_vfrac[_qp]<<std::endl;
-  }
-  else
-  {
-    _flow_pat[_qp] = 0;
-    _c0[_qp] = 1.0;
-    _u_d[_qp] = 0.0;
-    if (_phase[_qp] == 1)
-      _vfrac[_qp] = 1.0;
-    else
-      _vfrac[_qp] = 0.0;
-  }
-
+  
   //bypass vfrac calculation of drift flux model
   // _vfrac[_qp]  = _rho_m[_qp] - _rho_l[_qp];
   // _vfrac[_qp] /= _rho_g[_qp] - _rho_l[_qp];

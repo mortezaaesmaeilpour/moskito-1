@@ -65,7 +65,7 @@ public:
   // gravity acceleration value
   Real _grav;
   // Angle between gravity vector and well_unity_vector
-  const Real _angle;
+  Real _angle;
 };
 
 #endif /* MOSKITODFGVAR_H */
