@@ -48,6 +48,7 @@ protected:
   const Real m_to_ft    = 3.2808398;
   const Real m3_to_ft3  = 35.3146667;
   const Real kg_to_lbm  = 2.2046225;
+  const Real PI = 3.141592653589793238462643383279502884197169399375105820974944592308;
 };
 
 #endif /* MOSKITODRIFTFLUX_H */
