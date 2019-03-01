@@ -47,18 +47,27 @@ MoskitoPureWater2P::MoskitoPureWater2P(const InputParameters & parameters)
 
 void
 MoskitoPureWater2P::VMFrac_from_p_h(
-  const Real & pressure, const Real & enthalpy, Real & vmfrac, Real & temperature) const
+  const Real & pressure, const Real & enthalpy, Real & vmfrac, Real & dvmfrac_dp, Real & dvmfrac_dT, Real & temperature, Real & phase) const
 {
+  dvmfrac_dp = 0.0;
+  dvmfrac_dT = 0.0;
   unsigned int region = _eos_lg->inRegionPH(pressure, enthalpy);
   temperature = _eos_lg->temperature_from_ph(pressure, enthalpy);
   switch (region)
   {
     case 1:
       vmfrac = 0.0;
+      phase = 0;
       break;
 
-    case 2 ... 3:
+    case 2:
       vmfrac = 1.0;
+      phase = 1;
+      break;
+
+    case 3:
+      vmfrac = 0.0;
+      phase = 3;
       break;
 
     case 4:
@@ -67,11 +76,15 @@ MoskitoPureWater2P::VMFrac_from_p_h(
         h_lat(pressure, temperature, h_sat_l, h_sat_g);
         vmfrac  = enthalpy - h_sat_l;
         vmfrac /= h_sat_g - h_sat_l;
+        phase = 2;
+        dvmfrac_dp = 0.0;
+        dvmfrac_dT = 0.0;
         break;
       }
 
     case 5:
       vmfrac = 1.0;
+      phase = 1;
       break;
 
     default:
@@ -88,38 +101,116 @@ MoskitoPureWater2P::h_lat(
 }
 
 Real
-MoskitoPureWater2P::rho_g_from_p_T(Real pressure, Real temperature) const
+MoskitoPureWater2P::rho_g_from_p_T(const Real & pressure, const Real & temperature, const unsigned int & phase) const
 {
-  return _eos_lg->rho_from_p_T(pressure, temperature);
+  Real rho = 0.0;
+  switch (phase)
+  {
+    case 0:
+      rho = 0.0;
+      break;
+
+    case 1:
+      rho = _eos_lg->rho_from_p_T(pressure, temperature);
+      break;
+
+    case 2:
+      rho = _eos_lg->rho_from_p_T(pressure, temperature,2);
+      break;
+
+    case 3:
+      rho = _eos_lg->rho_from_p_T(pressure, temperature,3);
+      break;
+  }
+
+  return rho;
 }
 
 void
 MoskitoPureWater2P::rho_g_from_p_T(
-  Real pressure, Real temperature, Real & rho, Real & drho_dp, Real & drho_dT) const
+  const Real &  pressure, const Real &  temperature, Real & rho, Real & drho_dp, Real & drho_dT, const unsigned int & phase) const
 {
-  _eos_lg->rho_from_p_T(pressure, temperature, rho, drho_dp, drho_dT);
+  switch (phase)
+  {
+    case 0:
+      rho = 0.0;
+      drho_dp = 0.0;
+      drho_dT = 0.0;
+      break;
+
+    case 1:
+      _eos_lg->rho_from_p_T(pressure, temperature, rho, drho_dp, drho_dT);
+      break;
+
+    case 2:
+      _eos_lg->rho_from_p_T(pressure, temperature, rho, drho_dp, drho_dT,2);
+      break;
+
+    case 3:
+      _eos_lg->rho_from_p_T(pressure, temperature, rho, drho_dp, drho_dT,3);
+      break;
+  }
 }
 
 Real
-MoskitoPureWater2P::rho_l_from_p_T(Real pressure, Real temperature) const
+MoskitoPureWater2P::rho_l_from_p_T(const Real &  pressure, const Real &  temperature, const unsigned int & phase) const
 {
-  return _eos_lg->rho_from_p_T(pressure, temperature);
+  Real rho = 0.0;
+  switch (phase)
+  {
+    case 0:
+      rho = _eos_lg->rho_from_p_T(pressure, temperature,1);
+      break;
+
+    case 1:
+      rho = 0.0;
+      break;
+
+    case 2:
+      rho = _eos_lg->rho_from_p_T(pressure, temperature,1);
+      break;
+
+    case 3:
+      rho = _eos_lg->rho_from_p_T(pressure, temperature,3);
+      break;
+  }
+
+  return rho;
 }
 
 void
 MoskitoPureWater2P::rho_l_from_p_T(
-  Real pressure, Real temperature, Real & rho, Real & drho_dp, Real & drho_dT) const
+  const Real &  pressure, const Real &  temperature, Real & rho, Real & drho_dp, Real & drho_dT, const unsigned int & phase) const
 {
-  _eos_lg->rho_from_p_T(pressure, temperature, rho, drho_dp, drho_dT);
+  switch (phase)
+  {
+    case 0:
+      _eos_lg->rho_from_p_T(pressure, temperature, rho, drho_dp, drho_dT,1);
+      break;
+
+    case 1:
+      rho = 0.0;
+      drho_dp = 0.0;
+      drho_dT = 0.0;
+      break;
+
+    case 2:
+      _eos_lg->rho_from_p_T(pressure, temperature, rho, drho_dp, drho_dT,1);
+      break;
+
+    case 3:
+      _eos_lg->rho_from_p_T(pressure, temperature, rho, drho_dp, drho_dT,3);
+      break;
+  }
 }
 
 Real
 MoskitoPureWater2P::cp_m_from_p_T(
-      const Real & pressure, const Real & temperature, const Real & vmfrac) const
+      const Real & pressure, const Real & temperature, const Real & vmfrac, const unsigned int & phase) const
 {
   Real cp = 0.0;
 
-  if (vmfrac > 0.0 && vmfrac<1.0)
+  if (phase == 2)
   {
     cp  = _eos_lg->cp_from_p_T(pressure, temperature, 2) * vmfrac;
     cp += _eos_lg->cp_from_p_T(pressure, temperature, 1) * (1.0 - vmfrac);

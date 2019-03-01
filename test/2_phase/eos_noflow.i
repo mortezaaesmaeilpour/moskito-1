@@ -1,23 +1,19 @@
-# "Applied multiphase flow in pipes and flow assurance oil and gas production"
-# Al-Safran, E., Brill, J. P., 2017
-# Example 2.1: Determine the pipeline inlet pressure?
-
 [Mesh]
   type = GeneratedMesh
   dim = 1
   xmin = 0
-  xmax = 90
-  nx = 9
+  xmax = 3000
+  nx = 300
 []
 
 [UserObjects]
   [./viscosity_gas]
     type = MoskitoViscosityConst
-    viscosity = 0.001
+    viscosity = 0.0001
   [../]
   [./viscosity_liqid]
     type = MoskitoViscosityConst
-    viscosity = 0.01
+    viscosity = 0.001
   [../]
   [./viscosity_2p]
     type = MoskitoViscosity2P
@@ -43,19 +39,41 @@
     well_direction = x
     well_diameter = 0.152
     roughness_type = smooth
+    gravity = '9.8 0 0'
+    outputs = exodus
+    output_properties = 'gas_density liquid_density mass_fraction density specific_heat temperature'
     eos_uo = eos
   [../]
 []
 
 [Variables]
   [./h]
-    initial_condition = 10000
+    # initial_condition = 0.7e6
+    [./InitialCondition]
+      type = FunctionIC
+      function = 600000+1000*x
+      variable = h
+    [../]
   [../]
   [./p]
-    initial_condition = 1
+    initial_condition = 101325
+    # [./InitialCondition]
+    #   type = FunctionIC
+    #   function = 101325+1000*x
+    #   variable = p
+    # [../]
   [../]
   [./q]
     initial_condition = 0
+  [../]
+[]
+
+[BCs]
+  [./p]
+    type = DirichletBC
+    variable = p
+    boundary = left
+    value = 101325
   [../]
 []
 
@@ -65,8 +83,10 @@
     variable = h
   [../]
   [./pkernel]
-    type = NullKernel
+    type = MoskitoMass
     variable = p
+    enthalpy = h
+    flowrate = q
   [../]
   [./qkernel]
     type = NullKernel

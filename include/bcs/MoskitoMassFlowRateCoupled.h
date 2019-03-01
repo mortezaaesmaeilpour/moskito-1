@@ -21,48 +21,36 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>  */
 /**************************************************************************/
 
+#ifndef MOSKITOMASSFLOWRATECOUPLED_H
+#define MOSKITOMASSFLOWRATECOUPLED_H
+
+#include "NodalBC.h"
 #include "MoskitoEOS2P.h"
 
+class MoskitoMassFlowRateCoupled;
+
 template <>
-InputParameters
-validParams<MoskitoEOS2P>()
+InputParameters validParams<MoskitoMassFlowRateCoupled>();
+
+class MoskitoMassFlowRateCoupled : public NodalBC
 {
-  InputParameters params = validParams<GeneralUserObject>();
+public:
+  MoskitoMassFlowRateCoupled(const InputParameters & parameters);
+  virtual Real computeQpResidual() override;
+  virtual Real computeQpOffDiagJacobian(unsigned int jvar) override;
 
-  return params;
-}
+protected:
+  // Userobject to equation of state
+  const MoskitoEOS2P & eos_uo;
+  //Mass flow rate assigned by the user
+  const Real & _m_dot;
+  // Reading of coupled parameters
+  const VariableValue & _h;
+  const VariableValue & _p;
+  // The id of the coupled variable
+  unsigned int _h_var_number;
+  unsigned int _p_var_number;
 
-MoskitoEOS2P::MoskitoEOS2P(const InputParameters & parameters)
-  : FluidProperties(parameters)
-{
-}
+};
 
-Real
-MoskitoEOS2P::rho_m_from_p_T(
-      const Real & pressure, const Real & temperature, const Real & vmfrac, const unsigned int & phase) const
-{
-  Real rho = 0.0;
-
-  switch (phase)
-  {
-    case 0:
-      rho  = rho_l_from_p_T(pressure, temperature, phase);
-      break;
-
-    case 1:
-      rho  = rho_g_from_p_T(pressure, temperature, phase);
-      break;
-
-    case 2:
-      rho  = vmfrac / rho_g_from_p_T(pressure, temperature, phase);
-      rho += (1.0 - vmfrac) / rho_l_from_p_T(pressure, temperature, phase);
-      rho  = 1.0 / rho;
-      break;
-
-    case 3:
-      rho  = rho_l_from_p_T(pressure, temperature, phase);
-      break;
-  }
-
-  return rho;
-}
+#endif // MOSKITOMASSFLOWRATE_H

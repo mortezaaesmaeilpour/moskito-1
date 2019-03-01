@@ -34,10 +34,10 @@ public:
     const Real & dir, const Real & friction, const RealVectorValue & gravity,
     const RealVectorValue & well_dir);
 
-  void DFMOutput(int & FlowPat, Real & vfrac, Real & C0, Real & vd);
+  void DFMOutput(Real & FlowPat, Real & vfrac, Real & C0, Real & vd);
 
   // Flow pattern 0 = nothing, 1 = bubbly, 2 = dispersed_bubbly, 3 = slug, 4 = churn, 5 = annular
-  int _FlowPat;
+  Real _FlowPat;
   // Volumetric fraction of void phase
   Real _vfrac;
   // Drift Flux parameters
@@ -65,7 +65,7 @@ public:
   // gravity acceleration value
   Real _grav;
   // Angle between gravity vector and well_unity_vector
-  const Real _angle;
+  Real _angle;
 };
 
 #endif /* MOSKITODFGVAR_H */

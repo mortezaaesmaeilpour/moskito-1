@@ -55,9 +55,10 @@ MoskitoFluidWell2P::MoskitoFluidWell2P(const InputParameters & parameters)
     _u_g(declareProperty<Real>("gas_velocity")),
     _u_l(declareProperty<Real>("liquid_velocity")),
     _vfrac(declareProperty<Real>("void_fraction")),
+    _phase(declareProperty<Real>("current_phase")),
     _u_d(declareProperty<Real>("drift_velocity")),
     _c0(declareProperty<Real>("flow_type_c0")),
-    _flow_pat(declareProperty<int>("flow_pattern")),
+    _flow_pat(declareProperty<Real>("flow_pattern")),
     _dgamma_dz(declareProperty<Real>("dgamma_dz")),
     _dgamma_dz_uj_gphi(declareProperty<Real>("dgamma_dz_uj_gphi")),
     _dgamma_dz_uj_phi(declareProperty<Real>("dgamma_dz_uj_phi")),
@@ -69,47 +70,39 @@ MoskitoFluidWell2P::MoskitoFluidWell2P(const InputParameters & parameters)
     _grad_h(coupledGradient("enthalpy")),
     _grad_p(coupledGradient("pressure"))
 {
-  Real h,p,x,Temp;
-  p=100000;
-  std::cout<<p<<"  "<<std::endl;
-  for (int i=1; i<= 400; i++)
-  {
-    h=i*10000;
-    eos_uo.VMFrac_from_p_h(p, h, x, Temp);
-    std::cout<<h<<"  ";
-    std::cout<<Temp-273.15<<"  ";
-    std::cout<<x<<"  ";
-    std::cout<<std::endl;
-  }
-
-  abort();
 }
 
 void
 MoskitoFluidWell2P::computeQpProperties()
 {
-  eos_uo.VMFrac_from_p_h(_P[_qp], _h[_qp], _vmfrac[_qp], _T[_qp]);
+  Real tmp1,tmp2;
+  eos_uo.VMFrac_from_p_h(fabs(_P[_qp]), fabs(_h[_qp]), _vmfrac[_qp], tmp1, tmp2, _T[_qp], _phase[_qp]);
 
-  _cp_m[_qp]  = eos_uo.cp_m_from_p_T(_P[_qp], _T[_qp], _vmfrac[_qp]);
+  _cp_m[_qp]  = eos_uo.cp_m_from_p_T(fabs(_P[_qp]), _T[_qp], _vmfrac[_qp], _phase[_qp]);
 
-  _rho_l[_qp] = eos_uo.rho_l_from_p_T(_P[_qp], _T[_qp]);
-  _rho_g[_qp] = eos_uo.rho_g_from_p_T   (_P[_qp], _T[_qp]);
-  _rho_m[_qp] = 1.0 / (_vmfrac[_qp] / _rho_g[_qp] + (1.0 - _vmfrac[_qp]) / _rho_l[_qp]);
+  _rho_l[_qp] = eos_uo.rho_l_from_p_T(fabs(_P[_qp]), _T[_qp], _phase[_qp]);
+  _rho_g[_qp] = eos_uo.rho_g_from_p_T(fabs(_P[_qp]), _T[_qp], _phase[_qp]);
+  _rho_m[_qp] = eos_uo.rho_m_from_p_T(fabs(_P[_qp]), _T[_qp], _vmfrac[_qp], _phase[_qp]);
 
   _dia[_qp] = _d;
   _area[_qp] = PI * _d * _d / 4.0;
 
   _u[_qp] = _flow[_qp] / _area[_qp];
 
-  _Re[_qp] = _rho_m[_qp] * _dia[_qp] * fabs(_u[_qp]) / viscosity_uo.mixture_mu(_P[_qp], _T[_qp], _vmfrac[_qp]);
+  _Re[_qp] = _rho_m[_qp] * _dia[_qp] * fabs(_u[_qp]) / viscosity_uo.mixture_mu(fabs(_P[_qp]), _T[_qp], _vmfrac[_qp]);
 
   MoskitoFluidWellGeneral::computeQpProperties();
 
-  MoskitoDFGVar DFinp(_u[_qp], _rho_g[_qp], _rho_l[_qp], _vmfrac[_qp],
-    _dia[_qp], _dir[_qp], _friction[_qp], _gravity[_qp], _well_unit_vect[_qp]);
+      MoskitoDFGVar DFinp(_u[_qp], _rho_g[_qp], _rho_l[_qp], _vmfrac[_qp],
+      _dia[_qp], _dir[_qp], _friction[_qp], _gravity[_qp], _well_unit_vect[_qp]);
 
-  dfm_uo.DFMCalculator(DFinp);
-  DFinp.DFMOutput(_flow_pat[_qp], _vfrac[_qp], _c0[_qp], _u_d[_qp]);
+    dfm_uo.DFMCalculator(DFinp);
+    DFinp.DFMOutput(_flow_pat[_qp], _vfrac[_qp], _c0[_qp], _u_d[_qp]);
+    // std::cout<<_vfrac[_qp]<<"  "<<_c0[_qp]<<"  "<<_u_d[_qp]<<std::endl;
+
+  // bypass vfrac calculation of drift flux model
+  _vfrac[_qp]  = _rho_m[_qp] - _rho_l[_qp];
+  _vfrac[_qp] /= _rho_g[_qp] - _rho_l[_qp];
 
   _rho_m[_qp] = _rho_g[_qp] * _vfrac[_qp] + (1.0 - _vfrac[_qp]) * _rho_l[_qp];
   _rho_pam[_qp] = _rho_g[_qp] * _c0[_qp]  * _vfrac[_qp] + (1.0 - _vfrac[_qp] * _c0[_qp]) * _rho_l[_qp];
@@ -137,8 +130,8 @@ MoskitoFluidWell2P::DriftFluxMomentumEq()
 {
   Real _drho_g_dp, _drho_g_dT, _drho_l_dp, _drho_l_dT, temp;
 
-  eos_uo.rho_l_from_p_T(_P[_qp], _T[_qp], temp, _drho_l_dp, _drho_l_dT);
-  eos_uo.rho_g_from_p_T(_P[_qp], _T[_qp], temp, _drho_g_dp, _drho_g_dT);
+  eos_uo.rho_l_from_p_T(fabs(_P[_qp]), _T[_qp], temp, _drho_l_dp, _drho_l_dT, _phase[_qp]);
+  eos_uo.rho_g_from_p_T(fabs(_P[_qp]), _T[_qp], temp, _drho_g_dp, _drho_g_dT, _phase[_qp]);
 
   _drho_m_dp[_qp] = _drho_g_dp  * _vfrac[_qp] + (1.0 - _vfrac[_qp]) * _drho_l_dp;
   _drho_m_dT[_qp] = _drho_g_dT  * _vfrac[_qp] + (1.0 - _vfrac[_qp]) * _drho_l_dT;

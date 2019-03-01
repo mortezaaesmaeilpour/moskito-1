@@ -30,7 +30,7 @@ InputParameters
 validParams<MoskitoDFHK>()
 {
   InputParameters params = validParams<MoskitoDriftFlux>();
-  params.addParam<Real>("surface_tension", 0.0,
+  params.addRequiredParam<Real>("surface_tension",
         "Surface tension of the liquid phase (kg/s)");
   return params;
 }
@@ -52,11 +52,35 @@ MoskitoDFHK::DFMCalculator(MoskitoDFGVar & input) const
   input._dia *= m_to_ft;
   input._v_m *= m_to_ft;
 
+  input._angle = 0.5 * PI - input._angle;
+
   MoskitoHKLVar tmp;
 
-  HKinitialisation(input, tmp);
-  HKcalculator(input, tmp);
-  HKvfrac(input, tmp);
+  if (input._mfrac == 0.0)
+  {
+    input._FlowPat = 0;
+    input._C0 = 1.0;
+    input._vd  = 0.0;
+    input._vfrac = 0.0;
+  }
+  else if (input._mfrac == 1.0)
+  {
+    input._FlowPat = 0;
+    input._C0 = 1.0;
+    input._vd  = 0.0;
+    input._vfrac = 1.0;
+  }
+
+  else
+  {
+    //check constraints of Hasan Kabir approach
+    if (input._angle < 0.25 * PI)
+      mooseError(name(), ": Angle > 45°, violating Hasan & Kabir limitations");
+
+    HKinitialisation(input, tmp);
+    HKcalculator(input, tmp);
+    HKvfrac(input, tmp);
+  }
 
   // conversion back to SI
   input._vd /= m_to_ft;
@@ -121,7 +145,7 @@ MoskitoDFHK::HKvfrac(MoskitoDFGVar & input, MoskitoHKLVar & LVar) const
 {
   input._vfrac = LVar.v_sg / (input._C0 * fabs(input._v_m) + input._vd * input._dir);
 
-  if (input._vfrac < 0.0)
+  if (input._vfrac < 0.0 || isnan(input._vfrac))
     input._vfrac = 0.0;
 }
 
@@ -201,9 +225,9 @@ MoskitoDFHK::Det_churn_flow(MoskitoDFGVar & input, MoskitoHKLVar & LVar) const
 {
   input._FlowPat = 4;
   if (input._dir == 1.0)
-    input._C0 = interpol(_C0s_u, _C0c_u, LVar.v_ms, input._v_m);
+    input._C0 = interpol(_C0s_d, _C0c_d, LVar.v_ms, input._v_m);
   else
-    input._C0 = _C0c_d;
+    input._C0 = _C0c_u;
 
   input._vd = LVar.vd_mix;
 }
@@ -213,9 +237,9 @@ MoskitoDFHK::Det_annular_flow(MoskitoDFGVar & input, MoskitoHKLVar & LVar) const
 {
   input._FlowPat = 5;
   if (input._dir == 1.0)
-    input._C0 = interpol(_C0c_u, _C0a, LVar.v_gc, LVar.v_sg);
-  else
     input._C0 = interpol(_C0c_d, _C0a, LVar.v_gc, LVar.v_sg);
+  else
+    input._C0 = interpol(_C0c_u, _C0a, LVar.v_gc, LVar.v_sg);
 
   input._vd = 0.0;
 }
@@ -225,9 +249,9 @@ MoskitoDFHK::Det_slug_flow(MoskitoDFGVar & input, MoskitoHKLVar & LVar) const
 {
   input._FlowPat = 3;
   if (input._dir == 1.0)
-    input._C0 = _C0s_u;
+    input._C0 = _C0s_d;
   else
-    input._C0 = interpol(_C0b, _C0s_d, LVar.v_gb, LVar.v_sg);
+    input._C0 = interpol(_C0b, _C0s_u, LVar.v_gb, LVar.v_sg);
 
   input._vd = LVar.vd_mix;
 }
