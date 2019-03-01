@@ -47,8 +47,10 @@ MoskitoPureWater2P::MoskitoPureWater2P(const InputParameters & parameters)
 
 void
 MoskitoPureWater2P::VMFrac_from_p_h(
-  const Real & pressure, const Real & enthalpy, Real & vmfrac, Real & temperature, Real & phase) const
+  const Real & pressure, const Real & enthalpy, Real & vmfrac, Real & dvmfrac_dp, Real & dvmfrac_dT, Real & temperature, Real & phase) const
 {
+  dvmfrac_dp = 0.0;
+  dvmfrac_dT = 0.0;
   unsigned int region = _eos_lg->inRegionPH(pressure, enthalpy);
   temperature = _eos_lg->temperature_from_ph(pressure, enthalpy);
   switch (region)
@@ -75,6 +77,8 @@ MoskitoPureWater2P::VMFrac_from_p_h(
         vmfrac  = enthalpy - h_sat_l;
         vmfrac /= h_sat_g - h_sat_l;
         phase = 2;
+        dvmfrac_dp = 0.0;
+        dvmfrac_dT = 0.0;
         break;
       }
 

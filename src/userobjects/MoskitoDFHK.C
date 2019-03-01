@@ -74,7 +74,7 @@ MoskitoDFHK::DFMCalculator(MoskitoDFGVar & input) const
   else
   {
     //check constraints of Hasan Kabir approach
-    if (input._angle > 0.785398)
+    if (input._angle < 0.25 * PI)
       mooseError(name(), ": Angle > 45°, violating Hasan & Kabir limitations");
 
     HKinitialisation(input, tmp);
@@ -145,7 +145,7 @@ MoskitoDFHK::HKvfrac(MoskitoDFGVar & input, MoskitoHKLVar & LVar) const
 {
   input._vfrac = LVar.v_sg / (input._C0 * fabs(input._v_m) + input._vd * input._dir);
 
-  if (input._vfrac < 0.0)
+  if (input._vfrac < 0.0 || isnan(input._vfrac))
     input._vfrac = 0.0;
 }
 

@@ -984,6 +984,64 @@ MoskitoWater97FluidProperties::h_from_p_T(
   dh_dT = denthalpy_dT;
 }
 
+void
+MoskitoWater97FluidProperties::h_from_p_T(
+    Real pressure, Real temperature, Real & h, Real & dh_dp, Real & dh_dT, unsigned int region) const
+{
+  Real enthalpy, pi, tau, delta, denthalpy_dp, denthalpy_dT;
+
+  switch (region)
+  {
+    case 1:
+      pi = pressure / _p_star[0];
+      tau = _T_star[0] / temperature;
+      enthalpy = _Rw * _T_star[0] * dgamma1_dtau(pi, tau);
+      denthalpy_dp = _Rw * _T_star[0] * d2gamma1_dpitau(pi, tau) / _p_star[0];
+      denthalpy_dT = -_Rw * tau * tau * d2gamma1_dtau2(pi, tau);
+      break;
+
+    case 2:
+      pi = pressure / _p_star[1];
+      tau = _T_star[1] / temperature;
+      enthalpy = _Rw * _T_star[1] * dgamma2_dtau(pi, tau);
+      denthalpy_dp = _Rw * _T_star[1] * d2gamma2_dpitau(pi, tau) / _p_star[1];
+      denthalpy_dT = -_Rw * tau * tau * d2gamma2_dtau2(pi, tau);
+      break;
+
+    case 3:
+    {
+      // Calculate density first, then use that in Helmholtz free energy
+      Real density3 = densityRegion3(pressure, temperature);
+      delta = density3 / _rho_critical;
+      tau = _T_star[2] / temperature;
+      Real dpdd = dphi3_ddelta(delta, tau);
+      Real d2pddt = d2phi3_ddeltatau(delta, tau);
+      Real d2pdd2 = d2phi3_ddelta2(delta, tau);
+      enthalpy = _Rw * temperature * (tau * dphi3_dtau(delta, tau) + delta * dpdd);
+      denthalpy_dp = (d2pddt + dpdd + delta * d2pdd2) / _rho_critical /
+                     (2.0 * delta * dpdd + delta * delta * d2pdd2);
+      denthalpy_dT = _Rw * delta * dpdd * (1.0 - tau * d2pddt / dpdd) *
+                         (1.0 - tau * d2pddt / dpdd) / (2.0 + delta * d2pdd2 / dpdd) -
+                     _Rw * tau * tau * d2phi3_dtau2(delta, tau);
+      break;
+    }
+
+    case 5:
+      pi = pressure / _p_star[4];
+      tau = _T_star[4] / temperature;
+      enthalpy = _Rw * _T_star[4] * dgamma5_dtau(pi, tau);
+      denthalpy_dp = _Rw * _T_star[4] * d2gamma5_dpitau(pi, tau) / _p_star[4];
+      denthalpy_dT = -_Rw * tau * tau * d2gamma5_dtau2(pi, tau);
+      break;
+
+    default:
+      mooseError("MoskitoWater97FluidProperties::inRegion has given an incorrect region");
+  }
+  h = enthalpy;
+  dh_dp = denthalpy_dp;
+  dh_dT = denthalpy_dT;
+}
+
 Real
 MoskitoWater97FluidProperties::vaporPressure(Real temperature) const
 {

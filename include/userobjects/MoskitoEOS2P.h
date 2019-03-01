@@ -37,7 +37,7 @@ public:
   MoskitoEOS2P(const InputParameters & parameters);
 
   virtual void VMFrac_from_p_h(
-      const Real & pressure, const Real & enthalpy, Real & vmfrac, Real & temperature, Real & phase) const = 0;
+      const Real & pressure, const Real & enthalpy, Real & vmfrac, Real & dvmfrac_dp, Real & dvmfrac_dT, Real & temperature, Real & phase) const = 0;
 
   virtual Real rho_g_from_p_T(const Real & pressure, const Real & temperature, const unsigned int & phase) const = 0;
 
