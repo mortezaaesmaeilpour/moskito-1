@@ -75,36 +75,37 @@ MoskitoFluidWell2P::MoskitoFluidWell2P(const InputParameters & parameters)
 void
 MoskitoFluidWell2P::computeQpProperties()
 {
-  Real tmp1,tmp2;
-  eos_uo.VMFrac_from_p_h(fabs(_P[_qp]), fabs(_h[_qp]), _vmfrac[_qp], tmp1, tmp2, _T[_qp], _phase[_qp]);
+  Real _drho_g_dp, _drho_g_dT, _drho_l_dp, _drho_l_dT, dvmfrac_dp, dvmfrac_dT;
 
-  _cp_m[_qp]  = eos_uo.cp_m_from_p_T(fabs(_P[_qp]), _T[_qp], _vmfrac[_qp], _phase[_qp]);
+  eos_uo.VMFrac_from_p_h(_P[_qp], _h[_qp], _vmfrac[_qp], dvmfrac_dp, dvmfrac_dT, _T[_qp], _phase[_qp]);
 
-  _rho_l[_qp] = eos_uo.rho_l_from_p_T(fabs(_P[_qp]), _T[_qp], _phase[_qp]);
-  _rho_g[_qp] = eos_uo.rho_g_from_p_T(fabs(_P[_qp]), _T[_qp], _phase[_qp]);
-  _rho_m[_qp] = eos_uo.rho_m_from_p_T(fabs(_P[_qp]), _T[_qp], _vmfrac[_qp], _phase[_qp]);
+  _cp_m[_qp]  = eos_uo.cp_m_from_p_T(_P[_qp], _T[_qp], _vmfrac[_qp], (unsigned int)_phase[_qp]);
+
+  // std::cout<<_phase[_qp]<<std::endl;
+  Rho_Mixture(_drho_g_dp, _drho_g_dT, _drho_l_dp, _drho_l_dT, dvmfrac_dp, dvmfrac_dT);
+  // if (isnan(_drho_g_dp) || isnan(_drho_g_dT) ||
+  //     isnan(_drho_l_dp) || isnan(_drho_l_dp) ||
+  //     isnan(_drho_m_dp[_qp]) || isnan(_drho_m_dT[_qp]) ||
+  //     isnan(_rho_m[_qp]) || isnan(_rho_l[_qp]) || isnan(_rho_g[_qp]))
+      // std::cout<<"rho_m = "<<_rho_m[_qp]<<" drho_m_dp = "<<_drho_m_dp[_qp]<<" drho_m_dT = "<<_drho_m_dT[_qp]<<std::endl;
 
   _dia[_qp] = _d;
   _area[_qp] = PI * _d * _d / 4.0;
-
   _u[_qp] = _flow[_qp] / _area[_qp];
-
-  _Re[_qp] = _rho_m[_qp] * _dia[_qp] * fabs(_u[_qp]) / viscosity_uo.mixture_mu(fabs(_P[_qp]), _T[_qp], _vmfrac[_qp]);
+  _Re[_qp] = _rho_m[_qp] * _dia[_qp] * fabs(_u[_qp]) / viscosity_uo.mixture_mu(_P[_qp], _T[_qp], _vmfrac[_qp]);
 
   MoskitoFluidWellGeneral::computeQpProperties();
 
-      MoskitoDFGVar DFinp(_u[_qp], _rho_g[_qp], _rho_l[_qp], _vmfrac[_qp],
-      _dia[_qp], _dir[_qp], _friction[_qp], _gravity[_qp], _well_unit_vect[_qp]);
+  MoskitoDFGVar DFinp(_u[_qp], _rho_g[_qp], _rho_l[_qp], _vmfrac[_qp],
+    _dia[_qp], _dir[_qp], _friction[_qp], _gravity[_qp], _well_unit_vect[_qp]);
 
-    dfm_uo.DFMCalculator(DFinp);
-    DFinp.DFMOutput(_flow_pat[_qp], _vfrac[_qp], _c0[_qp], _u_d[_qp]);
-    // std::cout<<_vfrac[_qp]<<"  "<<_c0[_qp]<<"  "<<_u_d[_qp]<<std::endl;
+  dfm_uo.DFMCalculator(DFinp);
+  DFinp.DFMOutput(_flow_pat[_qp], _vfrac[_qp], _c0[_qp], _u_d[_qp]);
 
   // bypass vfrac calculation of drift flux model
   _vfrac[_qp]  = _rho_m[_qp] - _rho_l[_qp];
   _vfrac[_qp] /= _rho_g[_qp] - _rho_l[_qp];
 
-  _rho_m[_qp] = _rho_g[_qp] * _vfrac[_qp] + (1.0 - _vfrac[_qp]) * _rho_l[_qp];
   _rho_pam[_qp] = _rho_g[_qp] * _c0[_qp]  * _vfrac[_qp] + (1.0 - _vfrac[_qp] * _c0[_qp]) * _rho_l[_qp];
 
   // based on volume weighted flow rate
@@ -119,23 +120,93 @@ MoskitoFluidWell2P::computeQpProperties()
   _u_l[_qp]  = (1.0 - _vfrac[_qp] * _c0[_qp]) * _rho_m[_qp]  * _u[_qp] - _rho_g[_qp] * _vfrac[_qp] * _u_d[_qp];
   _u_l[_qp] /= (1.0 - _vfrac[_qp]) * _rho_pam[_qp];
 
-  DriftFluxMomentumEq();
+
+  if (_phase[_qp] == 2.0)
+    {
+      DriftFluxMomentumEq(_drho_g_dp, _drho_g_dT, _drho_l_dp, _drho_l_dT);
+      // std::cout<<_dgamma_dz[_qp]<<"  "
+      // <<_dgamma_dz_uj_gphi[_qp] <<"  "
+      // <<_dgamma_dz_uj_phi[_qp]  <<"  "
+      // <<_dgamma_dz_pj_gphi[_qp] <<"  "
+      // <<_dgamma_dz_pj_phi[_qp]  <<"  "
+      // <<_dgamma_dz_hj_gphi[_qp] <<"  "
+      // <<_dgamma_dz_hj_phi[_qp]  <<std::endl;
+    }
+  else
+    {
+      _dgamma_dz[_qp]         = 0.0;
+      _dgamma_dz_uj_gphi[_qp] = 0.0;
+      _dgamma_dz_uj_phi[_qp]  = 0.0;
+      _dgamma_dz_pj_gphi[_qp] = 0.0;
+      _dgamma_dz_pj_phi[_qp]  = 0.0;
+      _dgamma_dz_hj_gphi[_qp] = 0.0;
+      _dgamma_dz_hj_phi[_qp]  = 0.0;
+    }
 
   // _lambda[_qp]  = (1.0 - (_d * _d) / std::pow(_d + _thickness , 2.0)) * _lambda0;
   // _lambda[_qp] += (_d * _d) / std::pow(_d + _thickness , 2.0) * eos_uo._lambda;
+
 }
 
 void
-MoskitoFluidWell2P::DriftFluxMomentumEq()
+MoskitoFluidWell2P::Rho_Mixture(Real & _drho_g_dp, Real & _drho_g_dT, Real & _drho_l_dp, Real & _drho_l_dT, const Real & dvmfrac_dp, const Real & dvmfrac_dT)
 {
-  Real _drho_g_dp, _drho_g_dT, _drho_l_dp, _drho_l_dT, temp;
+  switch ((unsigned int)_phase[_qp])
+  {
+    case 0:
+      eos_uo.rho_l_from_p_T(_P[_qp], _T[_qp], _rho_l[_qp], _drho_l_dp, _drho_l_dT, (unsigned int)_phase[_qp]);
+      _drho_m_dp[_qp] = _drho_l_dp;
+      _drho_m_dT[_qp] = _drho_l_dT;
+      _rho_m[_qp] = _rho_l[_qp];
+      _drho_g_dp = 0.0;
+      _drho_g_dT = 0.0;
+      break;
 
-  eos_uo.rho_l_from_p_T(fabs(_P[_qp]), _T[_qp], temp, _drho_l_dp, _drho_l_dT, _phase[_qp]);
-  eos_uo.rho_g_from_p_T(fabs(_P[_qp]), _T[_qp], temp, _drho_g_dp, _drho_g_dT, _phase[_qp]);
+    case 1:
+      eos_uo.rho_g_from_p_T(_P[_qp], _T[_qp], _rho_g[_qp], _drho_g_dp, _drho_g_dT, (unsigned int)_phase[_qp]);
+      _drho_m_dp[_qp] = _drho_g_dp;
+      _drho_m_dT[_qp] = _drho_g_dT;
+      _rho_m[_qp] = _rho_g[_qp];
+      _drho_l_dp = 0.0;
+      _drho_l_dT = 0.0;
+    break;
 
-  _drho_m_dp[_qp] = _drho_g_dp  * _vfrac[_qp] + (1.0 - _vfrac[_qp]) * _drho_l_dp;
-  _drho_m_dT[_qp] = _drho_g_dT  * _vfrac[_qp] + (1.0 - _vfrac[_qp]) * _drho_l_dT;
+    case 2:
+    {
+      eos_uo.rho_l_from_p_T(_P[_qp], _T[_qp], _rho_l[_qp], _drho_l_dp, _drho_l_dT, (unsigned int)_phase[_qp]);
+      eos_uo.rho_g_from_p_T(_P[_qp], _T[_qp], _rho_g[_qp], _drho_g_dp, _drho_g_dT, (unsigned int)_phase[_qp]);
 
+      Real tmp = _vmfrac[_qp] * (_rho_l[_qp] - _rho_g[_qp]) + _rho_g[_qp];
+      Real dtmp_dp = dvmfrac_dp * (_rho_l[_qp] - _rho_g[_qp]);
+      dtmp_dp = _vmfrac[_qp] * (_drho_l_dp - _drho_g_dp) + _drho_g_dp;
+      Real dtmp_dT = dvmfrac_dT * (_rho_l[_qp] - _rho_g[_qp]);
+      dtmp_dT = _vmfrac[_qp] * (_drho_l_dT - _drho_g_dT) + _drho_g_dT;
+
+      _rho_m[_qp] = _rho_l[_qp] * _rho_g[_qp] / tmp;
+      _drho_m_dp[_qp]  = (_drho_g_dp  * _rho_l[_qp] + _rho_g[_qp] * _drho_l_dp) * tmp;
+      _drho_m_dp[_qp] -= _rho_l[_qp] * _rho_g[_qp] * dtmp_dp;
+      _drho_m_dp[_qp] /= tmp * tmp;
+
+      _drho_m_dT[_qp]  = (_drho_g_dT  * _rho_l[_qp] + _rho_g[_qp] * _drho_l_dT) * tmp;
+      _drho_m_dT[_qp] -= _rho_l[_qp] * _rho_g[_qp] * dtmp_dT;
+      _drho_m_dT[_qp] /= tmp * tmp;
+      break;
+    }
+
+    case 3:
+      eos_uo.rho_l_from_p_T(_P[_qp], _T[_qp], _rho_l[_qp], _drho_l_dp, _drho_l_dT, (unsigned int)_phase[_qp]);
+      _drho_m_dp[_qp] = _drho_l_dp;
+      _drho_m_dT[_qp] = _drho_l_dT;
+      _rho_m[_qp] = _rho_l[_qp];
+      _drho_g_dp = 0.0;
+      _drho_g_dT = 0.0;
+      break;
+  }
+}
+
+void
+MoskitoFluidWell2P::DriftFluxMomentumEq(const Real & _drho_g_dp, const Real & _drho_g_dT, const Real & _drho_l_dp, const Real & _drho_l_dT)
+{
   /*
   All required coupled coeffient are derived below for momentum conservation
   In 2 phase momentum equation, the following rules should applied:
@@ -154,6 +225,12 @@ MoskitoFluidWell2P::DriftFluxMomentumEq()
   b = _c0[_qp] - 1.0;
   c = _rho_g[_qp] * _rho_l[_qp] * _rho_m[_qp] / (_rho_pam[_qp] * _rho_pam[_qp]);
   d = b * _u[_qp] + _u_d[_qp];
+
+  // std::cout<<_vfrac[_qp]<<"  "
+  // <<a  <<"  "
+  // <<b  <<"  "
+  // <<c  <<"  "
+  // <<d  <<std::endl;
 
   // parameterizing dgamma_dz equation for simpilification
   _drho_g_dz  = (_drho_g_dp * _grad_p[_qp] + _drho_g_dT * _grad_h[_qp] / _cp_m[_qp]) * _well_unit_vect[_qp];

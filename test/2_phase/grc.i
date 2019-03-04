@@ -69,7 +69,7 @@
     type = DirichletBC
     variable = q
     boundary = bottom
-    value = -0.025
+    value = -0.0
   [../]
 []
 
@@ -79,7 +79,7 @@
       type = FunctionIC
       variable = h
       # function = 8e5-y*125
-      function = 1e5
+      function = 6e5
     [../]
   [../]
   [./p]
@@ -91,7 +91,7 @@
   [../]
   [./q]
     scaling = 1e-6
-    initial_condition = -0.025
+    initial_condition = -0.0
   [../]
 []
 
@@ -123,7 +123,7 @@
 []
 
 [Preconditioning]
-  active = p3
+  active = p2
   [./p1]
     type = SMP
     full = true
@@ -155,7 +155,7 @@
 
 [Executioner]
   type = Steady
-  l_tol = 1e-13
+  # l_tol = 1e-13
   l_max_its = 50
   nl_rel_tol = 1e-8
   nl_abs_tol = 1e-9
@@ -165,4 +165,7 @@
 
 [Outputs]
   exodus = true
+  # [./test]
+  #   type = VariableResidualNormsDebugOutput
+  # [../]
 []

@@ -72,13 +72,21 @@ MoskitoPureWater2P::VMFrac_from_p_h(
 
     case 4:
       {
-        Real h_sat_g,h_sat_l;
-        h_lat(pressure, temperature, h_sat_l, h_sat_g);
-        vmfrac  = enthalpy - h_sat_l;
-        vmfrac /= h_sat_g - h_sat_l;
+        temperature = _eos_lg->vaporTemperature(pressure);
         phase = 2;
-        dvmfrac_dp = 0.0;
-        dvmfrac_dT = 0.0;
+        Real tmp;
+        Real h_sat_g, dh_g_dp, h_sat_l, dh_l_dp, h_lat;
+        _eos_lg->h_from_p_T(pressure, temperature, h_sat_l, dh_l_dp, tmp, 1);
+        _eos_lg->h_from_p_T(pressure, temperature, h_sat_g, dh_g_dp, tmp, 2);
+        h_lat = h_sat_g - h_sat_l;
+        vmfrac  = enthalpy - h_sat_l;
+        vmfrac /= h_lat;
+        dvmfrac_dp  = -dh_l_dp * h_lat;
+        dvmfrac_dp -= (dh_g_dp - dh_l_dp) * (enthalpy - h_sat_l);
+        dvmfrac_dp /= h_lat * h_lat;
+        Real dp_dT;
+        _eos_lg->vaporPressure_dT(temperature, tmp, dp_dT);
+        dvmfrac_dT = dvmfrac_dp * dp_dT;
         break;
       }
 

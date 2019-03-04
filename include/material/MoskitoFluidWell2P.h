@@ -39,7 +39,8 @@ class MoskitoFluidWell2P : public MoskitoFluidWellGeneral
 public:
   MoskitoFluidWell2P(const InputParameters & parameters);
   virtual void computeQpProperties() override;
-  void DriftFluxMomentumEq();
+  void DriftFluxMomentumEq(const Real & _drho_g_dp, const Real & _drho_g_dT, const Real & _drho_l_dp, const Real & _drho_l_dT);
+  void Rho_Mixture(Real & _drho_g_dp, Real & _drho_g_dT, Real & _drho_l_dp, Real & _drho_l_dT, const Real & dvmfrac_dp, const Real & dvmfrac_dT);
 
 protected:
   // Userobject to equation of state
