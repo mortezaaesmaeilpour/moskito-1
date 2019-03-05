@@ -2,26 +2,26 @@
   type = GeneratedMesh
   dim = 1
   xmin = 0
-  xmax = 9000
-  nx = 900
+  xmax = 900
+  nx = 300
 []
 
 [MeshModifiers]
   [./rotate]
     type = Transform
     transform = ROTATE
-    vector_value = '83 0 0'
+    vector_value = '2.87 0 0'
   [../]
 []
 
 [UserObjects]
   [./viscosity_gas]
     type = MoskitoViscosityConst
-    viscosity = 0.0001
+    viscosity = 1.3e-5
   [../]
   [./viscosity_liqid]
     type = MoskitoViscosityConst
-    viscosity = 0.001
+    viscosity = 1.44e-4
   [../]
   [./viscosity_2p]
     type = MoskitoViscosity2P
@@ -30,7 +30,7 @@
   [../]
   [./df]
     type = MoskitoDFHK
-    surface_tension = 0.1
+    surface_tension = 0.0288
   [../]
   [./eos]
     type = MoskitoPureWater2P
@@ -47,7 +47,7 @@
     eos_uo = eos
     viscosity_uo = viscosity_2p
     drift_flux_uo = df
-    well_diameter = 0.152
+    well_diameter = 0.224
     roughness_type = smooth
     gravity = '9.8 0 0'
     outputs = exodus
@@ -55,31 +55,42 @@
   [../]
 []
 
-# [BCs]
-#   [./pbc]
-#     type = DirichletBC
-#     variable = p
-#     boundary = left
-#     value = '2.07e6'
-#   [../]
-#   [./qbc]
-#     type = DirichletBC
-#     variable = q
-#     boundary = right
-#     value = 0.046296296
-#   [../]
-# []
+[BCs]
+  # [./pbc]
+  #   type = DirichletBC
+  #   variable = p
+  #   boundary = right
+  #   value = 3291557.1
+  # [../]
+  [./pbc]
+    type = DirichletBC
+    variable = p
+    boundary = left
+    value = 0.1e5
+  [../]
+  [./qbc]
+    type = DirichletBC
+    variable = q
+    boundary = right
+    value = -0.025
+  [../]
+[]
 
 [Variables]
   [./h]
-    initial_condition =1500000
+    # initial_condition = 995063
+    [./InitialCondition]
+      type = FunctionIC
+      variable = h
+      function = 995063-830*x
+    [../]
   [../]
   [./p]
-    initial_condition = 2.07e6
+    initial_condition = 0.1e5
   [../]
   [./q]
     scaling = 1e-2
-    initial_condition = 0.046296296
+    initial_condition = -0.025
   [../]
 []
 
@@ -89,17 +100,21 @@
     variable = h
   [../]
   [./pkernel]
-    type = NullKernel
+    type = MoskitoMass
     variable = p
+    flowrate = q
+    enthalpy = h
   [../]
   [./qkernel]
-    type = NullKernel
+    type = MoskitoMomentum
     variable = q
+    pressure = p
+    enthalpy = h
   [../]
 []
 
 [Preconditioning]
-  active = p2
+  active = p3
   [./p1]
     type = SMP
     full = true
@@ -141,4 +156,7 @@
 
 [Outputs]
   exodus = true
+  [./test]
+    type = VariableResidualNormsDebugOutput
+  [../]
 []

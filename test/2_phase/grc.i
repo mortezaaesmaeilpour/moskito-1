@@ -37,23 +37,23 @@
   roughness_type = smooth
   gravity = '0 -9.8 0'
   outputs = exodus
-  output_properties = 'well_direction_vector profile_mixture_density gas_velocity liquid_velocity void_fraction flow_pattern current_phase gas_density liquid_density mass_fraction density specific_heat temperature'
+  output_properties = 'gas_velocity liquid_velocity void_fraction mass_fraction flow_pattern current_phase gas_density liquid_density density temperature well_velocity'
 []
 
 [Materials]
   [./area0]
     type = MoskitoFluidWell2P
-    well_diameter = 0.35
+    well_diameter = 0.45
     block = 3
   [../]
   [./area1]
     type = MoskitoFluidWell2P
-    well_diameter = 0.24
+    well_diameter = 0.3
     block = 4
   [../]
   [./area2]
     type = MoskitoFluidWell2P
-    well_diameter = 0.21
+    well_diameter = 0.15
     block = 5
   [../]
 []
@@ -68,8 +68,8 @@
   [./qbc]
     type = DirichletBC
     variable = q
-    boundary = bottom
-    value = -0.0
+    boundary = top
+    value = -0.015
   [../]
 []
 
@@ -79,7 +79,7 @@
       type = FunctionIC
       variable = h
       # function = 8e5-y*125
-      function = 6e5
+      function = 1.5e6-25*y
     [../]
   [../]
   [./p]
@@ -91,7 +91,7 @@
   [../]
   [./q]
     scaling = 1e-6
-    initial_condition = -0.0
+    initial_condition = -0.015
   [../]
 []
 

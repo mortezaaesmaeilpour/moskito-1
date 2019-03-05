@@ -77,9 +77,9 @@ MoskitoFluidWell2P::computeQpProperties()
 {
   Real _drho_g_dp, _drho_g_dT, _drho_l_dp, _drho_l_dT, dvmfrac_dp, dvmfrac_dT;
 
-  eos_uo.VMFrac_from_p_h(_P[_qp], _h[_qp], _vmfrac[_qp], dvmfrac_dp, dvmfrac_dT, _T[_qp], _phase[_qp]);
+  eos_uo.VMFrac_from_p_h(fabs(_P[_qp]), _h[_qp], _vmfrac[_qp], dvmfrac_dp, dvmfrac_dT, _T[_qp], _phase[_qp]);
 
-  _cp_m[_qp]  = eos_uo.cp_m_from_p_T(_P[_qp], _T[_qp], _vmfrac[_qp], (unsigned int)_phase[_qp]);
+  _cp_m[_qp]  = eos_uo.cp_m_from_p_T(fabs(_P[_qp]), _T[_qp], _vmfrac[_qp], (unsigned int)_phase[_qp]);
 
   // std::cout<<_phase[_qp]<<std::endl;
   Rho_Mixture(_drho_g_dp, _drho_g_dT, _drho_l_dp, _drho_l_dT, dvmfrac_dp, dvmfrac_dT);
@@ -92,7 +92,7 @@ MoskitoFluidWell2P::computeQpProperties()
   _dia[_qp] = _d;
   _area[_qp] = PI * _d * _d / 4.0;
   _u[_qp] = _flow[_qp] / _area[_qp];
-  _Re[_qp] = _rho_m[_qp] * _dia[_qp] * fabs(_u[_qp]) / viscosity_uo.mixture_mu(_P[_qp], _T[_qp], _vmfrac[_qp]);
+  _Re[_qp] = _rho_m[_qp] * _dia[_qp] * fabs(_u[_qp]) / viscosity_uo.mixture_mu(fabs(_P[_qp]), _T[_qp], _vmfrac[_qp]);
 
   MoskitoFluidWellGeneral::computeQpProperties();
 
@@ -154,7 +154,7 @@ MoskitoFluidWell2P::Rho_Mixture(Real & _drho_g_dp, Real & _drho_g_dT, Real & _dr
   switch ((unsigned int)_phase[_qp])
   {
     case 0:
-      eos_uo.rho_l_from_p_T(_P[_qp], _T[_qp], _rho_l[_qp], _drho_l_dp, _drho_l_dT, (unsigned int)_phase[_qp]);
+      eos_uo.rho_l_from_p_T(fabs(_P[_qp]), _T[_qp], _rho_l[_qp], _drho_l_dp, _drho_l_dT, (unsigned int)_phase[_qp]);
       _drho_m_dp[_qp] = _drho_l_dp;
       _drho_m_dT[_qp] = _drho_l_dT;
       _rho_m[_qp] = _rho_l[_qp];
@@ -163,7 +163,7 @@ MoskitoFluidWell2P::Rho_Mixture(Real & _drho_g_dp, Real & _drho_g_dT, Real & _dr
       break;
 
     case 1:
-      eos_uo.rho_g_from_p_T(_P[_qp], _T[_qp], _rho_g[_qp], _drho_g_dp, _drho_g_dT, (unsigned int)_phase[_qp]);
+      eos_uo.rho_g_from_p_T(fabs(_P[_qp]), _T[_qp], _rho_g[_qp], _drho_g_dp, _drho_g_dT, (unsigned int)_phase[_qp]);
       _drho_m_dp[_qp] = _drho_g_dp;
       _drho_m_dT[_qp] = _drho_g_dT;
       _rho_m[_qp] = _rho_g[_qp];
@@ -173,8 +173,8 @@ MoskitoFluidWell2P::Rho_Mixture(Real & _drho_g_dp, Real & _drho_g_dT, Real & _dr
 
     case 2:
     {
-      eos_uo.rho_l_from_p_T(_P[_qp], _T[_qp], _rho_l[_qp], _drho_l_dp, _drho_l_dT, (unsigned int)_phase[_qp]);
-      eos_uo.rho_g_from_p_T(_P[_qp], _T[_qp], _rho_g[_qp], _drho_g_dp, _drho_g_dT, (unsigned int)_phase[_qp]);
+      eos_uo.rho_l_from_p_T(fabs(_P[_qp]), _T[_qp], _rho_l[_qp], _drho_l_dp, _drho_l_dT, (unsigned int)_phase[_qp]);
+      eos_uo.rho_g_from_p_T(fabs(_P[_qp]), _T[_qp], _rho_g[_qp], _drho_g_dp, _drho_g_dT, (unsigned int)_phase[_qp]);
 
       Real tmp = _vmfrac[_qp] * (_rho_l[_qp] - _rho_g[_qp]) + _rho_g[_qp];
       Real dtmp_dp = dvmfrac_dp * (_rho_l[_qp] - _rho_g[_qp]);
@@ -194,7 +194,7 @@ MoskitoFluidWell2P::Rho_Mixture(Real & _drho_g_dp, Real & _drho_g_dT, Real & _dr
     }
 
     case 3:
-      eos_uo.rho_l_from_p_T(_P[_qp], _T[_qp], _rho_l[_qp], _drho_l_dp, _drho_l_dT, (unsigned int)_phase[_qp]);
+      eos_uo.rho_l_from_p_T(fabs(_P[_qp]), _T[_qp], _rho_l[_qp], _drho_l_dp, _drho_l_dT, (unsigned int)_phase[_qp]);
       _drho_m_dp[_qp] = _drho_l_dp;
       _drho_m_dT[_qp] = _drho_l_dT;
       _rho_m[_qp] = _rho_l[_qp];
