@@ -62,6 +62,10 @@ protected:
   MaterialProperty<Real> & _rho_pam;
   // The first derivative of mixture density wrt pressure
   MaterialProperty<Real> & _drho_m_dp;
+
+  Real Rho(const Real & p, const Real & h);
+  MaterialProperty<Real> & _drho_m_dp_2;
+
   // The first derivative of mixture density wrt temperature
   MaterialProperty<Real> & _drho_m_dT;
   // mass_fraction
