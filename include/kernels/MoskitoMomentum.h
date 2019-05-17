@@ -50,8 +50,6 @@ protected:
   unsigned _p_var_number;
   unsigned _h_var_number;
 
-  // The specific heat of mixture at constant pressure
-  const MaterialProperty<Real> & _cp;
   // The mixture density
   const MaterialProperty<Real> & _rho;
   // The first derivative of mixture density wrt pressure
