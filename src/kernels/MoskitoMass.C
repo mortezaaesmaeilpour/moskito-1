@@ -47,11 +47,12 @@ MoskitoMass::MoskitoMass(const InputParameters & parameters)
   _q_vol_var_number(coupled("flowrate")),
   _h_var_number(coupled("enthalpy")),
   _area(getMaterialProperty<Real>("well_area")),
-  _cp(getMaterialProperty<Real>("specific_heat")),
   _well_dir(getMaterialProperty<RealVectorValue>("well_direction_vector")),
   _rho(getMaterialProperty<Real>("density")),
   _drho_dp(getMaterialProperty<Real>("drho_dp")),
-  _drho_dT(getMaterialProperty<Real>("drho_dT"))
+  _drho_dp_2(getMaterialProperty<Real>("drho_dp_2")),
+  _drho_dh(getMaterialProperty<Real>("drho_dh")),
+  _drho_dh_2(getMaterialProperty<Real>("drho_dh_2"))
 {
 }
 
@@ -61,7 +62,7 @@ MoskitoMass::computeQpResidual()
   RealVectorValue r = 0.0;
 
   r += _drho_dp[_qp] * _grad_u[_qp];
-  r += _drho_dT[_qp] * _grad_h[_qp] / _cp[_qp];
+  r += _drho_dh[_qp] * _grad_h[_qp];
   r *= _q_vol[_qp];
   r += _grad_q_vol[_qp] * _rho[_qp];
   r *= _test[_i][_qp] / _area[_qp];
@@ -74,6 +75,7 @@ MoskitoMass::computeQpJacobian()
 {
   RealVectorValue j = 0.0;
 
+  j += _drho_dp_2[_qp] * _phi[_j][_qp] * _grad_u[_qp];
   j += _drho_dp[_qp] * _grad_phi[_j][_qp];
   j *= _q_vol[_qp];
   j += _grad_q_vol[_qp] * _drho_dp[_qp] * _phi[_j][_qp];
@@ -89,7 +91,7 @@ MoskitoMass::computeQpOffDiagJacobian(unsigned int jvar)
   if (jvar == _q_vol_var_number)
   {
     j += _drho_dp[_qp] * _grad_u[_qp];
-    j += _drho_dT[_qp] * _grad_h[_qp] / _cp[_qp];
+    j += _drho_dh[_qp] * _grad_h[_qp];
     j *= _phi[_j][_qp];
     j += _grad_phi[_j][_qp] * _rho[_qp];
     j *= _test[_i][_qp] / _area[_qp];
@@ -97,10 +99,11 @@ MoskitoMass::computeQpOffDiagJacobian(unsigned int jvar)
 
   if (jvar == _h_var_number)
   {
-    j += _drho_dT[_qp] * _grad_phi[_j][_qp];
+    j += _drho_dh_2[_qp] * _phi[_j][_qp] * _grad_h[_qp];
+    j += _drho_dh[_qp] * _grad_phi[_j][_qp];
     j *= _q_vol[_qp];
-    j += _grad_q_vol[_qp] * _drho_dT[_qp] * _phi[_j][_qp];
-    j *= _test[_i][_qp] / (_area[_qp] * _cp[_qp]);
+    j += _grad_q_vol[_qp] * _drho_dh[_qp] * _phi[_j][_qp];
+    j *= _test[_i][_qp] / _area[_qp];
   }
 
   return j * _well_dir[_qp];

@@ -37,27 +37,28 @@ class MoskitoPureWater2P : public MoskitoEOS2P
 public:
   MoskitoPureWater2P(const InputParameters & parameters);
 
-  virtual void VMFrac_from_p_h(
-      const Real & pressure, const Real & enthalpy, Real & vmfrac, Real & dvmfrac_dp, Real & dvmfrac_dT, Real & temperature, Real & phase) const override;
-
-  virtual Real rho_g_from_p_T(const Real & pressure, const Real & temperature, const unsigned int & phase) const override;
+  virtual void VMFrac_T_from_p_h(
+      const Real & pressure, const Real & enthalpy, Real & vmfrac, Real & temperature, Real & phase) const override;
 
   virtual void rho_g_from_p_T(
-      const Real & pressure, const Real & temperature, Real & rho, Real & drho_dp, Real & drho_dT, const unsigned int & phase) const override;
-
-  virtual Real rho_l_from_p_T(const Real & pressure, const Real & temperature, const unsigned int & phase) const override;
+      const Real & pressure, const Real & temperature, Real & rho, Real & drho_dp, Real & drho_dT, const Real & phase) const override;
 
   virtual void rho_l_from_p_T(
-      const Real & pressure, const Real & temperature, Real & rho, Real & drho_dp, Real & drho_dT, const unsigned int & phase) const override;
+      const Real & pressure, const Real & temperature, Real & rho, Real & drho_dp, Real & drho_dT, const Real & phase) const override;
+
+  virtual Real rho_g_from_p_T(const Real & pressure, const Real & temperature, const Real & phase) const override;
+
+  virtual Real rho_l_from_p_T(const Real & pressure, const Real & temperature, const Real & phase) const override;
 
   virtual Real cp_m_from_p_T(
-      const Real & pressure, const Real & temperature, const Real & vmfrac, const unsigned int & phase) const override;
+      const Real & pressure, const Real & temperature, const Real & vmfrac, const Real & phase) const override;
+
+  virtual Real rho_m_from_p_h(const Real & pressure, const Real & enthalpy) const override;
 
 protected:
-  const MoskitoWater97FluidProperties * _eos_lg;
+  MoskitoWater97FluidProperties * _eos_lg;
 
-  virtual void h_lat(
-      const Real & pressure, const Real & temperature, Real & hsatl, Real & hsatg) const override;
+  virtual void h_lat(const Real & pressure, Real & hlat, Real & hsatl) const override;
 };
 
 #endif /* MOSKITOPUREWATER2P_H */
