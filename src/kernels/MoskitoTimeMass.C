@@ -67,6 +67,7 @@ MoskitoTimeMass::computeQpJacobian()
 {
   Real j = 0.0;
 
+  j += _drho_dp_2[_qp] * _phi[_j][_qp] * _u_dot[_qp];
   j += _drho_dp[_qp] * _phi[_j][_qp] * _du_dot_du[_qp];
   j *= _test[_i][_qp];
 
@@ -80,6 +81,7 @@ MoskitoTimeMass::computeQpOffDiagJacobian(unsigned int jvar)
 
   if (jvar == _h_var_number)
   {
+    j += _drho_dh_2[_qp] * _phi[_j][_qp] * _h_dot[_qp];
     j += _drho_dh[_qp] * _phi[_j][_qp] * _dh_dot[_qp];
     j *= _test[_i][_qp];
   }

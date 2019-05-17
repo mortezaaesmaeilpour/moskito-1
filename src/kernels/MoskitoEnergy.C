@@ -97,6 +97,7 @@ MoskitoEnergy::computeQpJacobian()
   grad_rho_V +=  grad_V * _rho[_qp];
 
   grad_rho_V_Uj += _drho_dh[_qp] * _grad_phi[_j][_qp] * _well_dir[_qp];
+  grad_rho_V_Uj += _drho_dh_2[_qp] * _phi[_j][_qp] * _grad_u[_qp] * _well_dir[_qp];
   grad_rho_V_Uj *= V;
   grad_rho_V_Uj +=  grad_V * _drho_dh[_qp] * _phi[_j][_qp];
 
@@ -156,6 +157,7 @@ MoskitoEnergy::computeQpOffDiagJacobian(unsigned int jvar)
     grad_V = _grad_q_vol[_qp] * _well_dir[_qp] / _area[_qp];
 
     grad_rho_V_Pj += _drho_dp[_qp] * _grad_phi[_j][_qp] * _well_dir[_qp];
+    grad_rho_V_Pj += _drho_dp_2[_qp] * _phi[_j][_qp] * _grad_p[_qp] * _well_dir[_qp];
     grad_rho_V_Pj *= V;
     grad_rho_V_Pj +=  grad_V * _drho_dp[_qp] * _phi[_j][_qp];
 

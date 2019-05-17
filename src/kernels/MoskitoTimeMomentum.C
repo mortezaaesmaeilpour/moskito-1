@@ -91,6 +91,7 @@ MoskitoTimeMomentum::computeQpOffDiagJacobian(unsigned int jvar)
 
   if (jvar == _p_var_number)
   {
+    j += _drho_dp_2[_qp] * _phi[_j][_qp] * _p_dot[_qp];
     j += _drho_dp[_qp] * _phi[_j][_qp] * _dp_dot[_qp];
     j *= _u[_qp];
     j += _drho_dp[_qp] * _phi[_j][_qp] * _u_dot[_qp];
@@ -99,6 +100,7 @@ MoskitoTimeMomentum::computeQpOffDiagJacobian(unsigned int jvar)
 
   if (jvar == _h_var_number)
   {
+    j += _drho_dh_2[_qp] * _phi[_j][_qp] * _h_dot[_qp];
     j += _drho_dh[_qp] * _phi[_j][_qp] * _dh_dot[_qp];
     j *= _u[_qp];
     j += _drho_dh[_qp] * _phi[_j][_qp] * _u_dot[_qp];
