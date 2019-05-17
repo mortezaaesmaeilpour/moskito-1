@@ -77,21 +77,21 @@ Real
 MoskitoFluidWell2P::Rho(const Real & p, const Real & h)
 {
   Real rho,tmp1,tmp2,rhol,rhog,temp,phase,vmfrac;
-  eos_uo.VMFrac_from_p_h(p, h, vmfrac, tmp1, tmp2, temp, phase);
+  eos_uo.VMFrac_T_from_p_h(p, h, vmfrac, temp, phase);
   switch ((unsigned int)phase)
   {
     case 0:
-      rho = eos_uo.rho_l_from_p_T(p, temp, (unsigned int)phase);
+      rho = eos_uo.rho_l_from_p_T(p, temp, phase);
       break;
 
     case 1:
-      rho = eos_uo.rho_g_from_p_T(p, temp, (unsigned int)phase);
+      rho = eos_uo.rho_g_from_p_T(p, temp, phase);
       break;
 
     case 2:
     {
-      rhol = eos_uo.rho_l_from_p_T(p, temp, (unsigned int)phase);
-      rhog = eos_uo.rho_g_from_p_T(p, temp, (unsigned int)phase);
+      rhol = eos_uo.rho_l_from_p_T(p, temp, phase);
+      rhog = eos_uo.rho_g_from_p_T(p, temp, phase);
 
       Real tmp = vmfrac * (rhol - rhog) + rhog;
 
@@ -103,7 +103,7 @@ MoskitoFluidWell2P::Rho(const Real & p, const Real & h)
       break;
 
     case 3:
-      rho = eos_uo.rho_l_from_p_T(p, temp, (unsigned int)phase);
+      rho = eos_uo.rho_l_from_p_T(p, temp, phase);
       break;
   }
   return rho;
@@ -114,25 +114,9 @@ MoskitoFluidWell2P::computeQpProperties()
 {
   Real _drho_g_dp, _drho_g_dT, _drho_l_dp, _drho_l_dT, dvmfrac_dp, dvmfrac_dT;
 
-  eos_uo.VMFrac_from_p_h(fabs(_P[_qp]), _h[_qp], _vmfrac[_qp], dvmfrac_dp, dvmfrac_dT, _T[_qp], _phase[_qp]);
+  eos_uo.VMFrac_T_from_p_h(_P[_qp], _h[_qp], _vmfrac[_qp], _T[_qp], _phase[_qp]);
 
   _cp_m[_qp]  = eos_uo.cp_m_from_p_T(fabs(_P[_qp]), _T[_qp], _vmfrac[_qp], (unsigned int)_phase[_qp]);
-
-
-  // for (int i=1; i<101; i=i+2)
-  // {
-  //   // for (int j=1; j<121; j++)
-  //   // {
-  //     // double P = 1.5e5*i, h = 3e4*j;
-  //     double P = 2e5*i, h = 1500e3;
-  //     eos_uo.VMFrac_from_p_h(P, h, _vmfrac[_qp], dvmfrac_dp, dvmfrac_dT, _T[_qp], _phase[_qp]);
-  //     Rho_Mixture(_drho_g_dp, _drho_g_dT, _drho_l_dp, _drho_l_dT, dvmfrac_dp, dvmfrac_dT);
-  //     std::cout<<P<<","<<h<<" , "<<Rho(P,h)<<" , "<<_rho_m[_qp]<<" , "<<_vmfrac[_qp]<<std::endl;
-  //   // }
-  // }
-  // abort();
-
-
 
   // std::cout<<_phase[_qp]<<std::endl;
   Rho_Mixture(_drho_g_dp, _drho_g_dT, _drho_l_dp, _drho_l_dT, dvmfrac_dp, dvmfrac_dT);
@@ -285,12 +269,6 @@ MoskitoFluidWell2P::DriftFluxMomentumEq(const Real & _drho_g_dp, const Real & _d
   b = _c0[_qp] - 1.0;
   c = _rho_g[_qp] * _rho_l[_qp] * _rho_m[_qp] / (_rho_pam[_qp] * _rho_pam[_qp]);
   d = b * _u[_qp] + _u_d[_qp];
-
-  // std::cout<<_vfrac[_qp]<<"  "
-  // <<a  <<"  "
-  // <<b  <<"  "
-  // <<c  <<"  "
-  // <<d  <<std::endl;
 
   // parameterizing dgamma_dz equation for simpilification
   _drho_g_dz  = (_drho_g_dp * _grad_p[_qp] + _drho_g_dT * _grad_h[_qp] / _cp_m[_qp]) * _well_unit_vect[_qp];

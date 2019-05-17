@@ -111,7 +111,7 @@
 []
 
 [Preconditioning]
-  active = p3
+  active = p2
   [./p1]
     type = SMP
     full = true

@@ -36,33 +36,3 @@ MoskitoEOS2P::MoskitoEOS2P(const InputParameters & parameters)
   : FluidProperties(parameters)
 {
 }
-
-Real
-MoskitoEOS2P::rho_m_from_p_T(
-      const Real & pressure, const Real & temperature, const Real & vmfrac, const unsigned int & phase) const
-{
-  Real rho = 0.0;
-
-  switch (phase)
-  {
-    case 0:
-      rho  = rho_l_from_p_T(pressure, temperature, phase);
-      break;
-
-    case 1:
-      rho  = rho_g_from_p_T(pressure, temperature, phase);
-      break;
-
-    case 2:
-      rho  = vmfrac / rho_g_from_p_T(pressure, temperature, phase);
-      rho += (1.0 - vmfrac) / rho_l_from_p_T(pressure, temperature, phase);
-      rho  = 1.0 / rho;
-      break;
-
-    case 3:
-      rho  = rho_l_from_p_T(pressure, temperature, phase);
-      break;
-  }
-
-  return rho;
-}
