@@ -39,8 +39,7 @@ class MoskitoFluidWell2P : public MoskitoFluidWellGeneral
 public:
   MoskitoFluidWell2P(const InputParameters & parameters);
   virtual void computeQpProperties() override;
-  void DriftFluxMomentumEq(const Real & _drho_g_dp, const Real & _drho_g_dT, const Real & _drho_l_dp, const Real & _drho_l_dT);
-  void Rho_Mixture(Real & _drho_g_dp, Real & _drho_g_dT, Real & _drho_l_dp, Real & _drho_l_dT, const Real & dvmfrac_dp, const Real & dvmfrac_dT);
+  void DriftFluxMomentumEq();
 
 protected:
   // Userobject to equation of state
@@ -62,12 +61,14 @@ protected:
   MaterialProperty<Real> & _rho_pam;
   // The first derivative of mixture density wrt pressure
   MaterialProperty<Real> & _drho_m_dp;
-
-  Real Rho(const Real & p, const Real & h);
+  // The second derivative of mixture density wrt pressure
   MaterialProperty<Real> & _drho_m_dp_2;
-
   // The first derivative of mixture density wrt temperature
   MaterialProperty<Real> & _drho_m_dT;
+  // The first derivative of mixture density wrt enthalpy
+  MaterialProperty<Real> & _drho_m_dh;
+  // The second derivative of mixture density wrt enthalpy
+  MaterialProperty<Real> & _drho_m_dh_2;
   // mass_fraction
   MaterialProperty<Real> & _vmfrac;
   // Gas velocity
