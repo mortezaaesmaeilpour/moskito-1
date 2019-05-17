@@ -50,14 +50,16 @@ protected:
   unsigned _p_var_number;
   unsigned _h_var_number;
 
-  // The specific heat of mixture at constant pressure
-  const MaterialProperty<Real> & _cp;
   // The mixture density
   const MaterialProperty<Real> & _rho;
   // The first derivative of mixture density wrt pressure
   const MaterialProperty<Real> & _drho_dp;
-  // The first derivative of mixture density wrt temperature
-  const MaterialProperty<Real> & _drho_dT;
+  // The second derivative of mixture density wrt pressure
+  const MaterialProperty<Real> & _drho_dp_2;
+  // The first derivative of mixture density wrt enthalpy
+  const MaterialProperty<Real> & _drho_dh;
+  // The second derivative of mixture density wrt enthalpy
+  const MaterialProperty<Real> & _drho_dh_2;
   // The pipe diameter
   const MaterialProperty<Real> & _d;
   // The pipe Moody friction factor

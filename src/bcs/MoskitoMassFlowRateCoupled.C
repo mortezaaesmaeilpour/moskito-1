@@ -62,7 +62,7 @@ MoskitoMassFlowRateCoupled::computeQpResidual()
   // Temperature depending on p,H conditions
   Real T, phase,tmp1,tmp2;
 
-  eos_uo.VMFrac_from_p_h(_p[_qp], _h[_qp], vmfrac, tmp1, tmp2, T, phase);
+  eos_uo.VMFrac_T_from_p_h(_p[_qp], _h[_qp], vmfrac, T, phase);
   One_by_rho_m = (vmfrac / eos_uo.rho_g_from_p_T(_p[_qp], T, phase) + (1.0 - vmfrac) / eos_uo.rho_l_from_p_T(_p[_qp], T, phase));
 
   return _u[_qp] - _m_dot * One_by_rho_m;
@@ -76,7 +76,7 @@ MoskitoMassFlowRateCoupled::computeQpOffDiagJacobian(unsigned int jvar)
   // Temperature depending on p,H conditions
   Real T, phase,tmp1,tmp2;
 
-  eos_uo.VMFrac_from_p_h(_p[_qp], _h[_qp], vmfrac, tmp1, tmp2, T, phase);
+  eos_uo.VMFrac_T_from_p_h(_p[_qp], _h[_qp], vmfrac, T, phase);
 
   // The specific heat at constant pressure
   Real cp;

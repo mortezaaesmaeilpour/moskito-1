@@ -279,7 +279,7 @@ MoskitoWater97FluidProperties::rho_from_p_T(
       mooseError(name(), ": inRegion() has given an incorrect region");
   }
 
-  rho = this->rho_from_p_T(pressure, temperature);
+  rho = this->rho_from_p_T(pressure, temperature, region);
   drho_dp = ddensity_dp;
   drho_dT = ddensity_dT;
 }

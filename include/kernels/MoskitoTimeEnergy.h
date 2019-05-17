@@ -52,15 +52,16 @@ protected:
 
   // The area of pipe
   const MaterialProperty<Real> & _area;
-  // The specific heat at constant pressure
-  const MaterialProperty<Real> & _cp;
   // The density
   const MaterialProperty<Real> & _rho;
   // The first derivative of density wrt pressure
   const MaterialProperty<Real> & _drho_dp;
-  // The first derivative of density wrt temperature
-  const MaterialProperty<Real> & _drho_dT;
-
+  // The second derivative of density wrt pressure
+  const MaterialProperty<Real> & _drho_dp_2;
+  // The first derivative of density wrt enthalpy
+  const MaterialProperty<Real> & _drho_dh;
+  // The second derivative of density wrt enthalpy
+  const MaterialProperty<Real> & _drho_dh_2;
 };
 
 #endif // MOSKITOTIMEENERGY_H

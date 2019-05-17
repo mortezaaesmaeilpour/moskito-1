@@ -2,26 +2,18 @@
   type = GeneratedMesh
   dim = 1
   xmin = 0
-  xmax = 900
-  nx = 300
-[]
-
-[MeshModifiers]
-  [./rotate]
-    type = Transform
-    transform = ROTATE
-    vector_value = '2.87 0 0'
-  [../]
+  xmax = 9000
+  nx = 900
 []
 
 [UserObjects]
   [./viscosity_gas]
     type = MoskitoViscosityConst
-    viscosity = 1.3e-5
+    viscosity = 0.0001
   [../]
   [./viscosity_liqid]
     type = MoskitoViscosityConst
-    viscosity = 1.44e-4
+    viscosity = 0.001
   [../]
   [./viscosity_2p]
     type = MoskitoViscosity2P
@@ -38,8 +30,9 @@
 []
 
 [Materials]
-  [./area0]
+  [./area]
     type = MoskitoFluidWell2P
+    well_diameter = 0.3
     pressure = p
     enthalpy = h
     flowrate = q
@@ -47,50 +40,46 @@
     eos_uo = eos
     viscosity_uo = viscosity_2p
     drift_flux_uo = df
-    well_diameter = 0.224
     roughness_type = smooth
     gravity = '9.8 0 0'
     outputs = exodus
-    output_properties = 'profile_mixture_density gas_velocity liquid_velocity void_fraction flow_pattern current_phase gas_density liquid_density mass_fraction density specific_heat temperature'
+    output_properties = 'gas_velocity liquid_velocity void_fraction mass_fraction flow_pattern current_phase gas_density liquid_density density temperature well_velocity'
   [../]
 []
 
 [BCs]
-  # [./pbc]
-  #   type = DirichletBC
-  #   variable = p
-  #   boundary = right
-  #   value = 3291557.1
-  # [../]
   [./pbc]
     type = DirichletBC
     variable = p
     boundary = left
-    value = 0.1e5
+    value = 5000
   [../]
   [./qbc]
     type = DirichletBC
     variable = q
-    boundary = right
-    value = -0.025
+    boundary = left
+    value = 0.0
   [../]
 []
 
 [Variables]
   [./h]
-    # initial_condition = 995063
     [./InitialCondition]
       type = FunctionIC
       variable = h
-      function = 995063-830*x
+      function = 5e5
+      # function = 1.5e6-25*y
     [../]
   [../]
   [./p]
-    initial_condition = 0.1e5
+    [./InitialCondition]
+      type = FunctionIC
+      variable = p
+      function = '5000+100*x'
+    [../]
   [../]
   [./q]
-    scaling = 1e-2
-    initial_condition = -0.025
+    initial_condition = 0.0
   [../]
 []
 
@@ -99,6 +88,14 @@
     type = NullKernel
     variable = h
   [../]
+  # [./pkernel1]
+  #   type = NullKernel
+  #   variable = p
+  # [../]
+  # [./qkernel1]
+  #   type = NullKernel
+  #   variable = q
+  # [../]
   [./pkernel]
     type = MoskitoMass
     variable = p
@@ -114,7 +111,7 @@
 []
 
 [Preconditioning]
-  active = p3
+  active = p2
   [./p1]
     type = SMP
     full = true
@@ -146,7 +143,7 @@
 
 [Executioner]
   type = Steady
-  l_tol = 1e-10
+  # l_tol = 1e-13
   l_max_its = 50
   nl_rel_tol = 1e-8
   nl_abs_tol = 1e-9
@@ -156,7 +153,8 @@
 
 [Outputs]
   exodus = true
-  [./test]
-    type = VariableResidualNormsDebugOutput
-  [../]
+  # execute_on = 'INITIAL LINEAR NONLINEAR'
+  # [./test]
+  #   type = VariableResidualNormsDebugOutput
+  # [../]
 []
