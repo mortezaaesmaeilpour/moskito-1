@@ -49,10 +49,11 @@ MoskitoTimeEnergy::MoskitoTimeEnergy(const InputParameters & parameters)
     _p_var_number(coupled("pressure")),
     _q_var_number(coupled("flowrate")),
     _area(getMaterialProperty<Real>("well_area")),
-    _cp(getMaterialProperty<Real>("specific_heat")),
     _rho(getMaterialProperty<Real>("density")),
     _drho_dp(getMaterialProperty<Real>("drho_dp")),
-    _drho_dT(getMaterialProperty<Real>("drho_dT"))
+    _drho_dp_2(getMaterialProperty<Real>("drho_dp_2")),
+    _drho_dh(getMaterialProperty<Real>("drho_dh")),
+    _drho_dh_2(getMaterialProperty<Real>("drho_dh_2"))
 {
 }
 
@@ -62,7 +63,7 @@ MoskitoTimeEnergy::computeQpResidual()
   Real r = 0.0;
 
   r += _drho_dp[_qp] * _p_dot[_qp];
-  r += _drho_dT[_qp] * _u_dot[_qp] / _cp[_qp];
+  r += _drho_dh[_qp] * _u_dot[_qp];
   r *= (_u[_qp] + _q[_qp] * _q[_qp] / (2.0 * _area[_qp] * _area[_qp]));
   r += _rho[_qp] * _u_dot[_qp];
   r += _rho[_qp] * _q[_qp] * _q_dot[_qp] / (_area[_qp] * _area[_qp]);
@@ -77,12 +78,13 @@ MoskitoTimeEnergy::computeQpJacobian()
 {
   Real j = 0.0;
 
-  j += _drho_dT[_qp] * _phi[_j][_qp] * _du_dot_du[_qp] / _cp[_qp];
+  j += _drho_dh_2[_qp] * _phi[_j][_qp] * _u_dot[_qp];
+  j += _drho_dh[_qp] * _phi[_j][_qp] * _du_dot_du[_qp];
   j *= (_u[_qp] + _q[_qp] * _q[_qp] / (2.0 * _area[_qp] * _area[_qp]));
-  j += (_drho_dp[_qp] * _p_dot[_qp] + _drho_dT[_qp] * _u_dot[_qp] / _cp[_qp]) * _phi[_j][_qp];
-  j += _drho_dT[_qp] * _phi[_j][_qp] * _u_dot[_qp] / _cp[_qp];
+  j += (_drho_dp[_qp] * _p_dot[_qp] + _drho_dh[_qp] * _u_dot[_qp]) * _phi[_j][_qp];
+  j += _drho_dh[_qp] * _phi[_j][_qp] * _u_dot[_qp];
   j += _rho[_qp] * _phi[_j][_qp] * _du_dot_du[_qp];
-  j += _drho_dT[_qp] * _phi[_j][_qp] * _q[_qp] * _q_dot[_qp] / (_area[_qp] * _area[_qp] * _cp[_qp]);
+  j += _drho_dh[_qp] * _phi[_j][_qp] * _q[_qp] * _q_dot[_qp] / (_area[_qp] * _area[_qp]);
   j *= _test[_i][_qp];
 
   return j;
@@ -96,7 +98,7 @@ MoskitoTimeEnergy::computeQpOffDiagJacobian(unsigned int jvar)
   if (jvar == _q_var_number)
   {
     j += _drho_dp[_qp] * _p_dot[_qp];
-    j += _drho_dT[_qp] * _u_dot[_qp] / _cp[_qp];
+    j += _drho_dh[_qp] * _u_dot[_qp];
     j *= _q[_qp] * _phi[_j][_qp] / (_area[_qp] * _area[_qp]);
     j += _rho[_qp] * _phi[_j][_qp] * _q_dot[_qp] / (_area[_qp] * _area[_qp]);
     j += _rho[_qp] * _q[_qp] * _phi[_j][_qp] * _dq_dot[_qp] / (_area[_qp] * _area[_qp]);
@@ -105,6 +107,7 @@ MoskitoTimeEnergy::computeQpOffDiagJacobian(unsigned int jvar)
 
   if (jvar == _p_var_number)
   {
+    j += _drho_dp_2[_qp] * _phi[_j][_qp] * _p_dot[_qp];
     j += _drho_dp[_qp] * _phi[_j][_qp] * _dp_dot[_qp];
     j *= (_u[_qp] + _q[_qp] * _q[_qp] / (2.0 * _area[_qp] * _area[_qp]));
     j += _drho_dp[_qp] * _phi[_j][_qp] * _u_dot[_qp];

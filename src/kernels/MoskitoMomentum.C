@@ -46,7 +46,6 @@ MoskitoMomentum::MoskitoMomentum(const InputParameters & parameters)
     _grad_h(coupledGradient("enthalpy")),
     _p_var_number(coupled("pressure")),
     _h_var_number(coupled("enthalpy")),
-    _cp(getMaterialProperty<Real>("specific_heat")),
     _rho(getMaterialProperty<Real>("density")),
     _drho_dp(getMaterialProperty<Real>("drho_dp")),
     _drho_dp_2(getMaterialProperty<Real>("drho_dp_2")),
