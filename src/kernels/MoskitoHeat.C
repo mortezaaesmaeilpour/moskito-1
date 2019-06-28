@@ -54,10 +54,10 @@ MoskitoHeat::computeQpResidual()
   r *= ((_T[_qp] * gradC_to_gradR + Rankine_absol) - _Twb[_qp]);
   r /= Watt_to_Btu_per_h;
   r /= m_to_ft;
-  std::cout<<"_rto = "<<_rto[_qp]<<std::endl;
-  std::cout<<"_Uto = "<<_Uto[_qp]<<std::endl;
-  std::cout<<"_T = "<<_T[_qp] * gradC_to_gradR + Rankine_absol<<std::endl;
-  std::cout<<"_Twb = "<<_Twb[_qp]<<std::endl;
-  std::cout<<"Qloss = "<<r<<std::endl;
+  // std::cout<<"_rto = "<<_rto[_qp]<<std::endl;
+  // std::cout<<"_Uto = "<<_Uto[_qp]<<std::endl;
+  // std::cout<<"_T = "<<_T[_qp] * gradC_to_gradR + Rankine_absol<<std::endl;
+  // std::cout<<"_Twb = "<<_Twb[_qp]<<std::endl;
+  // std::cout<<"Qloss = "<<r<<std::endl;
   return - r * _test[_i][_qp];
 }

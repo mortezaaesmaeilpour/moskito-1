@@ -10,7 +10,7 @@
 #ifndef MOSKITOWATER97FLUIDPROPERTIES_H
 #define MOSKITOWATER97FLUIDPROPERTIES_H
 
-#include "SinglePhaseFluidProperties.h"
+#include "GeneralUserObject.h"
 #include <array>
 
 class MoskitoWater97FluidProperties;
@@ -37,104 +37,107 @@ InputParameters validParams<MoskitoWater97FluidProperties>();
  * Revised Release on the IAPS Formulation 1985 for the Thermal Conductivity of
  * Ordinary Water Substance
  */
-class MoskitoWater97FluidProperties : public SinglePhaseFluidProperties
+class MoskitoWater97FluidProperties : public GeneralUserObject
 {
 public:
   MoskitoWater97FluidProperties(const InputParameters & parameters);
   virtual ~MoskitoWater97FluidProperties();
 
-  virtual std::string fluidName() const override;
+  virtual void execute() final {}
+  virtual void initialize() final {}
+  virtual void finalize() final {}
 
-  virtual Real molarMass() const override;
+  std::string fluidName() const;
 
-  virtual Real criticalPressure() const override;
+  Real molarMass() const;
 
-  virtual Real criticalTemperature() const override;
+  Real criticalPressure() const;
 
-  virtual Real criticalDensity() const override;
+  Real criticalTemperature() const;
 
-  virtual Real triplePointPressure() const override;
+  Real criticalDensity() const;
 
-  virtual Real triplePointTemperature() const override;
+  Real triplePointPressure() const;
 
-  virtual Real rho_from_p_T(Real pressure, Real temperature) const override;
+  Real triplePointTemperature() const;
 
-  virtual Real rho_from_p_T(Real pressure, Real temperature, unsigned int region) const;
+  Real rho_from_p_T(Real pressure, Real temperature) const;
 
-  virtual void rho_from_p_T(
-      Real pressure, Real temperature, Real & rho, Real & drho_dp, Real & drho_dT) const override;
+  Real rho_from_p_T(Real pressure, Real temperature, unsigned int region) const;
 
-  virtual void rho_from_p_T(
+  void rho_from_p_T(
+      Real pressure, Real temperature, Real & rho, Real & drho_dp, Real & drho_dT) const;
+
+  void rho_from_p_T(
       Real pressure, Real temperature, Real & rho, Real & drho_dp, Real & drho_dT, unsigned int region) const;
 
-  virtual Real e_from_p_T(Real pressure, Real temperature) const override;
+  Real e_from_p_T(Real pressure, Real temperature) const;
 
-  virtual void
-  e_from_p_T(Real pressure, Real temperature, Real & e, Real & de_dp, Real & de_dT) const override;
+  void
+  e_from_p_T(Real pressure, Real temperature, Real & e, Real & de_dp, Real & de_dT) const;
 
-  virtual void rho_e_dpT(Real pressure,
+  void rho_e_dpT(Real pressure,
                          Real temperature,
                          Real & rho,
                          Real & drho_dp,
                          Real & drho_dT,
                          Real & e,
                          Real & de_dp,
-                         Real & de_dT) const override;
+                         Real & de_dT) const;
 
-  virtual Real c_from_p_T(Real pressure, Real temperature) const override;
+  Real c_from_p_T(Real pressure, Real temperature) const;
 
-  virtual Real cp_from_p_T(Real pressure, Real temperature) const override;
+  Real cp_from_p_T(Real pressure, Real temperature) const;
 
   Real cp_from_p_T(Real pressure, Real temperature, unsigned int region) const;
 
-  virtual Real cv_from_p_T(Real pressure, Real temperature) const override;
+  Real cv_from_p_T(Real pressure, Real temperature) const;
 
-  virtual Real mu_from_p_T(Real pressure, Real temperature) const override;
+  Real mu_from_p_T(Real pressure, Real temperature) const;
 
-  virtual void mu_from_p_T(
-      Real pressure, Real temperature, Real & mu, Real & dmu_dp, Real & dmu_dT) const override;
+  void mu_from_p_T(
+      Real pressure, Real temperature, Real & mu, Real & dmu_dp, Real & dmu_dT) const;
 
-  virtual Real mu_from_rho_T(Real density, Real temperature) const override;
+  Real mu_from_rho_T(Real density, Real temperature) const;
 
-  virtual void mu_drhoT_from_rho_T(Real density,
+  void mu_drhoT_from_rho_T(Real density,
                                    Real temperature,
                                    Real ddensity_dT,
                                    Real & mu,
                                    Real & dmu_drho,
-                                   Real & dmu_dT) const override;
+                                   Real & dmu_dT) const;
 
-  virtual void rho_mu(Real pressure, Real temperature, Real & rho, Real & mu) const override;
+  void rho_mu(Real pressure, Real temperature, Real & rho, Real & mu) const;
 
-  virtual void rho_mu_dpT(Real pressure,
+  void rho_mu_dpT(Real pressure,
                           Real temperature,
                           Real & rho,
                           Real & drho_dp,
                           Real & drho_dT,
                           Real & mu,
                           Real & dmu_dp,
-                          Real & dmu_dT) const override;
+                          Real & dmu_dT) const;
 
-  virtual Real k_from_p_T(Real pressure, Real temperature) const override;
+  Real k_from_p_T(Real pressure, Real temperature) const;
 
-  virtual void
-  k_from_p_T(Real pressure, Real temperature, Real & k, Real & dk_dp, Real & dk_dT) const override;
+  void
+  k_from_p_T(Real pressure, Real temperature, Real & k, Real & dk_dp, Real & dk_dT) const;
 
-  virtual Real k_from_rho_T(Real density, Real temperature) const override;
+  Real k_from_rho_T(Real density, Real temperature) const;
 
-  virtual Real s_from_p_T(Real pressure, Real temperature) const override;
-  virtual void s_from_p_T(Real p, Real T, Real & s, Real & ds_dp, Real & ds_dT) const override;
+  Real s_from_p_T(Real pressure, Real temperature) const;
 
-  virtual Real h_from_p_T(Real pressure, Real temperature) const override;
+  Real h_from_p_T(Real pressure, Real temperature) const;
   Real h_from_p_T(Real pressure, Real temperature, unsigned int region) const;
 
-  virtual void
-  h_from_p_T(Real pressure, Real temperature, Real & h, Real & dh_dp, Real & dh_dT) const override;
+  void
+  h_from_p_T(Real pressure, Real temperature, Real & h, Real & dh_dp, Real & dh_dT) const;
   void
   h_from_p_T(Real pressure, Real temperature, Real & h, Real & dh_dp, Real & dh_dT, unsigned int region) const;
 
-  virtual Real vaporPressure(Real temperature) const override;
+  Real vaporPressure(Real temperature) const;
 
-  virtual void vaporPressure_dT(Real temperature, Real & psat, Real & dpsat_dT) const override;
+  void vaporPressure_dT(Real temperature, Real & psat, Real & dpsat_dT) const;
 
   /**
    * Saturation temperature as a function of pressure
@@ -233,7 +236,7 @@ public:
    * @param enthalpy water enthalpy (J/kg)
    * @return temperature water temperature (K)
    */
-  virtual Real temperature_from_ph(Real pressure, Real enthalpy) const;
+  Real temperature_from_ph(Real pressure, Real enthalpy) const;
 
   /**
    * Boundary between subregions b and c in region 2.

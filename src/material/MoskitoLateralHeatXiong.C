@@ -76,9 +76,16 @@ validParams<MoskitoLateralHeatXiong>()
           "a function to define the geothermal gradient (°C/100m)");
     MooseEnum hc_model
           ("Dropkin_Sommerscales Raithby_Hollands Churchill");
-    params.addParam<MooseEnum>("hc_cal", hc_model,
+    params.addParam<MooseEnum>("hc_calucation_model", hc_model,
           "Type of calculation of hc; Methodology: Dropkin & Sommerscales 1965,"
           "Raithby & Holland 1975, Churchill 1983");
+    MooseEnum time_type
+          ("user_time simulation_time");
+    params.addParam<MooseEnum>("time_model", time_type,
+          "Define time for steady simulations"
+          "user_time, simulation_time");
+    params.addParam<Real>("user_defined_time", 86400,
+          "Time defined by the user for steady state simulation, Default = 1 day");
     return params;
 }
 
@@ -112,7 +119,9 @@ MoskitoLateralHeatXiong::MoskitoLateralHeatXiong(const InputParameters & paramet
     _lambdaTub(getParam<Real>("conductivity_tubing")),
     _gravity(getMaterialProperty<RealVectorValue>("gravity")),
     gradT(getFunction("geothermal_gradient")),
-    _hc(getParam<MooseEnum>("hc_cal"))
+    _hc(getParam<MooseEnum>("hc_calucation_model")),
+    _td(getParam<MooseEnum>("time_model")),
+    _ut(getParam<Real>("user_defined_time"))
 {
   Tsurf *= gradC_to_gradR;
   Tsurf += Rankine_absol;
@@ -140,7 +149,18 @@ MoskitoLateralHeatXiong::MoskitoLateralHeatXiong(const InputParameters & paramet
 Real
 MoskitoLateralHeatXiong::Cal_ft(Real _alphaE, Real _rti, Real _lambdaE, Real _Uto, Real _rto)
 {
-  if (_t < 1209600)
+  Real Timing;
+  if (_td == user_time)
+    Timing = _ut;
+  else
+    Timing = _t;
+
+    std::cout<<"_td = "<<_td<<std::endl;
+    std::cout<<"_ut = "<<_ut<<std::endl;
+    std::cout<<"_t = "<<_t<<std::endl;
+    std::cout<<"Timing = "<<Timing<<std::endl;
+
+  if (Timing < 1209600)
   {
   Real column;
   if(_Uto == 0.0) // Case can only occur in the initial step
@@ -148,7 +168,7 @@ MoskitoLateralHeatXiong::Cal_ft(Real _alphaE, Real _rti, Real _lambdaE, Real _Ut
   else
     column = _rto * _Uto / _lambdaE;
 
-  Real row = _alphaE * _t / (_rti * _rti);
+  Real row = _alphaE * Timing / (_rti * _rti);
   // std::cout<<"column = "<<column<<std::endl;
   // std::cout<<"row = "<<row<<std::endl;
   int col_number = 0;
@@ -242,7 +262,7 @@ MoskitoLateralHeatXiong::Cal_ft(Real _alphaE, Real _rti, Real _lambdaE, Real _Ut
    }
   }
   else
-    ft = std::log(2 * std::pow(_alphaE * _t,0.5) / _rwb) - 0.29;
+    ft = std::log(2 * std::pow(_alphaE * Timing,0.5) / _rwb) - 0.29;
 
   return ft;
 }
@@ -278,8 +298,8 @@ else
   rao = _rwb;
 
 Real ft =  Cal_ft(_alphaE, _rti, _lambdaE, _Uto[_qp], _rto);
-std::cout<<"_t = "<<_t<<std::endl;
-std::cout<<"ft = "<<std::setprecision(10)<<ft<<std::endl;
+
+// std::cout<<"ft = "<<std::setprecision(10)<<ft<<std::endl;
 // std::cout<<"_Uto = "<<std::setprecision(10)<<_Uto[_qp]<<std::endl;
 // Calculate temperature at cement/formation boundary
 _Twb[_qp] = _rto * _Uto[_qp] * ft * _TRankine;
@@ -389,18 +409,18 @@ _Uto[_qp] = 1.0 / _otU[_qp];
 
 
 
-std::cout<<"rao = "<<rao<<std::endl;
-std::cout<<"rai = "<<rai<<std::endl;
-std::cout<<"_rto = "<<_rto<<std::endl;
+// std::cout<<"rao = "<<rao<<std::endl;
+// std::cout<<"rai = "<<rai<<std::endl;
+// std::cout<<"_rto = "<<_rto<<std::endl;
 // std::cout<<"_rti = "<<_rti<<std::endl;
 // std::cout<<"_rins = "<<_rins<<std::endl;
 // std::cout<<"_rci = "<<_rci<<std::endl;
 // std::cout<<"_rcem = "<<_rcem<<std::endl;
 // std::cout<<"_rwb = "<<_rwb<<std::endl;
-std::cout<<"_T = "<<_T[_qp]<<std::endl;
-std::cout<<"Tsurf = "<<Tsurf<<std::endl;
+// std::cout<<"_T = "<<_T[_qp]<<std::endl;
+// std::cout<<"Tsurf = "<<Tsurf<<std::endl;
 
-std::cout<<"_lambdaE = "<<_lambdaE<<std::endl;
+// std::cout<<"_lambdaE = "<<_lambdaE<<std::endl;
 // std::cout<<"_alphaE = "<<_alphaE<<std::endl;
 // std::cout<<"_rhoA = "<<_rhoA<<std::endl;
 // std::cout<<"_alphaA = "<<_alphaA<<std::endl;
@@ -413,32 +433,32 @@ std::cout<<"_lambdaE = "<<_lambdaE<<std::endl;
 // std::cout<<"_lambdaCas = "<<_lambdaCas<<std::endl;
 // std::cout<<"_lambdaCem = "<<_lambdaCem<<std::endl;
 // std::cout<<"_lambdaIns = "<<_lambdaIns<<std::endl;
-std::cout<<"_gradT = "<<Cal_Te(Tsurf)<<std::endl;
-
-std::cout<<"_TRankine = "<<_TRankine<<std::endl;
-std::cout<<"_Twb = "<<std::setprecision(10)<<_Twb[_qp]<<std::endl;
-std::cout<<"Tci = "<<std::setprecision(10)<<Tci<<std::endl;
-std::cout<<"Tto = "<<std::setprecision(10)<<Tto<<std::endl;
-std::cout<<"_nuA = "<<std::setprecision(10)<<_nuA<<std::endl;
-std::cout<<"_rhoA = "<<std::setprecision(10)<<_rhoA<<std::endl;
-std::cout<<"_betaA = "<<std::setprecision(10)<<_betaA<<std::endl;
-std::cout<<"Pr = "<<std::setprecision(10)<<Pr<<std::endl;
-std::cout<<"_gravity[_qp].norm() = "<<std::setprecision(10)<<_gravity[_qp].norm() * m_to_ft * s_to_h * s_to_h<<std::endl;
-std::cout<<"Gr = "<<std::setprecision(10)<<Gr<<std::endl;
+// std::cout<<"_gradT = "<<Cal_Te(Tsurf)<<std::endl;
+//
+// std::cout<<"_TRankine = "<<_TRankine<<std::endl;
+// std::cout<<"_Twb = "<<std::setprecision(10)<<_Twb[_qp]<<std::endl;
+// std::cout<<"Tci = "<<std::setprecision(10)<<Tci<<std::endl;
+// std::cout<<"Tto = "<<std::setprecision(10)<<Tto<<std::endl;
+// std::cout<<"_nuA = "<<std::setprecision(10)<<_nuA<<std::endl;
+// std::cout<<"_rhoA = "<<std::setprecision(10)<<_rhoA<<std::endl;
+// std::cout<<"_betaA = "<<std::setprecision(10)<<_betaA<<std::endl;
+// std::cout<<"Pr = "<<std::setprecision(10)<<Pr<<std::endl;
+// std::cout<<"_gravity[_qp].norm() = "<<std::setprecision(10)<<_gravity[_qp].norm() * m_to_ft * s_to_h * s_to_h<<std::endl;
+// std::cout<<"Gr = "<<std::setprecision(10)<<Gr<<std::endl;
 // std::cout<<"Lc = "<<std::setprecision(10)<<Lc<<std::endl;
 // std::cout<<"Ray = "<<std::setprecision(10)<<Ray<<std::endl;
-std::cout<<"khc = "<<std::setprecision(10)<<khc<<std::endl;
-std::cout<<"hc = "<<std::setprecision(10)<<hc<<std::endl;
-std::cout<<"OverFtci = "<<std::setprecision(10)<<OverFtci<<std::endl;
-std::cout<<"hr = "<<std::setprecision(10)<<hr<<std::endl;
+// std::cout<<"khc = "<<std::setprecision(10)<<khc<<std::endl;
+// std::cout<<"hc = "<<std::setprecision(10)<<hc<<std::endl;
+// std::cout<<"OverFtci = "<<std::setprecision(10)<<OverFtci<<std::endl;
+// std::cout<<"hr = "<<std::setprecision(10)<<hr<<std::endl;
 // std::cout<<"fPR = "<<std::setprecision(10)<<fPR<<std::endl;
 // std::cout<<"Nu = "<<std::setprecision(10)<<Nu<<std::endl;
-std::cout<<"z coord ="<<_q_point[_qp] <<std::endl;
-std::cout<<"Boltz ="<<Boltz <<std::endl;
+// std::cout<<"z coord ="<<_q_point[_qp] <<std::endl;
+// std::cout<<"Boltz ="<<Boltz <<std::endl;
 
-std::cout<<"OverFtci = "<<std::setprecision(10)<<OverFtci<<std::endl;
+// std::cout<<"OverFtci = "<<std::setprecision(10)<<OverFtci<<std::endl;
 // std::cout<<"_otU = "<<std::setprecision(10)<<_otU[_qp]<<std::endl;
-std::cout<<"_Uto = "<<std::setprecision(10)<<_Uto[_qp]<<std::endl;
+// std::cout<<"_Uto = "<<std::setprecision(10)<<_Uto[_qp]<<std::endl;
 
 
 }

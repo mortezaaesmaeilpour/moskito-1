@@ -98,12 +98,17 @@ protected:
   // The gravity acceleration as a vector
   const MaterialProperty<RealVectorValue> & _gravity;
   // Function for geothermal gradient, has to be defined in the Input
-  Function & gradT;
+  Function gradT;
   // mixing approach
     MooseEnum _hc;
   enum HC_case {Dropkin_Sommerscales, Raithby_Hollands, Churchill};
 // Ramey function parameter
   Real ft;
+// Definition of user time for steady state simulation or transient simulation time
+  MooseEnum _td;
+  enum Zeit {user_time, simulation_time};
+  Real Timing;
+  Real _ut;
 
   // Convert from Si units to American system
   const Real m_to_ft    = 3.280839895;

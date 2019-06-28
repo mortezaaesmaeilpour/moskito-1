@@ -24,17 +24,21 @@
 #ifndef MOSKITOEOS2P_H
 #define MOSKITOEOS2P_H
 
-#include "FluidProperties.h"
+#include "GeneralUserObject.h"
 
 class MoskitoEOS2P;
 
 template <>
 InputParameters validParams<MoskitoEOS2P>();
 
-class MoskitoEOS2P : public FluidProperties
+class MoskitoEOS2P : public GeneralUserObject
 {
 public:
   MoskitoEOS2P(const InputParameters & parameters);
+
+  virtual void execute() final {}
+  virtual void initialize() final {}
+  virtual void finalize() final {}
 
   virtual void VMFrac_T_from_p_h(
       const Real & pressure, const Real & enthalpy, Real & vmfrac, Real & temperature, Real & phase) const = 0;
