@@ -309,17 +309,26 @@ else
   rao = _rwb;
 
 Real ft =  Cal_ft(_alphaE, _rti, _lambdaE, _Uto[_qp], _rto);
-
-// std::cout<<"_rto "<<std::setprecision(10)<<_rto<<std::endl;
-// std::cout<<"_TRankine "<<std::setprecision(10)<<_TRankine<<std::endl;
-// std::cout<<"ft = "<<std::setprecision(10)<<ft<<std::endl;
-// std::cout<<"_Uto = "<<std::setprecision(10)<<_Uto[_qp]<<std::endl;
-// std::cout<<"_lambdaE = "<<std::setprecision(10)<<_lambdaE<<std::endl;
+Real Test = Cal_Te(Tsurf);
+Real Test1 = Tsurf;
 
 // Calculate temperature at cement/formation boundary
 _Twb[_qp] = _rto * _Uto[_qp] * ft * _TRankine;
 _Twb[_qp] += _lambdaE * Cal_Te(Tsurf);
 _Twb[_qp] /= _rto * _Uto[_qp] * ft + _lambdaE;
+
+Real HansPeter = gradT.value(_t, _q_point[_qp]);
+// std::cout<<"z coord ="<<_q_point[_qp] <<std::endl;
+// std::cout<<"_rto "<<std::setprecision(10)<<_rto<<std::endl;
+// std::cout<<"_TRankine "<<std::setprecision(10)<<_TRankine<<std::endl;
+// std::cout<<"ft = "<<std::setprecision(10)<<ft<<std::endl;
+// std::cout<<"_Uto = "<<std::setprecision(10)<<_Uto[_qp]<<std::endl;
+// std::cout<<"_lambdaE = "<<std::setprecision(10)<<_lambdaE<<std::endl;
+// std::cout<<" Test = "<<std::setprecision(10)<<Test<<std::endl;
+// std::cout<<" Test1 = "<<std::setprecision(10)<<Test1<<std::endl;
+// std::cout<<"GRadT "<<std::setprecision(10)<<HansPeter<<std::endl;
+
+
 
 // Calculate casing internal temperature
 Real Tci = 0.0;
@@ -424,9 +433,9 @@ _otU[_qp] *= _rto;
 // Calculate Uto
 _Uto[_qp] = 1.0 / _otU[_qp];
 
-std::cout<<"z coord ="<<_q_point[_qp] <<std::endl;
-std::cout<<"_TWB = "<<std::setprecision(10)<<_Twb[_qp]<<std::endl;
-std::cout<<"_Uto = "<<std::setprecision(10)<<_Uto[_qp]<<std::endl;
+
+// std::cout<<"_TWB = "<<std::setprecision(10)<<_Twb[_qp]<<std::endl;
+// std::cout<<"_Uto = "<<std::setprecision(10)<<_Uto[_qp]<<std::endl;
 // Real Test = Tto - Tci;
 // std::cout<<"Test = "<<std::setprecision(10)<<Test<<std::endl;
 
@@ -458,7 +467,7 @@ std::cout<<"_Uto = "<<std::setprecision(10)<<_Uto[_qp]<<std::endl;
 //
 // std::cout<<"_TRankine = "<<_TRankine<<std::endl;
 // std::cout<<"_Twb = "<<std::setprecision(10)<<_Twb[_qp]<<std::endl;
-std::cout<<"Tci = "<<std::setprecision(10)<<Tci<<std::endl;
+// std::cout<<"Tci = "<<std::setprecision(10)<<Tci<<std::endl;
 // std::cout<<"Tto = "<<std::setprecision(10)<<Tto<<std::endl;
 // std::cout<<"_nuA = "<<std::setprecision(10)<<_nuA<<std::endl;
 // std::cout<<"_rhoA = "<<std::setprecision(10)<<_rhoA<<std::endl;

@@ -98,7 +98,7 @@ protected:
   // The gravity acceleration as a vector
   const MaterialProperty<RealVectorValue> & _gravity;
   // Function for geothermal gradient, has to be defined in the Input
-  Function gradT;
+  const Function & gradT;
   // mixing approach
     MooseEnum _hc;
   enum HC_case {Dropkin_Sommerscales, Raithby_Hollands, Churchill};
