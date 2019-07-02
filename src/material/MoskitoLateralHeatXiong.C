@@ -145,6 +145,8 @@ MoskitoLateralHeatXiong::MoskitoLateralHeatXiong(const InputParameters & paramet
   _lambdaTub *=  Watt_to_Btu_per_h / (m_to_ft * gradC_to_gradR);
 }
 
+
+
 // Compute dimensionless time (ft)
 Real
 MoskitoLateralHeatXiong::Cal_ft(Real _alphaE, Real _rti, Real _lambdaE, Real _Uto, Real _rto)
@@ -155,10 +157,10 @@ MoskitoLateralHeatXiong::Cal_ft(Real _alphaE, Real _rti, Real _lambdaE, Real _Ut
   else
     Timing = _t;
 
-    std::cout<<"_td = "<<_td<<std::endl;
-    std::cout<<"_ut = "<<_ut<<std::endl;
-    std::cout<<"_t = "<<_t<<std::endl;
-    std::cout<<"Timing = "<<Timing<<std::endl;
+    // std::cout<<"_td = "<<_td<<std::endl;
+    // std::cout<<"_ut = "<<_ut<<std::endl;
+    // std::cout<<"_t = "<<_t<<std::endl;
+    // std::cout<<"Timing = "<<Timing<<std::endl;
 
   if (Timing < 1209600)
   {
@@ -277,11 +279,20 @@ MoskitoLateralHeatXiong::Cal_Te(Real Tsurf)
 void
 MoskitoLateralHeatXiong::computeQpProperties()
 {
+  if (_rci > _rcem)
+    mooseError("Radius casing higher then Radius cement.\n");
+
+  if (_rcem != 0.0 && _rci == 0.0)
+    mooseError("Cannot assign Radius cement without Radius casing.\n");
+
   _RadTubout[_qp] = _rto;
   // Conversion Si to American units
   Real _TRankine;
-  _TRankine = _T[_qp] * gradC_to_gradR + Rankine_absol;
+  _TRankine = _T[_qp] * gradC_to_gradR;
   _rwb = _diameter[_qp] * m_to_ft / 2.0;
+
+  if (_rwb < _rti)
+    mooseError("Wellbore radius smaller then tubing radius.\n");
 
 // Check annulus radii rao = annulus outer, rai = annulus inner
 Real rai, rao;
@@ -299,8 +310,12 @@ else
 
 Real ft =  Cal_ft(_alphaE, _rti, _lambdaE, _Uto[_qp], _rto);
 
+// std::cout<<"_rto "<<std::setprecision(10)<<_rto<<std::endl;
+// std::cout<<"_TRankine "<<std::setprecision(10)<<_TRankine<<std::endl;
 // std::cout<<"ft = "<<std::setprecision(10)<<ft<<std::endl;
 // std::cout<<"_Uto = "<<std::setprecision(10)<<_Uto[_qp]<<std::endl;
+// std::cout<<"_lambdaE = "<<std::setprecision(10)<<_lambdaE<<std::endl;
+
 // Calculate temperature at cement/formation boundary
 _Twb[_qp] = _rto * _Uto[_qp] * ft * _TRankine;
 _Twb[_qp] += _lambdaE * Cal_Te(Tsurf);
@@ -309,10 +324,11 @@ _Twb[_qp] /= _rto * _Uto[_qp] * ft + _lambdaE;
 // Calculate casing internal temperature
 Real Tci = 0.0;
 if (_rcem != 0.0)
+{
   Tci += std::log(_rwb / _rcem) / _lambdaCem;
-if (_rcem != 0.0 && _rci != 0.0)
   Tci += std::log(_rcem / _rci) / _lambdaCas;
-Tci *= _rto * _Uto[_qp] * (_TRankine - _Twb[_qp]);
+  Tci *= _rto * _Uto[_qp] * (_TRankine - _Twb[_qp]);
+}
 Tci += _Twb[_qp];
 
 // Calculate tubing external temperature
@@ -369,9 +385,10 @@ hc = khc;
 hc /= rai * std::log(rao / rai);
 break;
 
+
 // Document not available
 case HC_case::Churchill:
-fPR = std::pow(1 + std::pow(0.5 / Pr,9.0 / 16.0),-16.0 / 9.0);
+fPR = std::pow(1 + std::pow(0.5 / Pr,9.0 / 16.0), - 16.0 / 9.0);
 // Calculate Nusselt number
 Nu = 0.364 * std::pow(Ray * fPR, 0.25);
 Nu *= std::pow(rao / rai,0.5);
@@ -407,7 +424,11 @@ _otU[_qp] *= _rto;
 // Calculate Uto
 _Uto[_qp] = 1.0 / _otU[_qp];
 
-
+std::cout<<"z coord ="<<_q_point[_qp] <<std::endl;
+std::cout<<"_TWB = "<<std::setprecision(10)<<_Twb[_qp]<<std::endl;
+std::cout<<"_Uto = "<<std::setprecision(10)<<_Uto[_qp]<<std::endl;
+// Real Test = Tto - Tci;
+// std::cout<<"Test = "<<std::setprecision(10)<<Test<<std::endl;
 
 // std::cout<<"rao = "<<rao<<std::endl;
 // std::cout<<"rai = "<<rai<<std::endl;
@@ -428,7 +449,7 @@ _Uto[_qp] = 1.0 / _otU[_qp];
 // std::cout<<"_nuA = "<<_nuA<<std::endl;
 // std::cout<<"_cpA = "<<_cpA<<std::endl;
 // std::cout<<"_lambdaA = "<<_lambdaA<<std::endl;
-//
+// //
 // std::cout<<"_lambdaTub = "<<_lambdaTub<<std::endl;
 // std::cout<<"_lambdaCas = "<<_lambdaCas<<std::endl;
 // std::cout<<"_lambdaCem = "<<_lambdaCem<<std::endl;
@@ -437,7 +458,7 @@ _Uto[_qp] = 1.0 / _otU[_qp];
 //
 // std::cout<<"_TRankine = "<<_TRankine<<std::endl;
 // std::cout<<"_Twb = "<<std::setprecision(10)<<_Twb[_qp]<<std::endl;
-// std::cout<<"Tci = "<<std::setprecision(10)<<Tci<<std::endl;
+std::cout<<"Tci = "<<std::setprecision(10)<<Tci<<std::endl;
 // std::cout<<"Tto = "<<std::setprecision(10)<<Tto<<std::endl;
 // std::cout<<"_nuA = "<<std::setprecision(10)<<_nuA<<std::endl;
 // std::cout<<"_rhoA = "<<std::setprecision(10)<<_rhoA<<std::endl;
