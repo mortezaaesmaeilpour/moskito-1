@@ -282,6 +282,10 @@ MoskitoLatHeatIterationXiong::TemperatureWBinterface(Real Uto, Real TRankine)
   Twb += _rto * Uto * transienttimefunction(Uto) * TRankine;
   Twb += _lambdaRock * TemperatureFormation(_Tsurf);
   Twb /= _rto * Uto * transienttimefunction(Uto) + _lambdaRock;
+  // std::cout<<"rto = "<< _rto<<std::endl;
+  // std::cout<<"TRankine = "<< TRankine<<std::endl;
+  // std::cout<<"_lambdaRock = "<< _lambdaRock<<std::endl;
+
   return Twb;
 }
 
@@ -330,6 +334,7 @@ MoskitoLatHeatIterationXiong::ConvectiveHeatTransferCoefficient(Real Uto, Real T
   Real khc, hc;
   // Calculate Prandtl number
   Real Pr;
+    Real Test1;
   Pr = _cpAnnulus * _nuAnnulus / _lambdaAnnulus;
 
   switch(_hc)
@@ -338,7 +343,6 @@ MoskitoLatHeatIterationXiong::ConvectiveHeatTransferCoefficient(Real Uto, Real T
 
   khc = 0.049 * std::pow(Grashof(Uto, TRankine, grav) * Pr, 0.333);
   khc *= std::pow(Pr,0.074) * _lambdaAnnulus;
-
   hc = khc / (_rai * std::log(_rao / _rai));
   break;
 
@@ -374,6 +378,7 @@ MoskitoLatHeatIterationXiong::Grashof(Real Uto, Real TRankine, Real grav)
   Gr *= TemperatureTubingOuter(Uto, TRankine) - TemperatureCasingAnnulusInterface(Uto, TRankine);
   Gr *= grav * m_to_ft * s_to_h * s_to_h;
   Gr /= _nuAnnulus * _nuAnnulus;
+  Real TestA = _rao - _rai;
   return Gr;
 }
 
@@ -418,6 +423,28 @@ MoskitoLatHeatIterationXiong::computeResidual(const Real trail_value, const Real
     Aux += std::log(_rwb / _rcem) / _lambdaCem;
 
   Uto = 1.0 / (Aux * _rto);
+
+  // std::cout<<"hc = "<< hc<<std::endl;
+  // std::cout<<"z coord ="<<_q_point[_qp] <<std::endl;
+  // std::cout<<"Tto = "<< Tto<<std::endl;
+  // std::cout<<"_T = "<< _T[_qp]<<std::endl;
+  // std::cout<<"Uto = "<< Uto<<std::endl;
+  // std::cout<<"TRankine = "<< TRankine<<std::endl;
+  // std::cout<<"_lambdaRock = "<< _lambdaRock<<std::endl;
+  // std::cout<<"hc = "<< hc<<std::endl;
+  // std::cout<<"z coord ="<<_q_point[_qp] <<std::endl;
+  // Real Test1 =  std::log(_rwb / _rcem) / _lambdaCem;;
+  // Real Test2 = _rwb / _rcem;
+  // Real Test3 = std::log(_rwb / _rcem);
+
+  // std::cout<<"Tci = "<< Tci<<std::endl;
+  // std::cout<<"Test1 = "<< Test1<<std::endl;
+  // std::cout<<"LCem = "<< _lambdaCem<<std::endl;
+  // std::cout<<"TRankine = "<< TRankine<<std::endl;
+  // std::cout<<"Test2 = "<< Test2<<std::endl;
+  // std::cout<<"Test3 = "<< Test3<<std::endl;
+  // std::cout<<"_rcem = "<< _rcem<<std::endl;
+  // std::cout<<"Twb = "<< Twb<<std::endl;
   return Uto - scalar;
 }
 
@@ -473,7 +500,7 @@ MoskitoLatHeatIterationXiong::initialGuess(const Real trial_value)
 {
   Real ini_guess;
   if (trial_value == 0.0)
-    ini_guess = 10.0;
+    ini_guess = 4.05;
   else
     ini_guess = trial_value;
   return ini_guess;

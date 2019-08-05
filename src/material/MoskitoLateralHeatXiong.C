@@ -22,6 +22,7 @@
 /**************************************************************************/
 
 #include "MoskitoLateralHeatXiong.h"
+#include "Conversion.h"
 
 registerMooseObject("MoskitoApp", MoskitoLateralHeatXiong);
 
@@ -30,6 +31,7 @@ InputParameters
 validParams<MoskitoLateralHeatXiong>()
 {
     InputParameters params = validParams<Material>();
+    params += validParams<NewtonIteration>();
     params.addClassDescription("Materials for the Lateral heat transfer between "
           "wellbore and formation");
     params.addRequiredParam<Real>("radius_tubbing_inner",
@@ -91,6 +93,7 @@ validParams<MoskitoLateralHeatXiong>()
 
 MoskitoLateralHeatXiong::MoskitoLateralHeatXiong(const InputParameters & parameters)
   : Material(parameters),
+    NewtonIteration(parameters),
     _T(getMaterialProperty<Real>("temperature")),
     _rti(getParam<Real>("radius_tubbing_inner")),
     _RadTubout(declareProperty<Real>("radius_tubbing_outer")),
@@ -269,11 +272,77 @@ MoskitoLateralHeatXiong::Cal_ft(Real _alphaE, Real _rti, Real _lambdaE, Real _Ut
   return ft;
 }
 
-
 Real
 MoskitoLateralHeatXiong::Cal_Te(Real Tsurf)
 {
   return Tsurf +  gradT.value(_t, _q_point[_qp]) * gradC_to_gradR;
+}
+
+Real
+MoskitoLateralHeatXiong::Calculate_hc_DS_RH(Real khc, Real rai, Real rao)
+{
+  Real hc_DS_RH;
+  hc_DS_RH = khc;
+  hc_DS_RH /= rai * std::log(rao / rai);
+  return hc_DS_RH;
+}
+
+Real
+MoskitoLateralHeatXiong::Calculate_hr(Real _eao, Real rai, Real rao, Real _eai, const Real Boltz, Real Tto, Real Tci)
+{
+  Real OverFtci = 0.0;
+  OverFtci += 1.0 / _eao - 1.0;
+  OverFtci *= rai / rao;
+  OverFtci += 1.0 / _eai;
+
+  Real hr;
+  hr = Boltz / OverFtci;
+  hr *= Tto + Tci;
+  hr *= Tto * Tto + Tci * Tci;
+  return hr;
+}
+
+Real
+MoskitoLateralHeatXiong::Calculate_Grashof(Real rao, Real rai, Real _rhoA, Real _betaA, Real Tto, Real Tci, Real _nuA, Real m_to_ft, Real s_to_h, Real grav)
+{
+  Real Gr;
+  Gr = (rao - rai) * (rao - rai) * (rao - rai);
+  Gr *= _rhoA * _rhoA * _betaA;
+  Gr *= Tto - Tci;
+  Gr *= grav * m_to_ft * s_to_h * s_to_h;
+  Gr /= _nuA * _nuA;
+  return Gr;
+}
+
+Real
+MoskitoLateralHeatXiong::Calculate_Rayleigh(Real grav, const Real m_to_ft, const Real s_to_h, Real _betaA, Real Tto, Real Tci, Real _alphaA, Real _nuA, Real _rhoA, Real rao, Real rai)
+{
+  Real Lc, Ray;
+  Lc = 2 * std::pow(std::log(rao / rai),4.0 / 3.0);
+  Lc /= std::pow(std::pow(rai,-3.0 / 5.0) + std::pow(rao,-3.0 / 5.0), 5.0 / 3.0);
+
+  Ray = _gravity[_qp].norm() * m_to_ft * s_to_h * s_to_h;
+  Ray *= _betaA * (Tto - Tci) * Lc * Lc * Lc;
+  Ray /= _alphaA *  _nuA / _rhoA;
+  return Ray;
+}
+
+Real
+MoskitoLateralHeatXiong::computeReferenceResidual(const Real iteration_value, const Real scalar)
+{
+  return 2.0;
+}
+
+Real
+MoskitoLateralHeatXiong::computeResidual(const Real iteration_value, const Real scalar)
+{
+  return 1.0;
+}
+
+Real
+MoskitoLateralHeatXiong::computeDerivative(const Real iteration_value, const Real scalar)
+{
+  return 0.0;
 }
 
 void
@@ -309,26 +378,11 @@ else
   rao = _rwb;
 
 Real ft =  Cal_ft(_alphaE, _rti, _lambdaE, _Uto[_qp], _rto);
-Real Test = Cal_Te(Tsurf);
-Real Test1 = Tsurf;
 
 // Calculate temperature at cement/formation boundary
 _Twb[_qp] = _rto * _Uto[_qp] * ft * _TRankine;
 _Twb[_qp] += _lambdaE * Cal_Te(Tsurf);
 _Twb[_qp] /= _rto * _Uto[_qp] * ft + _lambdaE;
-
-Real HansPeter = gradT.value(_t, _q_point[_qp]);
-// std::cout<<"z coord ="<<_q_point[_qp] <<std::endl;
-// std::cout<<"_rto "<<std::setprecision(10)<<_rto<<std::endl;
-// std::cout<<"_TRankine "<<std::setprecision(10)<<_TRankine<<std::endl;
-// std::cout<<"ft = "<<std::setprecision(10)<<ft<<std::endl;
-// std::cout<<"_Uto = "<<std::setprecision(10)<<_Uto[_qp]<<std::endl;
-// std::cout<<"_lambdaE = "<<std::setprecision(10)<<_lambdaE<<std::endl;
-// std::cout<<" Test = "<<std::setprecision(10)<<Test<<std::endl;
-// std::cout<<" Test1 = "<<std::setprecision(10)<<Test1<<std::endl;
-// std::cout<<"GRadT "<<std::setprecision(10)<<HansPeter<<std::endl;
-
-
 
 // Calculate casing internal temperature
 Real Tci = 0.0;
@@ -352,72 +406,48 @@ Real Pr;
 Pr = _cpA * _nuA / _lambdaA;
 
 // Calculate Grashof number
-Real Gr;
-Gr = (rao - rai) * (rao - rai) * (rao - rai);
-Gr *= _rhoA * _rhoA * _betaA;
-Gr *= Tto - Tci;
-Gr *= _gravity[_qp].norm() * m_to_ft * s_to_h * s_to_h;
-Gr /= _nuA * _nuA;
+Real GR, grav;
+grav = _gravity[_qp].norm();
+GR = Calculate_Grashof(rao, rai, _rhoA, _betaA, Tto, Tci, _nuA, m_to_ft, s_to_h, grav);
 
-// Calculate Rayleigh _p_var_number
-Real Lc;
-Lc = 2 * std::pow(std::log(rao / rai),4.0 / 3.0);
-Lc /= std::pow(std::pow(rai,-3.0 / 5.0) + std::pow(rao,-3.0 / 5.0), 5.0 / 3.0);
+// Calculate Rayleigh
+Real RAY;
+RAY = Calculate_Rayleigh(grav, m_to_ft, s_to_h, _betaA, Tto, Tci, _alphaA, _nuA, _rhoA, rao, rai);
 
-Real Ray;
-Ray = _gravity[_qp].norm() * m_to_ft * s_to_h * s_to_h;
-Ray *= _betaA * (Tto - Tci) * Lc * Lc * Lc;
-Ray /= _alphaA *  _nuA / _rhoA;
-
-Real khc;
-Real hc;
-Real fPR;
-Real Nu;
+Real khc, hc, fPR, Nu;
 switch(_hc)
 {
 case HC_case::Dropkin_Sommerscales:
 // Calculate equivalent thermal conductivity of the annulus fluid
-khc = 0.049 * std::pow(Gr * Pr, 0.333);
+khc = 0.049 * std::pow(GR * Pr, 0.333);
 khc *= std::pow(Pr,0.074) * _lambdaA;
 // Calculate convective heat transfer coefficient
-hc = khc;
-hc /= rai * std::log(rao / rai);
+hc = Calculate_hc_DS_RH(khc, rai, rao);
 break;
 
 case HC_case::Raithby_Hollands:
 // Calculate equivalent thermal conductivity of the annulus fluid
 //  I am quite unclear about 0.384. In Xiong it is 0.386 but checking the original document it should be o.48 * 0.8
 khc = 0.384 * std::pow(Pr / (0.861 + Pr),0.25);
-khc *= std::pow(Ray,0.25) * _lambdaA;
+khc *= std::pow(RAY,0.25) * _lambdaA;
 // Calculate convective heat transfer coefficient
-hc = khc;
-hc /= rai * std::log(rao / rai);
+hc = Calculate_hc_DS_RH(khc, rai, rao);
 break;
-
 
 // Document not available
 case HC_case::Churchill:
 fPR = std::pow(1 + std::pow(0.5 / Pr,9.0 / 16.0), - 16.0 / 9.0);
 // Calculate Nusselt number
-Nu = 0.364 * std::pow(Ray * fPR, 0.25);
+Nu = 0.364 * std::pow(RAY * fPR, 0.25);
 Nu *= std::pow(rao / rai,0.5);
 // Calculate convective heat transfer coefficient
 hc = Nu * _lambdaA / (2 * rao);
 break;
 }
 
-// Calculation of Annuls effect - hr
-//Calculate auxilary variable
-Real OverFtci = 0.0;
-OverFtci += 1.0 / _eao - 1.0;
-OverFtci *= rai / rao;
-OverFtci += 1.0 / _eai;
-
-// Calculate radial heat transfer coefficient
+// Calculation of Annuls effect - radial heat transfer coefficient
 Real hr;
-hr = Boltz / OverFtci;
-hr *= Tto + Tci;
-hr *= Tto * Tto + Tci * Tci;
+hr = Calculate_hr(_eao, rai, rao, _eai, Boltz, Tto, Tci);
 
 // Calculate 1 / Uto
 _otU[_qp] = std::log(_rto / _rti) / _lambdaTub;
@@ -432,8 +462,12 @@ _otU[_qp] *= _rto;
 
 // Calculate Uto
 _Uto[_qp] = 1.0 / _otU[_qp];
+// std::cout<<"_Uto = "<<std::setprecision(10)<<_Uto[_qp]<<std::endl;
 
+// Real scalar;
+// returnNewtonSolve(_Uto[_qp], scalar, _console);
 
+// std::cout<<"z coord ="<<_q_point[_qp] <<std::endl;
 // std::cout<<"_TWB = "<<std::setprecision(10)<<_Twb[_qp]<<std::endl;
 // std::cout<<"_Uto = "<<std::setprecision(10)<<_Uto[_qp]<<std::endl;
 // Real Test = Tto - Tci;
@@ -449,7 +483,7 @@ _Uto[_qp] = 1.0 / _otU[_qp];
 // std::cout<<"_rwb = "<<_rwb<<std::endl;
 // std::cout<<"_T = "<<_T[_qp]<<std::endl;
 // std::cout<<"Tsurf = "<<Tsurf<<std::endl;
-
+ // std::cout<<"ft= "<<ft<<std::endl;
 // std::cout<<"_lambdaE = "<<_lambdaE<<std::endl;
 // std::cout<<"_alphaE = "<<_alphaE<<std::endl;
 // std::cout<<"_rhoA = "<<_rhoA<<std::endl;
@@ -483,7 +517,7 @@ _Uto[_qp] = 1.0 / _otU[_qp];
 // std::cout<<"hr = "<<std::setprecision(10)<<hr<<std::endl;
 // std::cout<<"fPR = "<<std::setprecision(10)<<fPR<<std::endl;
 // std::cout<<"Nu = "<<std::setprecision(10)<<Nu<<std::endl;
-// std::cout<<"z coord ="<<_q_point[_qp] <<std::endl;
+
 // std::cout<<"Boltz ="<<Boltz <<std::endl;
 
 // std::cout<<"OverFtci = "<<std::setprecision(10)<<OverFtci<<std::endl;
@@ -492,5 +526,3 @@ _Uto[_qp] = 1.0 / _otU[_qp];
 
 
 }
-
-// Real angle = std::fabs(_gravity * _well_dir / _gravity.norm());

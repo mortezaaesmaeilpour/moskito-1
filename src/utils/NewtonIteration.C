@@ -59,7 +59,7 @@ NewtonIteration::NewtonIteration(
     _bracket_solution(true),
     _internal_solve_output_on(
         parameters.get<MooseEnum>("internal_solve_output_on").getEnum<InternalSolveOutput>()),
-    _max_its(1000), // Far larger than ever expected to be needed
+    _max_its(10), // Far larger than ever expected to be needed
     _internal_solve_full_iteration_history(
         parameters.get<bool>("internal_solve_full_iteration_history")),
     _relative_tolerance(parameters.get<Real>("relative_tolerance")),

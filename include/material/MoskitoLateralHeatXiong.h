@@ -24,15 +24,18 @@
 #ifndef MOSKITOLATERALHEATXIONG_H
 #define MOSKITOLATERALHEATXIONG_H
 
+#pragma once
+
 #include "Material.h"
 #include "Function.h"
+#include "NewtonIteration.h"
 
 class MoskitoLateralHeatXiong;
 
 template <>
 InputParameters validParams<MoskitoLateralHeatXiong>();
 
-class MoskitoLateralHeatXiong : public Material
+class MoskitoLateralHeatXiong : public Material, public NewtonIteration
 {
 public:
   MoskitoLateralHeatXiong(const InputParameters & parameters);
@@ -40,7 +43,21 @@ public:
   Real Cal_ft(Real _alphaE, Real _rti, Real _lambdaE, Real _Uto, Real _rto);
   Real Cal_Te(Real Tsurf);
 
+  virtual Real computeReferenceResidual(const Real iteration_value, const Real scalar) override;
+  virtual Real computeResidual(const Real iteration_value, const Real scalar) override;
+  virtual Real computeDerivative(const Real iteration_value, const Real scalar) override;
+
 protected:
+  // Calculate hc for Raithby_Hollands and Dropkin_Sommerscales
+  Real Calculate_hc_DS_RH(Real khc, Real rai, Real rao);
+  // Calculate auxilary variable for the calculation of hr
+  Real Calculate_hr(Real _eao, Real rai, Real rao, Real _eai, const Real Boltz, Real Tto, Real Tci);
+  // Calculate Grashof Number needed for hc calculation
+  Real Calculate_Grashof(Real rao, Real rai, Real _rhoA, Real _betaA, Real Tto, Real Tci, Real _nuA, Real m_to_ft, Real s_to_h, Real grav);
+  // Calculate Rayleigh Number needed for hc calculation
+  Real Calculate_Rayleigh(Real grav, const Real m_to_ft, const Real s_to_h, Real _betaA, Real Tto, Real Tci, Real _alphaA, Real _nuA, Real _rhoA, Real rao, Real rai);
+
+
   // temperature
   const MaterialProperty<Real> & _T;
   // Radius tubing inner
