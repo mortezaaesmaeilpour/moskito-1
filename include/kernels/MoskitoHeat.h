@@ -47,6 +47,8 @@ protected:
   const MaterialProperty<Real> & _Uto;
   // Temperature at formation - cement boundary
   const MaterialProperty<Real> & _Twb;
+  // Area of the wellbore
+  const MaterialProperty<Real> & _area;
   const Real gradC_to_gradR = 1.8;
   const Real Watt_to_Btu_per_h = 3.412141633;
   const Real m_to_ft    = 3.280839895;
