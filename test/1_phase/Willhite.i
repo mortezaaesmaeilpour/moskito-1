@@ -49,21 +49,21 @@
     enthalpy = h
     flowrate = q
     well_direction = x
-    well_diameter = 0.3048
+    well_diameter = 0.0890016
     eos_uo = eos
     viscosity_uo = viscosity
     drift_flux_uo = df
     roughness_type = smooth
-    gravity = '-9.8 0 0'
+    gravity = '9.8 0 0'
     outputs = exodus
   [../]
   [./Lateral]
     type = MoskitoLatHeatIterationXiong
      # Geometry of the well. As the example did not contain any tubing radius, which is required for teh material it was artificially set to a small radius
-     radius_tubbing_inner = 0.044500800
      radius_tubbing_outer = 0.044500801
      radius_casing_inner = 0.108204
      radius_cement = 0.12192
+     radius_wellbore = 0.1524
      conductivity_cement = 0.346146923
      conductivity_tubing = 80.42534006
      conductivity_casing = 80.42534006
