@@ -145,6 +145,10 @@ protected:
   Real _rai, _rao;
   // Tolerance of finite difference derivation
   const Real _tol;
+  // Independent gravity for calculation of Raleigh and Grashof numers in case gravity is set to "0"
+  RealVectorValue _independ_gravity;
+  // Well direction for correction of gravity vector in terms of deviated well
+  const  MaterialProperty<RealVectorValue> & _well_dir;
   // Convert from Si units to American system
   const Real m_to_ft    = 3.280839895;
   const Real m2_to_ft2  = 10.7639079;
