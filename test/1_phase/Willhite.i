@@ -58,7 +58,7 @@
     outputs = exodus
   [../]
   [./Lateral]
-    type = MoskitoLatHeatIterationXiong
+    type = MoskitoLatHeatIterationXiongSI
      # Geometry of the well. As the example did not contain any tubing radius, which is required for teh material it was artificially set to a small radius
      radius_tubbing_outer = 0.044500801
      radius_casing_inner = 0.108204
@@ -68,7 +68,7 @@
      conductivity_tubing = 80.42534006
      conductivity_casing = 80.42534006
      # Rock parameters
-     Surface_temperature = 37.7778
+     Surface_temperature = 310.928
      thermal_diffusivity_rock = 0.000000738063
      conductivity_rock = 1.7307346
      # Annulus parameters representing a stagnant gas at 14.7psia @ 296°C
@@ -102,10 +102,11 @@
 
 [BCs]
   [./hbc]
-    type = DirichletBC
+    type = MoskitoTemperatureToEnthalpy1P
     variable = h
     boundary = left
-    value = 3084870
+    temperature = 588.70555
+    eos_uo = eos
   [../]
 [../]
 
