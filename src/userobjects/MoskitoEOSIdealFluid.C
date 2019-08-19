@@ -64,7 +64,7 @@ MoskitoEOSIdealFluid::MoskitoEOSIdealFluid(const InputParameters & parameters)
 }
 
 Real
-MoskitoEOSIdealFluid::rho_from_p_T(const Real & pressure, const Real & temperature) const
+MoskitoEOSIdealFluid::rho_from_p_T(const Real & pressure, const Real & temperature, const Real & enthalpy) const
 {
   return _rho_ref * std::exp((pressure-_P_ref) / _bulk_modulus - _thermal_expansion * (temperature-_T_ref));
 }

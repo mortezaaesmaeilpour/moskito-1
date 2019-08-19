@@ -48,7 +48,7 @@ MoskitoEOSIdealGas::MoskitoEOSIdealGas(const InputParameters & parameters)
 }
 
 Real
-MoskitoEOSIdealGas::rho_from_p_T(const Real & pressure, const Real & temperature) const
+MoskitoEOSIdealGas::rho_from_p_T(const Real & pressure, const Real & temperature, const Real & enthalpy) const
 {
   return pressure * _molar_mass / (_R * temperature);
 }

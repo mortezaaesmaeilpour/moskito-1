@@ -36,7 +36,7 @@ class MoskitoEOSNaturalGas : public MoskitoEOS1P
 public:
   MoskitoEOSNaturalGas(const InputParameters & parameters);
 
-  virtual Real rho_from_p_T(const Real & pressure, const Real & temperature) const override;
+  virtual Real rho_from_p_T(const Real & pressure, const Real & temperature, const Real & enthalpy) const override;
   virtual void rho_from_p_T(const Real & pressure, const Real & temperature,
                         Real & rho, Real & drho_dp, Real & drho_dT) const override;
   virtual Real T_to_h(const Real & temperature, const Real & pressure) const override;

@@ -42,7 +42,7 @@ public:
   virtual void finalize() final {}
 
   // Density from pressure and temperature (kg/m^3)
-  virtual Real rho_from_p_T(const Real & pressure, const Real & temperature) const = 0;
+  virtual Real rho_from_p_T(const Real & pressure, const Real & temperature, const Real & enthalpy) const = 0;
 
   // Density from pressure and temperature and its derivatives wrt pressure and temperature
   virtual void rho_from_p_T(const Real & pressure, const Real & temperature,

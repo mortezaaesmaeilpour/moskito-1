@@ -52,7 +52,7 @@ MoskitoEOSNaturalGas::MoskitoEOSNaturalGas(const InputParameters & parameters)
 }
 
 Real
-MoskitoEOSNaturalGas::rho_from_p_T(const Real & pressure, const Real & temperature) const
+MoskitoEOSNaturalGas::rho_from_p_T(const Real & pressure, const Real & temperature, const Real & enthalpy) const
 {
   Real z = z_factor(pressure, temperature);
 
