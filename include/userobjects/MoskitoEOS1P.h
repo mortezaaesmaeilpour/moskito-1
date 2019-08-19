@@ -49,13 +49,13 @@ public:
                         Real & rho, Real & drho_dp, Real & drho_dT) const = 0;
 
   // The conversion function from temperature to specific enthalpy
-  virtual Real T_to_h(const Real & temperature) const = 0;
+  virtual Real T_to_h(const Real & temperature, const Real & pressure) const = 0;
 
   // The conversion function from specific enthalpy to temperature
-  virtual Real h_to_T(const Real & enthalpy) const = 0;
+  virtual Real h_to_T(const Real & enthalpy, const Real & pressure) const = 0;
 
   // specific heat at constant pressure from temperature
-  virtual Real cp(const Real & temperature) const = 0;
+  virtual Real cp(const Real & temperature, const Real & pressure) const = 0;
 
   // thermal conductivity from pressure and temperature
   virtual Real lambda(const Real & pressure, const Real & temperature) const = 0;

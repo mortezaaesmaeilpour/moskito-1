@@ -79,19 +79,19 @@ MoskitoEOSNaturalGas::rho_from_p_T(const Real & pressure, const Real & temperatu
 }
 
 Real
-MoskitoEOSNaturalGas::h_to_T(const Real & enthalpy) const
+MoskitoEOSNaturalGas::h_to_T(const Real & enthalpy, const Real & pressure) const
 {
   return enthalpy / _cp;
 }
 
 Real
-MoskitoEOSNaturalGas::T_to_h(const Real & temperature) const
+MoskitoEOSNaturalGas::T_to_h(const Real & temperature, const Real & pressure) const
 {
   return cp(temperature) * temperature;
 }
 
 Real
-MoskitoEOSNaturalGas::cp(const Real & temperature) const
+MoskitoEOSNaturalGas::cp(const Real & temperature, const Real & pressure) const
 {
   return _cp;
 }

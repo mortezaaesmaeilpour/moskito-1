@@ -79,19 +79,19 @@ MoskitoEOSIdealFluid::rho_from_p_T(const Real & pressure, const Real & temperatu
 }
 
 Real
-MoskitoEOSIdealFluid::h_to_T(const Real & enthalpy) const
+MoskitoEOSIdealFluid::h_to_T(const Real & enthalpy, const Real & pressure) const
 {
   return (enthalpy - _h_ref) / _cp + _T_ref;
 }
 
 Real
-MoskitoEOSIdealFluid::T_to_h(const Real & temperature) const
+MoskitoEOSIdealFluid::T_to_h(const Real & temperature, const Real & pressure) const
 {
   return cp(temperature) * (temperature - _T_ref) + _h_ref;
 }
 
 Real
-MoskitoEOSIdealFluid::cp(const Real & temperature) const
+MoskitoEOSIdealFluid::cp(const Real & temperature, const Real & pressure) const
 {
   return _cp;
 }
