@@ -33,6 +33,7 @@ validParams<MoskitoTemperatureToEnthalpy1P>()
   params.addRequiredParam<UserObjectName>("eos_uo",
         "The name of the userobject for EOS");
   params.addRequiredParam<Real>("temperature", "Temperature value of the BC");
+  params.addRequiredCoupledVar("pressure", "Pressure nonlinear variable (Pa)");
   params.declareControllable("temperature");
   params.addClassDescription("Implements a NodalBC (Dirichlet) which calculates "
                             "specific enthalpy using temperature based on EOS "
