@@ -43,6 +43,7 @@ validParams<MoskitoTemperatureToEnthalpy1P>()
 MoskitoTemperatureToEnthalpy1P::MoskitoTemperatureToEnthalpy1P(const InputParameters & parameters)
   : NodalBC(parameters),
     _T(getParam<Real>("temperature")),
+    _p(coupledValue("pressure")),
     _eos_uo(getUserObject<MoskitoEOS1P>("eos_uo"))
 {
 }
@@ -50,5 +51,5 @@ MoskitoTemperatureToEnthalpy1P::MoskitoTemperatureToEnthalpy1P(const InputParame
 Real
 MoskitoTemperatureToEnthalpy1P::computeQpResidual()
 {
-  return _u[_qp] - _eos_uo.T_to_h(_T);
+  return _u[_qp] - _eos_uo.T_to_h(_T, _p[_qp]);
 }

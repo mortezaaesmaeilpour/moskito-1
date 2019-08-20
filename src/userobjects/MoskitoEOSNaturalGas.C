@@ -60,11 +60,11 @@ MoskitoEOSNaturalGas::rho_from_p_T(const Real & pressure, const Real & temperatu
 }
 
 void
-MoskitoEOSNaturalGas::rho_from_p_T(const Real & pressure, const Real & temperature,
+MoskitoEOSNaturalGas::rho_from_p_T(const Real & pressure, const Real & temperature, const Real & enthalpy,
                               Real & rho, Real & drho_dp, Real & drho_dT) const
 {
   Real z = z_factor(pressure, temperature);
-  rho = this->rho_from_p_T(pressure, temperature);
+  rho = this->rho_from_p_T(pressure, temperature, enthalpy);
 
   Real dz_dp, dz_dT, h;
 
@@ -87,7 +87,7 @@ MoskitoEOSNaturalGas::h_to_T(const Real & enthalpy, const Real & pressure) const
 Real
 MoskitoEOSNaturalGas::T_to_h(const Real & temperature, const Real & pressure) const
 {
-  return cp(temperature) * temperature;
+  return cp(temperature, pressure) * temperature;
 }
 
 Real

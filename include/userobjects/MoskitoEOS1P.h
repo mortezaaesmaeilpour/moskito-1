@@ -45,7 +45,7 @@ public:
   virtual Real rho_from_p_T(const Real & pressure, const Real & temperature, const Real & enthalpy) const = 0;
 
   // Density from pressure and temperature and its derivatives wrt pressure and temperature
-  virtual void rho_from_p_T(const Real & pressure, const Real & temperature,
+  virtual void rho_from_p_T(const Real & pressure, const Real & temperature, const Real & enthalpy,
                         Real & rho, Real & drho_dp, Real & drho_dT) const = 0;
 
   // The conversion function from temperature to specific enthalpy

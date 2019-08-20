@@ -55,10 +55,10 @@ MoskitoFluidWell1P::MoskitoFluidWell1P(const InputParameters & parameters)
 void
 MoskitoFluidWell1P::computeQpProperties()
 {
-  _T[_qp] = eos_uo.h_to_T(_h[_qp]);
-  _cp[_qp] = eos_uo.cp(_T[_qp]);
+  _T[_qp] = eos_uo.h_to_T(_h[_qp], _P[_qp]);
+  _cp[_qp] = eos_uo.cp(_T[_qp], _P[_qp]);
 
-  eos_uo.rho_from_p_T(_P[_qp], _T[_qp], _rho[_qp], _drho_dp[_qp], _drho_dT[_qp]);
+  eos_uo.rho_from_p_T(_P[_qp], _T[_qp], _h[_qp], _rho[_qp], _drho_dp[_qp], _drho_dT[_qp]);
 
   _drho_dh[_qp] = _drho_dT[_qp] / _cp[_qp];
   _drho_dp_2[_qp] = 0.0;
