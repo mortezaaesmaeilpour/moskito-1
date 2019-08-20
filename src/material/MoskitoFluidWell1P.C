@@ -59,7 +59,7 @@ MoskitoFluidWell1P::computeQpProperties()
   _cp[_qp] = eos_uo.cp(_T[_qp], _P[_qp]);
 
   eos_uo.rho_from_p_T(_P[_qp], _T[_qp], _h[_qp], _rho[_qp], _drho_dp[_qp], _drho_dT[_qp]);
-
+  Real RHHo = _rho[_qp];
   _drho_dh[_qp] = _drho_dT[_qp] / _cp[_qp];
   _drho_dp_2[_qp] = 0.0;
   _drho_dh_2[_qp] = 0.0;
