@@ -60,27 +60,29 @@ protected:
   // Calculate deoth dependent formation temperature
   Real TemperatureFormation(Real _Tsurf);
   // Calculate temperature at formation wellbore
-  Real TemperatureWBinterface(Real Uto, Real TRankine);
+  Real TemperatureWBinterface(Real Uto, Real Temp);
   // Calculate temperature at annulus casing boundary
-  Real TemperatureCasingAnnulusInterface(Real Uto, Real TRankine);
+  Real TemperatureCasingAnnulusInterface(Real Uto, Real Temp);
   // Calculate tubing external temperature
-  Real TemperatureTubingOuter(Real Uto, Real TRankine);
+  Real TemperatureTubingOuter(Real Uto, Real Temp);
   // Calculation of Annuls effect - radial heat transfer coefficient hr
-  Real RadialHeatTransferCoefficient(Real Uto, Real TRankine);
+  Real RadialHeatTransferCoefficient(Real Uto, Real T);
   // Calculation of Annuls effect - convective heat transfer coefficient hc
-  Real ConvectiveHeatTransferCoefficient(Real Uto, Real TRankine, Real grav);
+  Real ConvectiveHeatTransferCoefficient(Real Uto, Real T, Real grav);
   // Calculate Grashof Number needed for hc calculation
-  Real Grashof(Real Uto, Real TRankine, Real grav);
+  Real Grashof(Real Uto, Real Temp, Real grav);
   // Calculate Rayleigh Number needed for hc calculation
-  Real Rayleigh(Real grav,Real Uto, Real TRankine);
+  Real Rayleigh(Real grav,Real Uto, Real Temp);
   // temperature
   const MaterialProperty<Real> & _T;
-  // Radius tubing inner
-  Real _rti;
+  // Radius wellbore
+  Real _rwb;
   // Radius tubing outer
   MaterialProperty<Real> & _RadTubout;
-  // Temperature in °Rankine
-  MaterialProperty<Real> & _TRankine;
+  // Variable to output heat loss
+  MaterialProperty<Real> & _may;
+  // Variable to output formation temperature
+  MaterialProperty<Real> & _TRock;
   // Local parameter Radius tubing outer
   Real _rto;
   // Radius insulation
@@ -117,8 +119,8 @@ protected:
   Real _Tsurf;
   // Diameter of the pipe
   const MaterialProperty<Real> & _diameter;
-  // Radius wellbore
-  Real _rwb;
+  // Radius tubing inner
+  Real _rti;
   // Thermal conductivity of the cement
   Real _lambdaCem;
   // Thermal conductivity of the casing
@@ -141,7 +143,10 @@ protected:
   enum Zeit {user_time, simulation_time};
   Real Timing;
   Real _ut;
-  // Annulus outer and inner Rasius, is determined within this material
+  // Definition of calculation scheme for dimensionless time
+  MooseEnum Dim_time;
+  enum Dim_time_case {Ramey_1962, Kutasov_2003_eq15, Kutasov_2003_eq16, Kutasov_2003_eq17, Kutasov_2003_eq18, Kutasov_1987_eq19, Kutun_2015_eq20 };
+    // Annulus outer and inner Rasius, is determined within this material
   Real _rai, _rao;
   // Tolerance of finite difference derivation
   const Real _tol;
@@ -149,19 +154,10 @@ protected:
   RealVectorValue _independ_gravity;
   // Well direction for correction of gravity vector in terms of deviated well
   const  MaterialProperty<RealVectorValue> & _well_dir;
-  // Convert from Si units to American system
-  const Real m_to_ft    = 3.280839895;
-  const Real m2_to_ft2  = 10.7639079;
-  const Real m3_to_ft3  = 35.3146667;
-  const Real kg_to_lbm  = 2.2046225;
-  const Real gradC_to_gradR = 1.8;
-  const Real Watt_to_Btu_per_h = 3.412141633;
-  const Real J_to_Btu = 0.00094781712;
-  const Real PI = 3.141592653589793238462643383279502884197169399375105820974944592308;
-  const Real Rankine_absol = 491.67;
   // Stefan Bolzmann Konstante in SI units (W/(m² * K⁴))
   Real Boltz = 0.00000005670367;
-  const Real s_to_h = 3600;
+  Real PI = 3.141592653589793238462643383279502884197169399375105820974944592308;
+
 };
 
 #endif

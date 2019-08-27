@@ -40,7 +40,7 @@
     output_properties = 'temperature density well_velocity specific_heat well_reynolds_no well_moody_friction viscosity diameter'
   [../]
   [./Lateral]
-    type = MoskitoLatHeatIterationXiongSI
+    type = MoskitoLatHeatIterationXiong
      radius_wellbore = 0.150000000002
      radius_tubbing_outer = 0.150000000001
      conductivity_tubing = 40
@@ -52,9 +52,9 @@
      geothermal_gradient = grad_func
      hc_calucation_model = Dropkin_Sommerscales
      time_model = user_time
-     user_defined_time = 8640
-     # user_defined_time = 2592000
-     DimTime_calculation_model = Kutun_2015
+     # user_defined_time = 8640
+     user_defined_time = 2592000
+     DimTime_calculation_model = Ramey_1962
      # internal_solve_full_iteration_history = true
      output_properties = 'Temperature_Rankine temperature_well_formation_interface heat_loss formation_temperature'
      outputs = exodus
