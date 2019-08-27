@@ -285,7 +285,6 @@ MoskitoLatHeatIterationXiong::transienttimefunction(Real Uto)
   break;
 
   }
-    std::cout<<"ft = "<<ft<<std::endl;
   return ft;
 
 }
