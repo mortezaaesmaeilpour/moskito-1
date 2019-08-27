@@ -55,7 +55,8 @@ protected:
   const Real _h_ref = 0;
   const Real _cp;
   const Real _lambda;
-  const Real _thermal_expansion;
+  const Real _thermal_expansion_0;
+  const Real _thermal_expansion_1;
   const Real _bulk_modulus;
 };
 
