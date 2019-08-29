@@ -28,7 +28,7 @@ ALL_MODULES         := no
 
 CHEMICAL_REACTIONS  := no
 CONTACT             := no
-FLUID_PROPERTIES    := yes
+FLUID_PROPERTIES    := no
 HEAT_CONDUCTION     := no
 MISC                := no
 NAVIER_STOKES       := no
@@ -46,10 +46,10 @@ include $(MOOSE_DIR)/modules/modules.mk
 ###############################################################################
 
 # dep apps
-TIGER_DIR          ?= $(CURDIR)/tiger
-APPLICATION_DIR    := $(TIGER_DIR)
-APPLICATION_NAME   := tiger
-include            $(FRAMEWORK_DIR)/app.mk
+# TIGER_DIR          ?= $(CURDIR)/tiger
+# APPLICATION_DIR    := $(TIGER_DIR)
+# APPLICATION_NAME   := tiger
+# include            $(FRAMEWORK_DIR)/app.mk
 ###############################################################################
 
 # dep apps
