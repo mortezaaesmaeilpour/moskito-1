@@ -63,7 +63,7 @@
     type = ParsedFunction
     vars = 'K A a L ho to'
     vals = '0.0117 7854 113 127 1200 122'
-    value = 'K*A*ho/a/L*exp(-K*A/a/L*t)*a*1e-9'
+    value = '-K*A*ho/a/L*exp(-K*A/a/L*t)*a*1e-9'
   [../]
 []
 
