@@ -19,4 +19,9 @@
     input = 'Willhite.i'
     exodiff = 'Willhite_out.e'
   [../]
+  [./Ramey_Validation]
+    type = 'Exodiff'
+    input = 'Satman.i'
+    exodiff = 'Satman_out.e'
+  [../]
 []

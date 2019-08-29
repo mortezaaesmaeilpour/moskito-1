@@ -36,12 +36,12 @@ class MoskitoEOSIdealGas : public MoskitoEOS1P
 public:
   MoskitoEOSIdealGas(const InputParameters & parameters);
 
-  virtual Real rho_from_p_T(const Real & pressure, const Real & temperature) const override;
-  virtual void rho_from_p_T(const Real & pressure, const Real & temperature,
+  virtual Real rho_from_p_T(const Real & pressure, const Real & temperature, const Real & enthalpy) const override;
+  virtual void rho_from_p_T(const Real & pressure, const Real & temperature, const Real & enthalpy,
                         Real & rho, Real & drho_dp, Real & drho_dT) const override;
-  virtual Real T_to_h(const Real & temperature) const override;
-  virtual Real h_to_T(const Real & enthalpy) const override;
-  virtual Real cp(const Real & temperature) const override;
+  virtual Real T_to_h(const Real & temperature, const Real & pressure) const override;
+  virtual Real h_to_T(const Real & enthalpy, const Real & pressure) const override;
+  virtual Real cp(const Real & temperature, const Real & pressure) const override;
   virtual Real lambda(const Real & pressure, const Real & temperature) const override;
 
 protected:

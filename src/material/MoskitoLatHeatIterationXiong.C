@@ -34,8 +34,8 @@ validParams<MoskitoLatHeatIterationXiong>()
     params += validParams<NewtonIteration>();
     params.addClassDescription("Materials for the Lateral heat transfer between "
           "wellbore and formation");
-    params.addRequiredParam<Real>("radius_tubbing_inner",
-          "Inner radius of the tubing (m)");
+    params.addRequiredParam<Real>("radius_wellbore",
+          "Radius of the complete wellbore (m)");
     params.addRequiredParam<Real>("radius_tubbing_outer",
           "Outer radius of the tubing (m)");
     params.addParam<Real>("radius_insulation", 0.0,
@@ -63,7 +63,7 @@ validParams<MoskitoLatHeatIterationXiong>()
     params.addRequiredParam<Real>("conductivity_rock",
           "Thermal conductivity of the formation (W/(m*K))");
     params.addRequiredParam<Real>("Surface_temperature",
-          "Surface temperature (°C); compare with BC");
+          "Surface temperature (K); compare with BC");
     params.addRequiredParam<Real>("thermal_diffusivity_rock",
           "Thermal diffusivity of the formation (m²/s)");
     params.addParam<Real>("conductivity_cement",46.5,
@@ -92,6 +92,11 @@ validParams<MoskitoLatHeatIterationXiong>()
           "Tolerance to calculate derivatives based on numerical differentiation");
     params.addParam<RealVectorValue>("Ind_grav", RealVectorValue(9.8,0.0,0.0),
           "Independent gravity to calculate Grashof or Rayleigh number in case overall gravity is set to zero");
+    MooseEnum dt_model
+          ("Ramey_1962 Kutasov_2003_eq15 Kutasov_2003_eq16 Kutasov_2003_eq17 Kutasov_2003_eq18 Kutasov_1987_eq19 Kutun_2015_eq20");
+    params.addParam<MooseEnum>("DimTime_calculation_model", dt_model,
+                "Define calculation type of dimensionless time: "
+                "Ramey1962, Kutun2015");
     return params;
 }
 
@@ -99,9 +104,10 @@ MoskitoLatHeatIterationXiong::MoskitoLatHeatIterationXiong(const InputParameters
   : Material(parameters),
     NewtonIteration(parameters),
     _T(getMaterialProperty<Real>("temperature")),
-    _rti(getParam<Real>("radius_tubbing_inner")),
+    _rwb(getParam<Real>("radius_wellbore")),
     _RadTubout(declareProperty<Real>("radius_tubbing_outer")),
-    _TRankine(declareProperty<Real>("Temperature_Rankine")),
+    _may(declareProperty<Real>("heat_loss")),
+    _TRock(declareProperty<Real>("formation_temperature")),
     _rto(getParam<Real>("radius_tubbing_outer")),
     _rins(getParam<Real>("radius_insulation")),
     _rci(getParam<Real>("radius_casing_inner")),
@@ -129,30 +135,11 @@ MoskitoLatHeatIterationXiong::MoskitoLatHeatIterationXiong(const InputParameters
     _hc(getParam<MooseEnum>("hc_calucation_model")),
     _td(getParam<MooseEnum>("time_model")),
     _ut(getParam<Real>("user_defined_time")),
+    Dim_time(getParam<MooseEnum>("DimTime_calculation_model")),
     _tol(getParam<Real>("derivative_tolerance")),
     _independ_gravity(getParam<RealVectorValue>("Ind_grav")),
     _well_dir(getMaterialProperty<RealVectorValue>("well_direction_vector"))
 {
-  _Tsurf *= gradC_to_gradR;
-  _Tsurf += Rankine_absol;
-  Boltz = Boltz * Watt_to_Btu_per_h / (m2_to_ft2 * gradC_to_gradR * gradC_to_gradR * gradC_to_gradR * gradC_to_gradR);
-  _rti *= m_to_ft;
-  _rto *= m_to_ft;
-  _rins *= m_to_ft;
-  _rci *= m_to_ft;
-  _rcem *= m_to_ft;
-  _lambdaRock *= Watt_to_Btu_per_h / (m_to_ft * gradC_to_gradR);
-  _alphaRock *= m2_to_ft2;
-  _rhoAnnulus *= kg_to_lbm / m3_to_ft3;
-  _nuAnnulus *=  kg_to_lbm / m_to_ft * s_to_h;
-  _lambdaAnnulus *=  Watt_to_Btu_per_h / (m_to_ft * gradC_to_gradR);
-  _cpAnnulus *=  J_to_Btu / (kg_to_lbm * gradC_to_gradR);
-  _betaAnnulus /= gradC_to_gradR;
-  _alphaAnnulus *= m2_to_ft2 * s_to_h;
-  _lambdaCem *=  Watt_to_Btu_per_h / (m_to_ft * gradC_to_gradR);
-  _lambdaCas *=  Watt_to_Btu_per_h / (m_to_ft * gradC_to_gradR);
-  _lambdaIns *=  Watt_to_Btu_per_h / (m_to_ft * gradC_to_gradR);
-  _lambdaTub *=  Watt_to_Btu_per_h / (m_to_ft * gradC_to_gradR);
 }
 
 // Compute dimensionless time (ft)
@@ -165,6 +152,10 @@ MoskitoLatHeatIterationXiong::transienttimefunction(Real Uto)
   else
     Timing = _t;
 
+  switch(Dim_time)
+  {
+  case Dim_time_case::Ramey_1962:
+
   if (Timing < 604800)
   {
   Real column;
@@ -173,7 +164,7 @@ MoskitoLatHeatIterationXiong::transienttimefunction(Real Uto)
   else
     column = _rto * Uto / _lambdaRock;
 
-  Real row = _alphaRock * Timing / (_rti * _rti);
+  Real row = _alphaRock * Timing / (_rwb * _rwb);
 
   int col_number = 0;
   int row_number = 0;
@@ -262,11 +253,38 @@ MoskitoLatHeatIterationXiong::transienttimefunction(Real Uto)
      ft /= (std::log(row_vec[row_number+1]) - std::log(row_vec[row_number]));
      ft *= Hor2 - Hor1;
      ft += Hor1;
+
    }
   }
   else
     ft = std::log(2.0 * std::pow(_alphaRock * Timing,0.5) / _rwb) - 0.29;
-// std::cout<<"ft = "<<ft<<std::endl;
+  break;
+
+  case Dim_time_case::Kutasov_2003_eq15:
+    ft = std::log(1.0 + 1.4986 * std::pow(_alphaRock * Timing / (_rwb *_rwb),0.5));
+  break;
+
+  case Dim_time_case::Kutasov_2003_eq16:
+    ft = std::log(1.0 + (1.781 - 1.0 / (2.701 + std::pow(_alphaRock * Timing / (_rwb *_rwb),0.5)) * std::pow(_alphaRock * Timing / (_rwb *_rwb),0.5)));
+  break;
+
+  case Dim_time_case::Kutasov_2003_eq17:
+    ft = 2.0 * std::pow(_alphaRock * Timing / (_rwb *_rwb) / PI,0.5);
+  break;
+
+  case Dim_time_case::Kutasov_2003_eq18:
+    ft = std::log(1.0 + 1.128 * std::pow(_alphaRock * Timing / (_rwb *_rwb),0.5));
+  break;
+
+  case Dim_time_case::Kutasov_1987_eq19:
+    ft = std::log(1.0 + (1.571 - 1.0 / (4.959 + std::pow(_alphaRock * Timing / (_rwb *_rwb),0.5)) * std::pow(_alphaRock * Timing / (_rwb *_rwb),0.5)));
+  break;
+
+  case Dim_time_case::Kutun_2015_eq20:
+    ft = std::log(1.0 + 1.7 * std::pow(_alphaRock * Timing / (_rwb *_rwb),0.5));
+  break;
+
+  }
   return ft;
 
 }
@@ -274,85 +292,89 @@ MoskitoLatHeatIterationXiong::transienttimefunction(Real Uto)
 Real
 MoskitoLatHeatIterationXiong::TemperatureFormation(Real _Tsurf)
 {
-  Real Test;
-  Test = _Tsurf +  gradT.value(_t, _q_point[_qp]) * gradC_to_gradR;
-  return _Tsurf +  gradT.value(_t, _q_point[_qp]) * gradC_to_gradR;
+  Real Trock;
+  Trock = _Tsurf +  gradT.value(_t, _q_point[_qp]);
+  _TRock[_qp] = Trock;
+
+  return Trock;
 }
 
 Real
-MoskitoLatHeatIterationXiong::TemperatureWBinterface(Real Uto, Real TRankine)
+MoskitoLatHeatIterationXiong::TemperatureWBinterface(Real Uto, Real Temp)
 {
   Real Twb = 0.0;
-  Twb += _rto * Uto * transienttimefunction(Uto) * TRankine;
+  Twb += _rto * Uto * transienttimefunction(Uto) * Temp;
   Twb += _lambdaRock * TemperatureFormation(_Tsurf);
   Twb /= _rto * Uto * transienttimefunction(Uto) + _lambdaRock;
-  // std::cout<<"Twb = "<<Twb<<std::endl;
+
   return Twb;
 }
 
 Real
-MoskitoLatHeatIterationXiong::TemperatureCasingAnnulusInterface(Real Uto, Real TRankine)
+MoskitoLatHeatIterationXiong::TemperatureCasingAnnulusInterface(Real Uto, Real Temp)
 {
   Real Tci = 0.0;
   if (_rcem != 0.0)
   {
     Tci += std::log(_rwb / _rcem) / _lambdaCem;
     Tci += std::log(_rcem / _rci) / _lambdaCas;
-    Tci *= _rto * Uto * (TRankine - TemperatureWBinterface(Uto, TRankine));
+    Tci *= _rto * Uto * (Temp - TemperatureWBinterface(Uto, Temp));
   }
-  Tci += TemperatureWBinterface(Uto, TRankine);
-  // std::cout<<"Tci = "<<Tci<<std::endl;
+  Tci += TemperatureWBinterface(Uto, Temp);
+
   return Tci;
 }
 
 Real
-MoskitoLatHeatIterationXiong::TemperatureTubingOuter(Real Uto, Real TRankine)
+MoskitoLatHeatIterationXiong::TemperatureTubingOuter(Real Uto, Real Temp)
 {
   Real Tto;
   Tto = std::log(_rto / _rti) / _lambdaTub;
-  Tto *= - _rto * Uto * (TRankine - TemperatureWBinterface(Uto, TRankine));
-  Tto += TRankine;
-  // std::cout<<"Tto = "<<Tto<<std::endl;
+  Tto *= - _rto * Uto * (Temp - TemperatureWBinterface(Uto, Temp));
+  Tto += Temp;
+
   return Tto;
 }
 
 Real
-MoskitoLatHeatIterationXiong::RadialHeatTransferCoefficient(Real Uto, Real TRankine)
+MoskitoLatHeatIterationXiong::RadialHeatTransferCoefficient(Real Uto, Real Temp)
 {
   Real OverFtci = 0.0;
   OverFtci += 1.0 / _eao - 1.0;
-  OverFtci *= _rai / _rao;
+  OverFtci *= _rto / _rci;
   OverFtci += 1.0 / _eai;
 
   Real hr;
   hr = Boltz / OverFtci;
-  hr *= TemperatureTubingOuter(Uto, TRankine) + TemperatureCasingAnnulusInterface(Uto, TRankine);
-  hr *= TemperatureTubingOuter(Uto, TRankine) * TemperatureTubingOuter(Uto, TRankine) + TemperatureCasingAnnulusInterface(Uto, TRankine) * TemperatureCasingAnnulusInterface(Uto, TRankine);
+  hr *= TemperatureTubingOuter(Uto, Temp) + TemperatureCasingAnnulusInterface(Uto, Temp);
+  hr *= TemperatureTubingOuter(Uto, Temp) * TemperatureTubingOuter(Uto, Temp) + TemperatureCasingAnnulusInterface(Uto, Temp) * TemperatureCasingAnnulusInterface(Uto, Temp);
+
   return hr;
 }
 
 Real
-MoskitoLatHeatIterationXiong::ConvectiveHeatTransferCoefficient(Real Uto, Real TRankine, Real grav)
+MoskitoLatHeatIterationXiong::ConvectiveHeatTransferCoefficient(Real Uto, Real Temp, Real grav)
 {
   Real khc, hc;
   // Calculate Prandtl number
   Real Pr;
   Pr = _cpAnnulus * _nuAnnulus / _lambdaAnnulus;
-  // std::cout<<"Pr = "<<Pr<<std::endl;
+
   switch(_hc)
   {
   case HC_case::Dropkin_Sommerscales:
 
-  khc = 0.049 * std::pow(Grashof(Uto, TRankine, grav) * Pr, 0.333);
+  khc = 0.049 * std::pow(Grashof(Uto, Temp, grav) * Pr, 0.333);
   khc *= std::pow(Pr,0.074) * _lambdaAnnulus;
+
   hc = khc / (_rai * std::log(_rao / _rai));
+
   break;
 
   case HC_case::Raithby_Hollands:
-
   //  I am quite unclear about 0.384. In Xiong it is 0.386 but checking the original document it should be 0.48 * 0.8
   khc = 0.384 * std::pow(Pr / (0.861 + Pr),0.25);
-  khc *= std::pow(Rayleigh(grav, Uto, TRankine),0.25) * _lambdaAnnulus;
+  khc *= std::pow(Rayleigh(grav, Uto, Temp),0.25) * _lambdaAnnulus;
 
   hc = khc / (_rai * std::log(_rao / _rai));
   break;
@@ -362,42 +384,39 @@ MoskitoLatHeatIterationXiong::ConvectiveHeatTransferCoefficient(Real Uto, Real T
   Real fPR, Nu;
   fPR = std::pow(1 + std::pow(0.5 / Pr,9.0 / 16.0), - 16.0 / 9.0);
   // Calculate Nusselt number
-  Nu = 0.364 * std::pow(Rayleigh(grav, Uto, TRankine) * fPR, 0.25);
+  Nu = 0.364 * std::pow(Rayleigh(grav, Uto, Temp) * fPR, 0.25);
   Nu *= std::pow(_rao / _rai,0.5);
-
   hc = Nu * _lambdaAnnulus / (2.0 * _rao);
   break;
   }
+
   return hc;
 }
 
 Real
-MoskitoLatHeatIterationXiong::Grashof(Real Uto, Real TRankine, Real grav)
+MoskitoLatHeatIterationXiong::Grashof(Real Uto, Real Temp, Real grav)
 {
   Real Gr;
+
   Gr = (_rao - _rai) * (_rao - _rai) * (_rao - _rai);
-  // std::cout<<"Gr1 = "<<Gr<<std::endl;
   Gr *= _rhoAnnulus * _rhoAnnulus * _betaAnnulus;
-  // std::cout<<"Gr2 = "<<Gr<<std::endl;
-  Gr *= std::abs(TemperatureTubingOuter(Uto, TRankine) - TemperatureCasingAnnulusInterface(Uto, TRankine));
-  // std::cout<<"Gr3 = "<<Gr<<std::endl;
-  Gr *= grav * m_to_ft * s_to_h * s_to_h;
-  // std::cout<<"Gr5 = "<<Gr<<std::endl;
+  Gr *= std::abs(TemperatureTubingOuter(Uto, Temp) - TemperatureCasingAnnulusInterface(Uto, Temp));
+  Gr *= grav;
   Gr /= _nuAnnulus * _nuAnnulus;
-  // std::cout<<"Gr6 = "<<Gr<<std::endl;
+
   return Gr;
 }
 
 Real
-MoskitoLatHeatIterationXiong::Rayleigh(Real grav, Real Uto, Real TRankine)
+MoskitoLatHeatIterationXiong::Rayleigh(Real grav, Real Uto, Real Temp)
 {
   Real Lc, Ray;
   Lc = 2 * std::pow(std::log(_rao / _rai),4.0 / 3.0);
   Lc /= std::pow(std::pow(_rai,-3.0 / 5.0) + std::pow(_rao,-3.0 / 5.0), 5.0 / 3.0);
-
-  Ray = grav * m_to_ft * s_to_h * s_to_h;
-  Ray *= _betaAnnulus * std::abs((TemperatureTubingOuter(Uto, TRankine) - TemperatureCasingAnnulusInterface(Uto, TRankine))) * Lc * Lc * Lc;
+  Ray = grav * Lc * Lc * Lc;
+  Ray *= _betaAnnulus * std::abs(TemperatureTubingOuter(Uto, Temp) - TemperatureCasingAnnulusInterface(Uto, Temp));
   Ray /= _alphaAnnulus *  _nuAnnulus / _rhoAnnulus;
+
   return Ray;
 }
 
@@ -411,7 +430,7 @@ Real
 MoskitoLatHeatIterationXiong::computeResidual(const Real trail_value, const Real scalar)
 {
   Real hr;
-  hr =  RadialHeatTransferCoefficient(scalar, _TRankine[_qp]);
+  hr =  RadialHeatTransferCoefficient(scalar, _T[_qp]);
   Real hc, grav;
   grav = _gravity[_qp] * _well_dir[_qp];
 
@@ -420,10 +439,8 @@ MoskitoLatHeatIterationXiong::computeResidual(const Real trail_value, const Real
       grav = _independ_gravity * _well_dir[_qp];
     }
 
-  hc = ConvectiveHeatTransferCoefficient(scalar, _TRankine[_qp], grav);
-  // std::cout<<"scalar = "<<scalar<<std::endl;
-  // std::cout<<"hr = "<<hr<<std::endl;
-  // std::cout<<"hc = "<<hc<<std::endl;
+  hc = ConvectiveHeatTransferCoefficient(scalar, _T[_qp], grav);
+
   // Auxillary variable
   Real Aux, Uto;
   // Calculation of thermal wellbore resistivity
@@ -437,7 +454,7 @@ MoskitoLatHeatIterationXiong::computeResidual(const Real trail_value, const Real
     Aux += std::log(_rwb / _rcem) / _lambdaCem;
 
   Uto = 1.0 / (Aux * _rto);
-  // std::cout<<"Uto = "<<Uto<<std::endl;
+
   return Uto - scalar;
 }
 
@@ -464,8 +481,7 @@ MoskitoLatHeatIterationXiong::computeQpProperties()
 
   _RadTubout[_qp] = _rto;
   // Conversion Si to American units
-  _TRankine[_qp] = _T[_qp] * gradC_to_gradR;
-  _rwb = _diameter[_qp] * m_to_ft / 2.0;
+  _rti = _diameter[_qp] / 2.0;
 
   if (_rwb < _rti)
     mooseError("Wellbore radius smaller then tubing radius.\n");
@@ -485,7 +501,7 @@ else
 
   Real trial = 0.0;
   returnNewtonSolve(_Uto[_qp], _Uto[_qp], _console);
-  _Twb[_qp] = TemperatureWBinterface(_Uto[_qp],  _TRankine[_qp]);
+  _Twb[_qp] = TemperatureWBinterface(_Uto[_qp],  _T[_qp]);
 }
 
 Real
@@ -493,7 +509,7 @@ MoskitoLatHeatIterationXiong::initialGuess(const Real trial_value)
 {
   Real ini_guess;
   if (trial_value == 0.0)
-    ini_guess = 4.05;
+    ini_guess = 22.99696519;
   else
     ini_guess = trial_value;
   return ini_guess;

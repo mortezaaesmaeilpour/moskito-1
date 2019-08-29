@@ -21,39 +21,34 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>  */
 /**************************************************************************/
 
-#include "MoskitoHeat.h"
+#ifndef MOSKITOPUREWATER1P_H
+#define MOSKITOPUREWATER1P_H
 
-registerMooseObject("MoskitoApp", MoskitoHeat);
+#include "MoskitoEOS1P.h"
+#include "MoskitoWater97FluidProperties.h"
+
+class MoskitoPureWater1P;
 
 template <>
-InputParameters
-validParams<MoskitoHeat>()
+InputParameters validParams<MoskitoPureWater1P>();
+
+class MoskitoPureWater1P : public MoskitoEOS1P
 {
-  InputParameters params = validParams<Kernel>();
-  params.addClassDescription("Lateral heat exchange between wellbore "
-        "and formation including tubing (mandatory), insulation, liquid filled "
-        "annulus and cementation");
-  return params;
-}
+public:
+  MoskitoPureWater1P(const InputParameters & parameters);
 
-MoskitoHeat::MoskitoHeat(const InputParameters & parameters)
-  : Kernel(parameters),
-  _T(getMaterialProperty<Real>("temperature")),
-  _rto(getMaterialProperty<Real>("radius_tubbing_outer")),
-  _Uto(getMaterialProperty<Real>("thermal_resistivity_well")),
-  _Twb(getMaterialProperty<Real>("temperature_well_formation_interface")),
-  _diameter_liquid(getMaterialProperty<Real>("well_diameter"))
-  {
-  }
+  virtual Real rho_from_p_T(const Real & pressure, const Real & temperature, const Real & enthalpy) const override;
+  virtual void rho_from_p_T(const Real & pressure, const Real & temperature, const Real & enthalpy,
+                        Real & rho, Real & drho_dp, Real & drho_dT) const override;
+  virtual Real h_to_T(const Real & enthalpy, const Real & pressure) const override;
+  virtual Real T_to_h(const Real & temperature, const Real & pressure) const override;
+  virtual Real cp(const Real & temperature, const Real & pressure) const override;
+  virtual Real lambda(const Real & pressure, const Real & temperature) const override;
 
-Real
-MoskitoHeat::computeQpResidual()
-{
-  Real r = 0.0;
-  r =  2.0 * PI * _rto[_qp] * _Uto[_qp];
-  r *= ((_T[_qp]) - _Twb[_qp]);
-  r /=  PI * _diameter_liquid[_qp] * _diameter_liquid[_qp] / 4.0;
-  r *= _test[_i][_qp];
+protected:
+  MoskitoWater97FluidProperties * _eos_1P;
 
-  return  r;
-}
+  const Real _lambda;
+};
+
+#endif /* MOSKITOPUREWATER2P_H */

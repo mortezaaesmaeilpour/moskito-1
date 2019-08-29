@@ -42,6 +42,8 @@ protected:
 
   // temperature value
   const Real & _T;
+  // presure value
+  const VariableValue & _p;
 
   // Userobject to equation of state
   const MoskitoEOS1P & _eos_uo;
