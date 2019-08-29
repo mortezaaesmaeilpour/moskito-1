@@ -55,7 +55,7 @@
     drift_flux_uo = df
     roughness_type = smooth
     gravity = '9.8 0 0'
-    outputs = exodus
+    # outputs = exodus
   [../]
   [./Lateral]
     type = MoskitoLatHeatIterationXiongSI
@@ -104,6 +104,7 @@
   [./hbc]
     type = MoskitoTemperatureToEnthalpy1P
     variable = h
+    pressure = p
     boundary = left
     temperature = 588.70555
     eos_uo = eos
@@ -120,14 +121,10 @@
   [./pkernel1]
     type = NullKernel
     variable = p
-    flowrate = q
-    enthalpy = h
   [../]
   [./qkernel1]
     type = NullKernel
     variable = q
-    enthalpy = h
-    pressure = p
   [../]
   [./heat]
     type = MoskitoHeat

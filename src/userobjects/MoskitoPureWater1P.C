@@ -46,7 +46,7 @@ MoskitoPureWater1P::MoskitoPureWater1P(const InputParameters & parameters)
     InputParameters params = _app.getFactory().getValidParams(class_name);
     _fe_problem.addUserObject(class_name, eos_name, params);
   }
-  _eos_1P = &_fe_problem.getUserObject<MoskitoWater97FluidProperties>(eos_name);
+  _eos_1P = &_fe_problem.getUserObjectTempl<MoskitoWater97FluidProperties>(eos_name);
 }
 
 Real
