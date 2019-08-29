@@ -41,7 +41,8 @@ MoskitoHeat::MoskitoHeat(const InputParameters & parameters)
   _T(getMaterialProperty<Real>("temperature")),
   _rto(getMaterialProperty<Real>("radius_tubbing_outer")),
   _Uto(getMaterialProperty<Real>("thermal_resistivity_well")),
-  _Twb(getMaterialProperty<Real>("temperature_formation_well_boundary"))
+  _Twb(getMaterialProperty<Real>("temperature_well_formation_interface")),
+  _area(getMaterialProperty<Real>("well_area"))
   {
   }
 
@@ -51,13 +52,15 @@ MoskitoHeat::computeQpResidual()
   Real r = 0.0;
 
   r =  2.0 * PI * _rto[_qp] * _Uto[_qp];
-  r *= ((_T[_qp] * gradC_to_gradR + Rankine_absol) - _Twb[_qp]);
+  r *= ((_T[_qp] * gradC_to_gradR) - _Twb[_qp]);
   r /= Watt_to_Btu_per_h;
   r /= m_to_ft;
-  // std::cout<<"_rto = "<<_rto[_qp]<<std::endl;
+  r /= _area[_qp];
+  // std::cout<<"z coord ="<<_q_point[_qp] <<std::endl;
+  // std::cout<<"_r = "<<r<<std::endl;
   // std::cout<<"_Uto = "<<_Uto[_qp]<<std::endl;
   // std::cout<<"_T = "<<_T[_qp] * gradC_to_gradR + Rankine_absol<<std::endl;
   // std::cout<<"_Twb = "<<_Twb[_qp]<<std::endl;
   // std::cout<<"Qloss = "<<r<<std::endl;
-  return - r * _test[_i][_qp];
+  return  r * _test[_i][_qp];
 }

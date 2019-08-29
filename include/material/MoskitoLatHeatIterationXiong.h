@@ -21,32 +21,66 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>  */
 /**************************************************************************/
 
-#ifndef MOSKITOLATERALHEATXIONG_H
-#define MOSKITOLATERALHEATXIONG_H
+#ifndef MOSKITOLATHEATITERATIONXIONG_H
+#define MOSKITOLATHEATITERATIONXIONG_H
+
+#pragma once
 
 #include "Material.h"
 #include "Function.h"
+#include "NewtonIteration.h"
 
-class MoskitoLateralHeatXiong;
+class MoskitoLatHeatIterationXiong;
 
 template <>
-InputParameters validParams<MoskitoLateralHeatXiong>();
+InputParameters validParams<MoskitoLatHeatIterationXiong>();
 
-class MoskitoLateralHeatXiong : public Material
+class MoskitoLatHeatIterationXiong : public Material, public NewtonIteration
 {
 public:
-  MoskitoLateralHeatXiong(const InputParameters & parameters);
+  MoskitoLatHeatIterationXiong(const InputParameters & parameters);
   virtual void computeQpProperties() override;
-  Real Cal_ft(Real _alphaE, Real _rti, Real _lambdaE, Real _Uto, Real _rto);
-  Real Cal_Te(Real Tsurf);
+
+  virtual Real computeReferenceResidual(const Real trail_value, const Real scalar) override;
+  virtual Real computeResidual(const Real trail_value, const Real scalar) override;
+  virtual Real computeDerivative(const Real trailn_value, const Real scalar) override;
+  virtual Real initialGuess(const Real trail_value) override;
+  virtual Real minimumPermissibleValue(const Real trail_value) const override
+  {
+    return 0.000000001;
+  }
+  virtual Real maximumPermissibleValue(const Real trail_value) const override
+  {
+    return 100000.0;
+  }
 
 protected:
+  // Calculate transient time function according to Ramey
+  Real transienttimefunction(Real Uto);
+  // Calculate deoth dependent formation temperature
+  Real TemperatureFormation(Real _Tsurf);
+  // Calculate temperature at formation wellbore
+  Real TemperatureWBinterface(Real Uto, Real TRankine);
+  // Calculate temperature at annulus casing boundary
+  Real TemperatureCasingAnnulusInterface(Real Uto, Real TRankine);
+  // Calculate tubing external temperature
+  Real TemperatureTubingOuter(Real Uto, Real TRankine);
+  // Calculation of Annuls effect - radial heat transfer coefficient hr
+  Real RadialHeatTransferCoefficient(Real Uto, Real TRankine);
+  // Calculation of Annuls effect - convective heat transfer coefficient hc
+  Real ConvectiveHeatTransferCoefficient(Real Uto, Real TRankine, Real grav);
+  // Calculate Grashof Number needed for hc calculation
+  Real Grashof(Real Uto, Real TRankine, Real grav);
+  // Calculate Rayleigh Number needed for hc calculation
+  Real Rayleigh(Real grav,Real Uto, Real TRankine);
   // temperature
   const MaterialProperty<Real> & _T;
   // Radius tubing inner
   Real _rti;
   // Radius tubing outer
   MaterialProperty<Real> & _RadTubout;
+  // Temperature in °Rankine
+  MaterialProperty<Real> & _TRankine;
   // Local parameter Radius tubing outer
   Real _rto;
   // Radius insulation
@@ -60,29 +94,27 @@ protected:
   // Emissivity of outside tubin/insulation surface
   Real _eai;
   // Density annulus fluid
-  Real _rhoA;
+  Real _rhoAnnulus;
   // Dyn Viscosity annulus fluid
-  Real _nuA;
+  Real _nuAnnulus;
   // Thermal conductivity annulus fluid
-  Real _lambdaA;
+  Real _lambdaAnnulus;
   // Heat capacity annulus fluid
-  Real _cpA;
+  Real _cpAnnulus;
   //  Thermal volumetric expansion coefficient annulus fluid
-  Real _betaA;
+  Real _betaAnnulus;
   // Annulus fluid thermal diffusivity = Temperaturleitfähigkeit
-  Real _alphaA;
+  Real _alphaAnnulus;
   // Thermal conductivoty formation (earth)
-  Real _lambdaE;
-  // Temperature at formation - cement boundary
-  MaterialProperty<Real> & _Twb;
+  Real _lambdaRock;
   // Formation thermal diffusivity
-  Real _alphaE;
+  Real _alphaRock;
   // Thermal wellbore resistivity
   MaterialProperty<Real> & _Uto;
-  //  Reziprok thermische Borhlochwiderstand
-  MaterialProperty<Real> & _otU;
+  //  Temperature at wellbore formation interface
+  MaterialProperty<Real> & _Twb;
   // Surface temperature
-  Real Tsurf;
+  Real _Tsurf;
   // Diameter of the pipe
   const MaterialProperty<Real> & _diameter;
   // Radius wellbore
@@ -102,14 +134,21 @@ protected:
   // mixing approach
     MooseEnum _hc;
   enum HC_case {Dropkin_Sommerscales, Raithby_Hollands, Churchill};
-// Ramey function parameter
+  // Ramey function parameter
   Real ft;
-// Definition of user time for steady state simulation or transient simulation time
+  // Definition of user time for steady state simulation or transient simulation time
   MooseEnum _td;
   enum Zeit {user_time, simulation_time};
   Real Timing;
   Real _ut;
-
+  // Annulus outer and inner Rasius, is determined within this material
+  Real _rai, _rao;
+  // Tolerance of finite difference derivation
+  const Real _tol;
+  // Independent gravity for calculation of Raleigh and Grashof numers in case gravity is set to "0"
+  RealVectorValue _independ_gravity;
+  // Well direction for correction of gravity vector in terms of deviated well
+  const  MaterialProperty<RealVectorValue> & _well_dir;
   // Convert from Si units to American system
   const Real m_to_ft    = 3.280839895;
   const Real m2_to_ft2  = 10.7639079;

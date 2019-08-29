@@ -14,4 +14,9 @@
     input = 'example_2_3.i'
     exodiff = 'example_2_3_out.e'
   [../]
+  [./Lateral_Heat_Calculation_Uto]
+    type = 'Exodiff'
+    input = 'Willhite.i'
+    exodiff = 'Willhite_out.e'
+  [../]
 []
