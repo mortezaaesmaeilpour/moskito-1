@@ -79,8 +79,6 @@ protected:
   Real _rwb;
   // Radius tubing outer
   MaterialProperty<Real> & _RadTubout;
-  // Variable to output heat loss
-  MaterialProperty<Real> & _may;
   // Variable to output formation temperature
   MaterialProperty<Real> & _TRock;
   // Local parameter Radius tubing outer

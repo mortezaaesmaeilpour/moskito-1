@@ -106,7 +106,6 @@ MoskitoLatHeatIterationXiong::MoskitoLatHeatIterationXiong(const InputParameters
     _T(getMaterialProperty<Real>("temperature")),
     _rwb(getParam<Real>("radius_wellbore")),
     _RadTubout(declareProperty<Real>("radius_tubbing_outer")),
-    _may(declareProperty<Real>("heat_loss")),
     _TRock(declareProperty<Real>("formation_temperature")),
     _rto(getParam<Real>("radius_tubbing_outer")),
     _rins(getParam<Real>("radius_insulation")),

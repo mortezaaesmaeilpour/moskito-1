@@ -13,24 +13,10 @@
 
 [UserObjects]
   [./eos]
-    type = MoskitoPureWater2P
-  [../]
-  [./viscosity_gas]
-    type = MoskitoViscosityConst
-    viscosity = 0.00001
-  [../]
-  [./viscosity_liquid]
-    type = MoskitoViscosityConst
-    viscosity = 0.001
+    type = MoskitoPureWater1P
   [../]
   [./viscosity]
-    type = MoskitoViscosity2P
-     ve_uo_gas = viscosity_gas
-     ve_uo_liquid = viscosity_liquid
-  [../]
-  [./df]
-    type = MoskitoDFHK
-    surface_tension = 1
+    type = MoskitoViscositySmith
   [../]
 []
 
@@ -44,7 +30,7 @@
 
 [Materials]
   [./area0]
-    type = MoskitoFluidWell2P
+    type = MoskitoFluidWell1P
     pressure = p
     enthalpy = h
     flowrate = q
@@ -52,13 +38,12 @@
     well_diameter = 0.0890016
     eos_uo = eos
     viscosity_uo = viscosity
-    drift_flux_uo = df
     roughness_type = smooth
     gravity = '9.8 0 0'
     # outputs = exodus
   [../]
   [./Lateral]
-    type = MoskitoLatHeatIterationXiongSI
+    type = MoskitoLatHeatIterationXiong
      # Geometry of the well. As the example did not contain any tubing radius, which is required for teh material it was artificially set to a small radius
      radius_tubbing_outer = 0.044500801
      radius_casing_inner = 0.108204
@@ -82,9 +67,12 @@
      # Configuration of material
      geothermal_gradient = grad_func
      hc_calucation_model = Dropkin_Sommerscales
+     DimTime_calculation_model = Ramey_1962
      user_defined_time = 1814400
      time_model = user_time
      internal_solve_full_iteration_history = true
+     outputs = exodus
+     output_properties = 'thermal_resistivity_well'
    [../]
 []
 
