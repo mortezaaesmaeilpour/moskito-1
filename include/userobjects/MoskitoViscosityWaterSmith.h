@@ -21,24 +21,21 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>  */
 /**************************************************************************/
 
-#ifndef MOSKITOVISCOSITYSMITH_H
-#define MOSKITOVISCOSITYSMITH_H
+#pragma once
 
 #include "MoskitoViscosity1P.h"
 
-class MoskitoViscositySmith;
+class MoskitoViscosityWaterSmith;
 
 template <>
-InputParameters validParams<MoskitoViscositySmith>();
+InputParameters validParams<MoskitoViscosityWaterSmith>();
 
-class MoskitoViscositySmith : public MoskitoViscosity1P
+class MoskitoViscosityWaterSmith : public MoskitoViscosity1P
 {
 public:
-  MoskitoViscositySmith(const InputParameters & parameters);
+  MoskitoViscosityWaterSmith(const InputParameters & parameters);
 
   virtual Real mu(Real pressure, Real temperature) const override;
   virtual void dmu_dpT(
       Real pressure, Real temperature, Real & rho, Real & drho_dp, Real & drho_dT) const override;
 };
-
-#endif /* MOSKITOVISCOSITYSMITH_H */

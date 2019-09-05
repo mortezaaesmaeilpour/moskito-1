@@ -9,7 +9,7 @@
 
 [UserObjects]
   [./viscosity]
-    type = MoskitoViscositySmith
+    type = MoskitoViscosityWaterSmith
   [../]
   [./eos]
     type = MoskitoEOSIdealFluid

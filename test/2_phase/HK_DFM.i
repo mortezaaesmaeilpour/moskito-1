@@ -2,26 +2,18 @@
   type = GeneratedMesh
   dim = 1
   xmin = 0
-  xmax = 900
-  nx = 300
-[]
-
-[MeshModifiers]
-  [./rotate]
-    type = Transform
-    transform = ROTATE
-    vector_value = '2.87 0 0'
-  [../]
+  xmax = 200
+  nx = 200
 []
 
 [UserObjects]
   [./viscosity_gas]
     type = MoskitoViscosityConst
-    viscosity = 1.3e-5
+    viscosity = 1e-3
   [../]
   [./viscosity_liqid]
     type = MoskitoViscosityConst
-    viscosity = 1.44e-4
+    viscosity = 1e-3
   [../]
   [./viscosity_2p]
     type = MoskitoViscosity2P
@@ -47,50 +39,31 @@
     eos_uo = eos
     viscosity_uo = viscosity_2p
     drift_flux_uo = df
-    well_diameter = 0.224
-    roughness_type = smooth
+    well_diameter = 0.1
     gravity = '9.8 0 0'
     outputs = exodus
-    output_properties = 'profile_mixture_density gas_velocity liquid_velocity void_fraction flow_pattern current_phase gas_density liquid_density mass_fraction density specific_heat temperature'
-  [../]
-[]
-
-[BCs]
-  # [./pbc]
-  #   type = DirichletBC
-  #   variable = p
-  #   boundary = right
-  #   value = 3291557.1
-  # [../]
-  [./pbc]
-    type = DirichletBC
-    variable = p
-    boundary = left
-    value = 0.1e5
-  [../]
-  [./qbc]
-    type = DirichletBC
-    variable = q
-    boundary = right
-    value = -0.025
+    output_properties = 'well_velocity gas_velocity liquid_velocity void_fraction flow_pattern current_phase mass_fraction'
   [../]
 []
 
 [Variables]
   [./h]
-    # initial_condition = 995063
     [./InitialCondition]
       type = FunctionIC
       variable = h
-      function = 995063-830*x
+      function = 'if(x<100,4.15e5+150*x,4.3e5+23500*(x-100))'
     [../]
+    # initial_condition = 418800
   [../]
   [./p]
-    initial_condition = 0.1e5
+    initial_condition = 1e5
   [../]
   [./q]
-    scaling = 1e-2
-    initial_condition = -0.025
+    [./InitialCondition]
+      type = FunctionIC
+      variable = h
+      function = 'if(x<100,1e-2*x,(x-99)*2)*3.85e-3'
+    [../]
   [../]
 []
 
@@ -100,16 +73,12 @@
     variable = h
   [../]
   [./pkernel]
-    type = MoskitoMass
+    type = NullKernel
     variable = p
-    flowrate = q
-    enthalpy = h
   [../]
   [./qkernel]
-    type = MoskitoMomentum
+    type = NullKernel
     variable = q
-    pressure = p
-    enthalpy = h
   [../]
 []
 

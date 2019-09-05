@@ -21,13 +21,13 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>  */
 /**************************************************************************/
 
-#include "MoskitoViscositySmith.h"
+#include "MoskitoViscosityWaterSmith.h"
 
-registerMooseObject("MoskitoApp", MoskitoViscositySmith);
+registerMooseObject("MoskitoApp", MoskitoViscosityWaterSmith);
 
 template <>
 InputParameters
-validParams<MoskitoViscositySmith>()
+validParams<MoskitoViscosityWaterSmith>()
 {
   InputParameters params = validParams<MoskitoViscosity1P>();
 
@@ -36,19 +36,19 @@ validParams<MoskitoViscositySmith>()
   return params;
 }
 
-MoskitoViscositySmith::MoskitoViscositySmith(const InputParameters & parameters)
+MoskitoViscosityWaterSmith::MoskitoViscosityWaterSmith(const InputParameters & parameters)
   : MoskitoViscosity1P(parameters)
 {
 }
 
 Real
-MoskitoViscositySmith::mu(Real /* pressure */, Real temperature) const
+MoskitoViscosityWaterSmith::mu(Real /* pressure */, Real temperature) const
 {
   return 2.4e-5 * std::pow(10.0, 248.37 / (temperature - 140));
 }
 
 void
-MoskitoViscositySmith::dmu_dpT(
+MoskitoViscosityWaterSmith::dmu_dpT(
     Real pressure, Real temperature, Real & mu, Real & dmu_dp, Real & dmu_dT) const
 {
   mu = this->mu(pressure, temperature);

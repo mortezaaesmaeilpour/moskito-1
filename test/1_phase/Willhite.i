@@ -16,7 +16,7 @@
     type = MoskitoPureWater1P
   [../]
   [./viscosity]
-    type = MoskitoViscositySmith
+    type = MoskitoViscosityWaterSmith
   [../]
 []
 

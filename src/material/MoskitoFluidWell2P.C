@@ -109,11 +109,26 @@ MoskitoFluidWell2P::computeQpProperties()
 
   // based on mass weighted flow rate
   // momentum eq is valid only by mass mixing flow rate
-  _u_g[_qp]  = _c0[_qp] * _rho_m[_qp] * _u[_qp] + _rho_l[_qp] * _u_d[_qp];
-  _u_g[_qp] /= _rho_pam[_qp];
-  _u_l[_qp]  = (1.0 - _vfrac[_qp] * _c0[_qp]) * _rho_m[_qp]  * _u[_qp] - _rho_g[_qp] * _vfrac[_qp] * _u_d[_qp];
-  _u_l[_qp] /= (1.0 - _vfrac[_qp]) * _rho_pam[_qp];
-
+  if (_phase[_qp] == 2.0)
+  {
+    _u_g[_qp]  = _c0[_qp] * _rho_m[_qp] * _u[_qp] + _rho_l[_qp] * _u_d[_qp];
+    _u_g[_qp] /= _rho_pam[_qp];
+    _u_l[_qp]  = (1.0 - _vfrac[_qp] * _c0[_qp]) * _rho_m[_qp]  * _u[_qp] - _rho_g[_qp] * _vfrac[_qp] * _u_d[_qp];
+    _u_l[_qp] /= (1.0 - _vfrac[_qp]) * _rho_pam[_qp];
+  }
+  else
+  {
+    if (_vmfrac[_qp] == 0.0)
+    {
+      _u_g[_qp] = 0.0;
+      _u_l[_qp] = _u[_qp];
+    }
+    else
+    {
+      _u_l[_qp] = 0.0;
+      _u_g[_qp] = _u[_qp];
+    }
+  }
 
   if (_phase[_qp] == 2.0)
     DriftFluxMomentumEq();
