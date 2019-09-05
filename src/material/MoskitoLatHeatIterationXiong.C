@@ -106,7 +106,6 @@ MoskitoLatHeatIterationXiong::MoskitoLatHeatIterationXiong(const InputParameters
     _T(getMaterialProperty<Real>("temperature")),
     _rwb(getParam<Real>("radius_wellbore")),
     _RadTubout(declareProperty<Real>("radius_tubbing_outer")),
-    _may(declareProperty<Real>("heat_loss")),
     _TRock(declareProperty<Real>("formation_temperature")),
     _rto(getParam<Real>("radius_tubbing_outer")),
     _rins(getParam<Real>("radius_insulation")),
@@ -131,11 +130,11 @@ MoskitoLatHeatIterationXiong::MoskitoLatHeatIterationXiong(const InputParameters
     _lambdaIns(getParam<Real>("conductivity_insulation")),
     _lambdaTub(getParam<Real>("conductivity_tubing")),
     _gravity(getMaterialProperty<RealVectorValue>("gravity")),
-    gradT(getFunction("geothermal_gradient")),
+    _gradT(getFunction("geothermal_gradient")),
     _hc(getParam<MooseEnum>("hc_calucation_model")),
     _td(getParam<MooseEnum>("time_model")),
     _ut(getParam<Real>("user_defined_time")),
-    Dim_time(getParam<MooseEnum>("DimTime_calculation_model")),
+    _Dim_time(getParam<MooseEnum>("DimTime_calculation_model")),
     _tol(getParam<Real>("derivative_tolerance")),
     _independ_gravity(getParam<RealVectorValue>("Ind_grav")),
     _well_dir(getMaterialProperty<RealVectorValue>("well_direction_vector"))
@@ -146,116 +145,89 @@ MoskitoLatHeatIterationXiong::MoskitoLatHeatIterationXiong(const InputParameters
 Real
 MoskitoLatHeatIterationXiong::transienttimefunction(Real Uto)
 {
-  Real Timing;
-  if (_td == user_time)
-    Timing = _ut;
-  else
-    Timing = _t;
+  Real Timing = (_td == user_time) ? _ut : _t;
 
-  switch(Dim_time)
+  switch(_Dim_time)
   {
   case Dim_time_case::Ramey_1962:
 
   if (Timing < 604800)
   {
-  Real column;
-  if(Uto == 0.0) // Case can only occur in the initial step
-    column = _rto / _lambdaRock;
-  else
-    column = _rto * Uto / _lambdaRock;
+    Real column = (Uto == 0.0) ? _rto / _lambdaRock : _rto * Uto / _lambdaRock;
 
-  Real row = _alphaRock * Timing / (_rwb * _rwb);
+    Real row = _alphaRock * Timing / (_rwb * _rwb);
 
-  int col_number = 0;
-  int row_number = 0;
+    int col_number = 0, row_number = 0;
 
-  const std::array<Real, 14> column_vec{
-    {0.01, 0.02, 0.05,
-     0.1,  0.2,  0.5,
-     1.0,  2.0,  5.0,
-     10.0, 20.0, 50.0,
-     100.0, 1000.0}};
-
-  const std::array<Real, 10> row_vec{
-    {0.1,  0.2,  0.5,
-     1.0,  2.0,  5.0,
-     10.0, 20.0, 50.0,
-     100.0}};
-
-  const std::array<std::array<Real, 14>, 10> Ramey{
-   {{{0.313, 0.313, 0.314, 0.316, 0.318, 0.323, 0.330, 0.345, 0.373, 0.396, 0.417, 0.433, 0.438, 0.445}},
-    {{0.423, 0.423, 0.424, 0.427, 0.430, 0.439, 0.452, 0.473, 0.511, 0.538, 0.568, 0.572, 0.578, 0.588}},
-    {{0.616, 0.617, 0.619, 0.623, 0.629, 0.644, 0.666, 0.698, 0.745, 0.772, 0.790, 0.802, 0.806, 0.811}},
-    {{0.802, 0.803, 0.806, 0.811, 0.820, 0.842, 0.872, 0.910, 0.958, 0.984,  1.00,  1.01,  1.01,  1.02}},
-    {{ 1.02,  1.02,  1.03,  1.04,  1.05,  1.08,  1.11,  1.15,  1.20,  1.22,  1.24,  1.24,  1.25,  1.25}},
-    {{ 1.36,  1.37,  1.37,  1.38,  1.40,  1.44,  1.48,  1.52,  1.56,  1.57,  1.58,  1.59,  1.59,  1.59}},
-    {{ 1.65,  1.66,  1.66,  1.67,  1.69,  1.73,  1.77,  1.81,  1.84,  1.86,  1.86,  1.87,  1.87,  1.88}},
-    {{ 1.96,  1.97,  1.97,  1.99,  2.00,  2.05,  2.09,  2.12,  2.15,  2.16,  2.16,  2.17,  2.17,  2.17}},
-    {{ 2.39,  2.39,  2.40,  2.42,  2.44,  2.48,  2.51,  2.54,  2.56,  2.57,  2.57,  2.57,  2.58,  2.58}},
-    {{ 2.73,  2.73,  2.74,  2.75,  2.77,  2.81,  2.84,  2.86,  2.88,  2.89,  2.89,  2.89,  2.89,  2.90}}}};
-
-  for(int i = 0; i <= 12; ++i){
-    if (column > column_vec[13]){
-      col_number = 13;
+    for(int i = 0; i <= 12; ++i)
+    {
+      if (column > column_vec[13])
+      {
+        col_number = 13;
+      break;
+      }
+      else if (column > column_vec[i])
+        col_number = i;
+      else
       break;
     }
-    else if (column > column_vec[i])
-      col_number = i;
+
+    for(int j = 0; j <= 8; ++j)
+    {
+      if (row > row_vec[9])
+      {
+        row_number = 9;
+      break;
+      }
+      else if (row > row_vec[j])
+        row_number = j;
+      else
+      break;
+    }
+
+    // Horizontal interpolation 1
+    Real Hor1;
+    if (col_number == 13)
+      Hor1 = Ramey[row_number][col_number];
     else
-      break;
+    {
+      Hor1 = (std::log(column) -  std::log(column_vec[col_number]));
+      Hor1 /= (std::log(column_vec[col_number+1]) - std::log(column_vec[col_number]));
+      Hor1 *= (Ramey[row_number][col_number+1] - Ramey[row_number][col_number]);
+      Hor1 += Ramey[row_number][col_number];
     }
 
-  for(int j = 0; j <= 8; ++j){
-    if (row > row_vec[9]){
-      row_number = 9;
-      break;
-    }
-    else if (row > row_vec[j])
-      row_number = j;
+    // Horizontal interpolation 2
+    Real Hor2;
+    if (col_number == 13)
+      Hor2 = Ramey[row_number+1][col_number];
     else
-      break;
+    {
+      Hor2 = (std::log(column) -  std::log(column_vec[col_number]));
+      Hor2 /= (std::log(column_vec[col_number+1]) - std::log(column_vec[col_number]));
+      Hor2 *= (Ramey[row_number+1][col_number+1] - Ramey[row_number+1][col_number]);
+      Hor2 += Ramey[row_number+1][col_number];
     }
 
-   // Horizontal interpolation 1
-   Real Hor1;
-   if (col_number == 13)
-     Hor1 = Ramey[row_number][col_number];
-   else {
-     Hor1 = (std::log(column) -  std::log(column_vec[col_number]));
-     Hor1 /= (std::log(column_vec[col_number+1]) - std::log(column_vec[col_number]));
-     Hor1 *= (Ramey[row_number][col_number+1] - Ramey[row_number][col_number]);
-     Hor1 += Ramey[row_number][col_number];
-   }
+    if (column < column_vec[0]){
+      Hor1 = Ramey[row_number][col_number];
+      Hor2 = Ramey[row_number+1][col_number];
+    }
 
-   // Horizontal interpolation 2
-   Real Hor2;
-   if (col_number == 13)
-     Hor2 = Ramey[row_number+1][col_number];
-   else {
-     Hor2 = (std::log(column) -  std::log(column_vec[col_number]));
-     Hor2 /= (std::log(column_vec[col_number+1]) - std::log(column_vec[col_number]));
-     Hor2 *= (Ramey[row_number+1][col_number+1] - Ramey[row_number+1][col_number]);
-     Hor2 += Ramey[row_number+1][col_number];
-   }
+    if (row < row_vec[0])
+      Hor2 = Hor1;
 
-   if (column < column_vec[0]){
-    Hor1 = Ramey[row_number][col_number];
-    Hor2 = Ramey[row_number+1][col_number];
-   }
-
-   if (row < row_vec[0])
-     Hor2 = Hor1;
-
-   if (row_number == 9)
-     ft = Hor1;
-   else {
-     ft = (std::log(row) -  std::log(row_vec[row_number]));
-     ft /= (std::log(row_vec[row_number+1]) - std::log(row_vec[row_number]));
-     ft *= Hor2 - Hor1;
-     ft += Hor1;
-
-   }
+    if (row_number == 9)
+      ft = Hor1;
+    else
+    {
+      ft = (std::log(row) -  std::log(row_vec[row_number]));
+      ft /= (std::log(row_vec[row_number+1]) - std::log(row_vec[row_number]));
+      ft *= Hor2 - Hor1;
+      ft += Hor1;
+    }
   }
+
   else
     ft = std::log(2.0 * std::pow(_alphaRock * Timing,0.5) / _rwb) - 0.29;
   break;
@@ -285,15 +257,14 @@ MoskitoLatHeatIterationXiong::transienttimefunction(Real Uto)
   break;
 
   }
-  return ft;
 
+  return ft;
 }
 
 Real
 MoskitoLatHeatIterationXiong::TemperatureFormation(Real _Tsurf)
 {
-  Real Trock;
-  Trock = _Tsurf +  gradT.value(_t, _q_point[_qp]);
+  Real Trock = _Tsurf +  _gradT.value(_t, _q_point[_qp]);
   _TRock[_qp] = Trock;
 
   return Trock;
@@ -368,7 +339,6 @@ MoskitoLatHeatIterationXiong::ConvectiveHeatTransferCoefficient(Real Uto, Real T
   khc *= std::pow(Pr,0.074) * _lambdaAnnulus;
 
   hc = khc / (_rai * std::log(_rao / _rai));
-
   break;
 
   case HC_case::Raithby_Hollands:
@@ -381,11 +351,13 @@ MoskitoLatHeatIterationXiong::ConvectiveHeatTransferCoefficient(Real Uto, Real T
 
   // Document not available
   case HC_case::Churchill:
+
   Real fPR, Nu;
   fPR = std::pow(1 + std::pow(0.5 / Pr,9.0 / 16.0), - 16.0 / 9.0);
   // Calculate Nusselt number
   Nu = 0.364 * std::pow(Rayleigh(grav, Uto, Temp) * fPR, 0.25);
   Nu *= std::pow(_rao / _rai,0.5);
+
   hc = Nu * _lambdaAnnulus / (2.0 * _rao);
   break;
   }
@@ -435,9 +407,7 @@ MoskitoLatHeatIterationXiong::computeResidual(const Real trail_value, const Real
   grav = _gravity[_qp] * _well_dir[_qp];
 
   if (grav == 0.0)
-    {
-      grav = _independ_gravity * _well_dir[_qp];
-    }
+    grav = _independ_gravity * _well_dir[_qp];
 
   hc = ConvectiveHeatTransferCoefficient(scalar, _T[_qp], grav);
 
@@ -480,17 +450,13 @@ MoskitoLatHeatIterationXiong::computeQpProperties()
     mooseError("Cannot assign Radius cement without Radius casing.\n");
 
   _RadTubout[_qp] = _rto;
-  // Conversion Si to American units
   _rti = _diameter[_qp] / 2.0;
 
   if (_rwb < _rti)
     mooseError("Wellbore radius smaller then tubing radius.\n");
 
 // Check annulus radii _rao = annulus outer, _rai = annulus inner
-if (_rins != 0.0)
-  _rai = _rins;
-else
-  _rai = _rto;
+_rai = (_rins != 0.0) ? _rins : _rto;
 
 if (_rci != 0.0)
   _rao = _rci;

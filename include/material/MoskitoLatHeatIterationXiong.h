@@ -79,8 +79,6 @@ protected:
   Real _rwb;
   // Radius tubing outer
   MaterialProperty<Real> & _RadTubout;
-  // Variable to output heat loss
-  MaterialProperty<Real> & _may;
   // Variable to output formation temperature
   MaterialProperty<Real> & _TRock;
   // Local parameter Radius tubing outer
@@ -132,7 +130,7 @@ protected:
   // The gravity acceleration as a vector
   const MaterialProperty<RealVectorValue> & _gravity;
   // Function for geothermal gradient, has to be defined in the Input
-  const Function & gradT;
+  const Function & _gradT;
   // mixing approach
     MooseEnum _hc;
   enum HC_case {Dropkin_Sommerscales, Raithby_Hollands, Churchill};
@@ -144,7 +142,7 @@ protected:
   Real Timing;
   Real _ut;
   // Definition of calculation scheme for dimensionless time
-  MooseEnum Dim_time;
+  MooseEnum _Dim_time;
   enum Dim_time_case {Ramey_1962, Kutasov_2003_eq15, Kutasov_2003_eq16, Kutasov_2003_eq17, Kutasov_2003_eq18, Kutasov_1987_eq19, Kutun_2015_eq20 };
     // Annulus outer and inner Rasius, is determined within this material
   Real _rai, _rao;
@@ -158,6 +156,30 @@ protected:
   Real Boltz = 0.00000005670367;
   Real PI = 3.141592653589793238462643383279502884197169399375105820974944592308;
 
+  const std::array<Real, 14> column_vec{
+    {0.01, 0.02, 0.05,
+     0.1,  0.2,  0.5,
+     1.0,  2.0,  5.0,
+     10.0, 20.0, 50.0,
+     100.0, 1000.0}};
+
+  const std::array<Real, 10> row_vec{
+    {0.1,  0.2,  0.5,
+     1.0,  2.0,  5.0,
+     10.0, 20.0, 50.0,
+     100.0}};
+
+  const std::array<std::array<Real, 14>, 10> Ramey{
+   {{{0.313, 0.313, 0.314, 0.316, 0.318, 0.323, 0.330, 0.345, 0.373, 0.396, 0.417, 0.433, 0.438, 0.445}},
+    {{0.423, 0.423, 0.424, 0.427, 0.430, 0.439, 0.452, 0.473, 0.511, 0.538, 0.568, 0.572, 0.578, 0.588}},
+    {{0.616, 0.617, 0.619, 0.623, 0.629, 0.644, 0.666, 0.698, 0.745, 0.772, 0.790, 0.802, 0.806, 0.811}},
+    {{0.802, 0.803, 0.806, 0.811, 0.820, 0.842, 0.872, 0.910, 0.958, 0.984,  1.00,  1.01,  1.01,  1.02}},
+    {{ 1.02,  1.02,  1.03,  1.04,  1.05,  1.08,  1.11,  1.15,  1.20,  1.22,  1.24,  1.24,  1.25,  1.25}},
+    {{ 1.36,  1.37,  1.37,  1.38,  1.40,  1.44,  1.48,  1.52,  1.56,  1.57,  1.58,  1.59,  1.59,  1.59}},
+    {{ 1.65,  1.66,  1.66,  1.67,  1.69,  1.73,  1.77,  1.81,  1.84,  1.86,  1.86,  1.87,  1.87,  1.88}},
+    {{ 1.96,  1.97,  1.97,  1.99,  2.00,  2.05,  2.09,  2.12,  2.15,  2.16,  2.16,  2.17,  2.17,  2.17}},
+    {{ 2.39,  2.39,  2.40,  2.42,  2.44,  2.48,  2.51,  2.54,  2.56,  2.57,  2.57,  2.57,  2.58,  2.58}},
+    {{ 2.73,  2.73,  2.74,  2.75,  2.77,  2.81,  2.84,  2.86,  2.88,  2.89,  2.89,  2.89,  2.89,  2.90}}}};
 };
 
 #endif
