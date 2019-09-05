@@ -35,7 +35,7 @@ validParams<MoskitoEOS2P>()
 }
 
 MoskitoEOS2P::MoskitoEOS2P(const InputParameters & parameters)
-  : FluidProperties(parameters),
+  : GeneralUserObject(parameters),
   _tol(getParam<Real>("derivative_tolerance"))
 {
 }

@@ -21,44 +21,39 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>  */
 /**************************************************************************/
 
-#ifndef MOSKITOEOS1P_H
-#define MOSKITOEOS1P_H
+#include "MoskitoHeat.h"
 
-#include "GeneralUserObject.h"
-
-class MoskitoEOS1P;
+registerMooseObject("MoskitoApp", MoskitoHeat);
 
 template <>
-InputParameters validParams<MoskitoEOS1P>();
-
-class MoskitoEOS1P : public GeneralUserObject
+InputParameters
+validParams<MoskitoHeat>()
 {
-public:
-  MoskitoEOS1P(const InputParameters & parameters);
-  virtual ~MoskitoEOS1P();
+  InputParameters params = validParams<Kernel>();
+  params.addClassDescription("Lateral heat exchange between wellbore "
+        "and formation including tubing (mandatory), insulation, liquid filled "
+        "annulus and cementation");
+  return params;
+}
 
-  virtual void execute() final {}
-  virtual void initialize() final {}
-  virtual void finalize() final {}
+MoskitoHeat::MoskitoHeat(const InputParameters & parameters)
+  : Kernel(parameters),
+  _T(getMaterialProperty<Real>("temperature")),
+  _rto(getMaterialProperty<Real>("radius_tubbing_outer")),
+  _Uto(getMaterialProperty<Real>("thermal_resistivity_well")),
+  _Twb(getMaterialProperty<Real>("temperature_well_formation_interface")),
+  _diameter_liquid(getMaterialProperty<Real>("well_diameter"))
+  {
+  }
 
-  // Density from pressure and temperature (kg/m^3)
-  virtual Real rho_from_p_T(const Real & pressure, const Real & temperature, const Real & enthalpy) const = 0;
+Real
+MoskitoHeat::computeQpResidual()
+{
+  Real r = 0.0;
+  r =  2.0 * PI * _rto[_qp] * _Uto[_qp];
+  r *= ((_T[_qp]) - _Twb[_qp]);
+  r /=  PI * _diameter_liquid[_qp] * _diameter_liquid[_qp] / 4.0;
+  r *= _test[_i][_qp];
 
-  // Density from pressure and temperature and its derivatives wrt pressure and temperature
-  virtual void rho_from_p_T(const Real & pressure, const Real & temperature, const Real & enthalpy,
-                        Real & rho, Real & drho_dp, Real & drho_dT) const = 0;
-
-  // The conversion function from temperature to specific enthalpy
-  virtual Real T_to_h(const Real & temperature, const Real & pressure) const = 0;
-
-  // The conversion function from specific enthalpy to temperature
-  virtual Real h_to_T(const Real & enthalpy, const Real & pressure) const = 0;
-
-  // specific heat at constant pressure from temperature
-  virtual Real cp(const Real & temperature, const Real & pressure) const = 0;
-
-  // thermal conductivity from pressure and temperature
-  virtual Real lambda(const Real & pressure, const Real & temperature) const = 0;
-};
-
-#endif /* MOSKITOEOS1P_H */
+  return  r;
+}

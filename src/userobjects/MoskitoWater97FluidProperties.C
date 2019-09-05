@@ -18,14 +18,14 @@ template <>
 InputParameters
 validParams<MoskitoWater97FluidProperties>()
 {
-  InputParameters params = validParams<SinglePhaseFluidProperties>();
+  InputParameters params = validParams<GeneralUserObject>();
   params.addClassDescription("Fluid properties for water and steam (H2O) using IAPWS-IF97."
         " It is a local copy from fluid properties module for using of unprotected functions");
   return params;
 }
 
 MoskitoWater97FluidProperties::MoskitoWater97FluidProperties(const InputParameters & parameters)
-  : SinglePhaseFluidProperties(parameters),
+  : GeneralUserObject(parameters),
     _Mh2o(18.015e-3),
     _Rw(461.526),
     _p_critical(22.064e6),
@@ -830,12 +830,6 @@ MoskitoWater97FluidProperties::s_from_p_T(Real pressure, Real temperature) const
       mooseError(name(), ": inRegion() has given an incorrect region");
   }
   return entropy;
-}
-
-void
-MoskitoWater97FluidProperties::s_from_p_T(Real p, Real T, Real & s, Real & ds_dp, Real & ds_dT) const
-{
-  SinglePhaseFluidProperties::s_from_p_T(p, T, s, ds_dp, ds_dT);
 }
 
 Real

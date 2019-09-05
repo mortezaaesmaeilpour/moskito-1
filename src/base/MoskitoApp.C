@@ -4,7 +4,7 @@
 #include "ModulesApp.h"
 #include "MooseSyntax.h"
 
-#include "TigerApp.h"
+// #include "TigerApp.h"
 
 template <>
 InputParameters
@@ -18,7 +18,7 @@ MoskitoApp::MoskitoApp(InputParameters parameters) : MooseApp(parameters)
 {
   MoskitoApp::registerAll(_factory, _action_factory, _syntax);
 
-  TigerApp::registerAll(_factory, _action_factory, _syntax);
+  // TigerApp::registerAll(_factory, _action_factory, _syntax);
 }
 
 MoskitoApp::~MoskitoApp() {}
@@ -37,7 +37,7 @@ void
 MoskitoApp::registerApps()
 {
   registerApp(MoskitoApp);
-  TigerApp::registerApps();
+  // TigerApp::registerApps();
 }
 
 /***************************************************************************************************

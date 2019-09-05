@@ -21,44 +21,39 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>  */
 /**************************************************************************/
 
-#ifndef MOSKITOEOS1P_H
-#define MOSKITOEOS1P_H
+#ifndef MOSKITOHEAT_H
+#define MOSKITOHEAT_H
 
-#include "GeneralUserObject.h"
+#include "Kernel.h"
 
-class MoskitoEOS1P;
+class MoskitoHeat;
 
 template <>
-InputParameters validParams<MoskitoEOS1P>();
+InputParameters validParams<MoskitoHeat>();
 
-class MoskitoEOS1P : public GeneralUserObject
+class MoskitoHeat : public Kernel
 {
 public:
-  MoskitoEOS1P(const InputParameters & parameters);
-  virtual ~MoskitoEOS1P();
+  MoskitoHeat(const InputParameters & parameters);
 
-  virtual void execute() final {}
-  virtual void initialize() final {}
-  virtual void finalize() final {}
+protected:
+  virtual Real computeQpResidual() override;
 
-  // Density from pressure and temperature (kg/m^3)
-  virtual Real rho_from_p_T(const Real & pressure, const Real & temperature, const Real & enthalpy) const = 0;
-
-  // Density from pressure and temperature and its derivatives wrt pressure and temperature
-  virtual void rho_from_p_T(const Real & pressure, const Real & temperature, const Real & enthalpy,
-                        Real & rho, Real & drho_dp, Real & drho_dT) const = 0;
-
-  // The conversion function from temperature to specific enthalpy
-  virtual Real T_to_h(const Real & temperature, const Real & pressure) const = 0;
-
-  // The conversion function from specific enthalpy to temperature
-  virtual Real h_to_T(const Real & enthalpy, const Real & pressure) const = 0;
-
-  // specific heat at constant pressure from temperature
-  virtual Real cp(const Real & temperature, const Real & pressure) const = 0;
-
-  // thermal conductivity from pressure and temperature
-  virtual Real lambda(const Real & pressure, const Real & temperature) const = 0;
+  // temperature
+  const MaterialProperty<Real> & _T;
+  // Radius tubing outer
+  const MaterialProperty<Real> & _rto;
+  // Thermal wellbore resistivity
+  const MaterialProperty<Real> & _Uto;
+  // Temperature at formation - cement boundary
+  const MaterialProperty<Real> & _Twb;
+  // Diameter filled with liquid = _rti
+  const MaterialProperty<Real> & _diameter_liquid;
+  const Real gradC_to_gradR = 1.8;
+  const Real Watt_to_Btu_per_h = 3.412141633;
+  const Real m_to_ft    = 3.280839895;
+  const Real Rankine_absol = 491.67;
+  const Real PI = 3.141592653589793238462643383279502884197169399375105820974944592308;
 };
 
-#endif /* MOSKITOEOS1P_H */
+#endif // MOSKITOHEAT_H
