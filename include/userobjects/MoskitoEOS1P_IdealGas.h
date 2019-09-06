@@ -21,43 +21,32 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>  */
 /**************************************************************************/
 
-#ifndef MOSKITOEOSIDEALFLUID_H
-#define MOSKITOEOSIDEALFLUID_H
+#pragma once
 
 #include "MoskitoEOS1P.h"
 
-class MoskitoEOSIdealFluid;
+class MoskitoEOS1P_IdealGas;
 
 template <>
-InputParameters validParams<MoskitoEOSIdealFluid>();
+InputParameters validParams<MoskitoEOS1P_IdealGas>();
 
-class MoskitoEOSIdealFluid : public MoskitoEOS1P
+class MoskitoEOS1P_IdealGas : public MoskitoEOS1P
 {
 public:
-  MoskitoEOSIdealFluid(const InputParameters & parameters);
+  MoskitoEOS1P_IdealGas(const InputParameters & parameters);
 
-  virtual Real rho_from_p_T(const Real & pressure, const Real & temperature, const Real & enthalpy) const override;
-  virtual void rho_from_p_T(const Real & pressure, const Real & temperature, const Real & enthalpy,
+  virtual Real rho_from_p_T(const Real & pressure, const Real & temperature) const override;
+  virtual void rho_from_p_T(const Real & pressure, const Real & temperature,
                         Real & rho, Real & drho_dp, Real & drho_dT) const override;
-  virtual Real h_to_T(const Real & enthalpy, const Real & pressure) const override;
-  virtual Real T_to_h(const Real & temperature, const Real & pressure) const override;
-  virtual Real cp(const Real & temperature, const Real & pressure) const override;
+  virtual Real T_to_h(const Real & pressure, const Real & temperature) const override;
+  virtual Real h_to_T(const Real & pressure, const Real & enthalpy) const override;
+  virtual Real cp(const Real & pressure, const Real & temperature) const override;
   virtual Real lambda(const Real & pressure, const Real & temperature) const override;
 
 protected:
-  // density at reference pressure and temperature
-  const Real _rho_ref = 0;
-  // reference temperature
-  const Real _T_ref = 0;
-  // reference pressure
-  const Real _P_ref = 0;
-  // reference enthalpy
-  const Real _h_ref = 0;
   const Real _cp;
   const Real _lambda;
-  const Real _thermal_expansion_0;
-  const Real _thermal_expansion_1;
-  const Real _bulk_modulus;
+  const Real _molar_mass;
+  // Universal Gas constant (J/mol.K)
+  const Real _R;
 };
-
-#endif /* MOSKITOEOSIDEALFLUID_H */

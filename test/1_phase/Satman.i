@@ -12,7 +12,7 @@
     type = MoskitoViscosityWaterSmith
   [../]
   [./eos]
-    type = MoskitoEOSIdealFluid
+    type = MoskitoEOS1P_IdealFluid
     specific_heat = 3160
   [../]
 []

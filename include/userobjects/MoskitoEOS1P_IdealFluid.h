@@ -21,67 +21,40 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>  */
 /**************************************************************************/
 
-#include "MoskitoEOSIdealGas.h"
+#pragma once
 
-registerMooseObject("MoskitoApp", MoskitoEOSIdealGas);
+#include "MoskitoEOS1P.h"
+
+class MoskitoEOS1P_IdealFluid;
 
 template <>
-InputParameters
-validParams<MoskitoEOSIdealGas>()
+InputParameters validParams<MoskitoEOS1P_IdealFluid>();
+
+class MoskitoEOS1P_IdealFluid : public MoskitoEOS1P
 {
-  InputParameters params = validParams<MoskitoEOS1P>();
+public:
+  MoskitoEOS1P_IdealFluid(const InputParameters & parameters);
 
-  params.addRequiredParam<Real>("molar_mass", "Molar mass of the gas (kg/mol)");
-  params.addParam<Real>("specific_heat", 1.005e3,
-        "Constant specific heat capacity at constant pressure (J/kg/K)");
+  virtual Real rho_from_p_T(const Real & pressure, const Real & temperature) const override;
+  virtual void rho_from_p_T(const Real & pressure, const Real & temperature,
+                        Real & rho, Real & drho_dp, Real & drho_dT) const override;
+  virtual Real T_to_h(const Real & pressure, const Real & temperature) const override;
+  virtual Real h_to_T(const Real & pressure, const Real & enthalpy) const override;
+  virtual Real cp(const Real & pressure, const Real & temperature) const override;
+  virtual Real lambda(const Real & pressure, const Real & temperature) const override;
 
-  return params;
-}
-
-MoskitoEOSIdealGas::MoskitoEOSIdealGas(const InputParameters & parameters)
-  : MoskitoEOS1P(parameters),
-    _cp(getParam<Real>("specific_heat")),
-    _lambda(0.0),
-    _molar_mass(getParam<Real>("molar_mass")),
-    _R(8.3144598)
-{
-}
-
-Real
-MoskitoEOSIdealGas::rho_from_p_T(const Real & pressure, const Real & temperature, const Real & enthalpy) const
-{
-  return pressure * _molar_mass / (_R * temperature);
-}
-
-void
-MoskitoEOSIdealGas::rho_from_p_T(const Real & pressure, const Real & temperature, const Real & enthalpy,
-                            Real & rho, Real & drho_dp, Real & drho_dT) const
-{
-  rho = this->rho_from_p_T(pressure, temperature, enthalpy);
-  drho_dp = _molar_mass / (_R * temperature);
-  drho_dT = -pressure * _molar_mass / (_R * temperature * temperature);
-}
-
-Real
-MoskitoEOSIdealGas::h_to_T(const Real & enthalpy, const Real & pressure) const
-{
-  return enthalpy / _cp;
-}
-
-Real
-MoskitoEOSIdealGas::T_to_h(const Real & temperature, const Real & pressure) const
-{
-  return cp(temperature, pressure) * temperature;
-}
-
-Real
-MoskitoEOSIdealGas::cp(const Real & temperatur, const Real & pressure) const
-{
-  return _cp;
-}
-
-Real
-MoskitoEOSIdealGas::lambda(const Real & pressure, const Real & temperature) const
-{
-  return _lambda;
-}
+protected:
+  // density at reference pressure and temperature
+  const Real _rho_ref = 0;
+  // reference temperature
+  const Real _T_ref = 0;
+  // reference pressure
+  const Real _P_ref = 0;
+  // reference enthalpy
+  const Real _h_ref = 0;
+  const Real _cp;
+  const Real _lambda;
+  const Real _thermal_expansion_0;
+  const Real _thermal_expansion_1;
+  const Real _bulk_modulus;
+};

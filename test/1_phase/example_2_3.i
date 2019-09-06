@@ -13,7 +13,7 @@
 
 [UserObjects]
   [./eos]
-    type = MoskitoEOSNaturalGas
+    type = MoskitoEOS1P_NaturalGas
     molar_mass = 2.16e-2
     specific_gravity = 0.75
     specific_heat = 1000

@@ -50,76 +50,21 @@ MoskitoPureWater1P::MoskitoPureWater1P(const InputParameters & parameters)
 }
 
 Real
-MoskitoPureWater1P::rho_from_p_T(const Real & pressure, const Real & temperature, const Real & enthalpy) const
+MoskitoPureWater1P::rho_from_p_T(const Real & pressure, const Real & temperature) const
 {
-  unsigned int region = _eos_1P->inRegionPH(pressure, enthalpy);
-
-  Real rho;
-  switch (region)
-  {
-    case 1:
-      rho = _eos_1P->rho_from_p_T(pressure, temperature,1);
-      break;
-
-    case 2:
-      rho = _eos_1P->rho_from_p_T(pressure, temperature,2);
-      break;
-
-    case 3:
-      rho = _eos_1P->rho_from_p_T(pressure, temperature,3);
-      break;
-
-    case 4:
-      {
-        mooseError(name(), "This EOS is not valid for 2 phase region");
-      }
-
-    case 5:
-      rho = _eos_1P->rho_from_p_T(pressure, temperature,2);
-      break;
-
-    default:
-      mooseError(name(), ": inRegionPH() has given an incorrect region");
-  }
-
+  Real rho = _eos_1P->rho_from_p_T(pressure, temperature);
   return rho;
 }
 
 void
-MoskitoPureWater1P::rho_from_p_T(const Real & pressure, const Real & temperature, const Real & enthalpy,
+MoskitoPureWater1P::rho_from_p_T(const Real & pressure, const Real & temperature,
                               Real & rho, Real & drho_dp, Real & drho_dT) const
 {
-  unsigned int region = _eos_1P->inRegionPH(pressure, enthalpy);
-  switch (region)
-  {
-    case 1:
-      _eos_1P->rho_from_p_T(pressure, temperature, rho, drho_dp, drho_dT,1);
-      break;
-
-    case 2:
-      _eos_1P->rho_from_p_T(pressure, temperature, rho, drho_dp, drho_dT,2);
-      break;
-
-    case 3:
-      _eos_1P->rho_from_p_T(pressure, temperature, rho, drho_dp, drho_dT,3);
-      break;
-
-    case 4:
-      mooseError(name(), "This EOS is not valid for 2 phase region");
-      break;
-
-    case 5:
-      _eos_1P->rho_from_p_T(pressure, temperature, rho, drho_dp, drho_dT,2);
-      break;
-
-    default:
-      mooseError(name(), ": inRegionPH() has given an incorrect region");
-
-  }
+      _eos_1P->rho_from_p_T(pressure, temperature, rho, drho_dp, drho_dT);
 }
 
 Real
-MoskitoPureWater1P::h_to_T(const Real & enthalpy, const Real & pressure) const
+MoskitoPureWater1P::h_to_T(const Real & pressure, const Real & enthalpy) const
 {
   unsigned int region = _eos_1P->inRegionPH(pressure, enthalpy);
 
@@ -135,7 +80,7 @@ MoskitoPureWater1P::h_to_T(const Real & enthalpy, const Real & pressure) const
 }
 
 Real
-MoskitoPureWater1P::T_to_h(const Real & temperature, const Real & pressure) const
+MoskitoPureWater1P::T_to_h(const Real & pressure, const Real & temperature) const
 {
   Real enthalpy = _eos_1P->h_from_p_T(pressure, temperature);
 
@@ -143,7 +88,7 @@ MoskitoPureWater1P::T_to_h(const Real & temperature, const Real & pressure) cons
 }
 
 Real
-MoskitoPureWater1P::cp(const Real & temperature, const Real & pressure) const
+MoskitoPureWater1P::cp(const Real & pressure, const Real & temperature) const
 {
   Real cp;
   cp = _eos_1P->cp_from_p_T(pressure, temperature);

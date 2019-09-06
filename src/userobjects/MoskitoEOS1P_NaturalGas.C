@@ -21,13 +21,13 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>  */
 /**************************************************************************/
 
-#include "MoskitoEOSNaturalGas.h"
+#include "MoskitoEOS1P_NaturalGas.h"
 
-registerMooseObject("MoskitoApp", MoskitoEOSNaturalGas);
+registerMooseObject("MoskitoApp", MoskitoEOS1P_NaturalGas);
 
 template <>
 InputParameters
-validParams<MoskitoEOSNaturalGas>()
+validParams<MoskitoEOS1P_NaturalGas>()
 {
   InputParameters params = validParams<MoskitoEOS1P>();
 
@@ -40,7 +40,7 @@ validParams<MoskitoEOSNaturalGas>()
   return params;
 }
 
-MoskitoEOSNaturalGas::MoskitoEOSNaturalGas(const InputParameters & parameters)
+MoskitoEOS1P_NaturalGas::MoskitoEOS1P_NaturalGas(const InputParameters & parameters)
   : MoskitoEOS1P(parameters),
     _molar_mass(getParam<Real>("molar_mass")),
     _gamma_g(getParam<Real>("specific_gravity")),
@@ -52,7 +52,7 @@ MoskitoEOSNaturalGas::MoskitoEOSNaturalGas(const InputParameters & parameters)
 }
 
 Real
-MoskitoEOSNaturalGas::rho_from_p_T(const Real & pressure, const Real & temperature, const Real & enthalpy) const
+MoskitoEOS1P_NaturalGas::rho_from_p_T(const Real & pressure, const Real & temperature) const
 {
   Real z = z_factor(pressure, temperature);
 
@@ -60,11 +60,11 @@ MoskitoEOSNaturalGas::rho_from_p_T(const Real & pressure, const Real & temperatu
 }
 
 void
-MoskitoEOSNaturalGas::rho_from_p_T(const Real & pressure, const Real & temperature, const Real & enthalpy,
+MoskitoEOS1P_NaturalGas::rho_from_p_T(const Real & pressure, const Real & temperature,
                               Real & rho, Real & drho_dp, Real & drho_dT) const
 {
   Real z = z_factor(pressure, temperature);
-  rho = this->rho_from_p_T(pressure, temperature, enthalpy);
+  rho = this->rho_from_p_T(pressure, temperature);
 
   Real dz_dp, dz_dT, h;
 
@@ -79,31 +79,31 @@ MoskitoEOSNaturalGas::rho_from_p_T(const Real & pressure, const Real & temperatu
 }
 
 Real
-MoskitoEOSNaturalGas::h_to_T(const Real & enthalpy, const Real & pressure) const
+MoskitoEOS1P_NaturalGas::h_to_T(const Real & pressure, const Real & enthalpy) const
 {
   return enthalpy / _cp;
 }
 
 Real
-MoskitoEOSNaturalGas::T_to_h(const Real & temperature, const Real & pressure) const
+MoskitoEOS1P_NaturalGas::T_to_h(const Real & pressure, const Real & temperature) const
 {
-  return cp(temperature, pressure) * temperature;
+  return cp(pressure, temperature) * temperature;
 }
 
 Real
-MoskitoEOSNaturalGas::cp(const Real & temperature, const Real & pressure) const
+MoskitoEOS1P_NaturalGas::cp(const Real & pressure, const Real & temperature) const
 {
   return _cp;
 }
 
 Real
-MoskitoEOSNaturalGas::lambda(const Real & pressure, const Real & temperature) const
+MoskitoEOS1P_NaturalGas::lambda(const Real & pressure, const Real & temperature) const
 {
   return _lambda;
 }
 
 void
-MoskitoEOSNaturalGas::Pseudo_Critical_Calc(const Real & g)
+MoskitoEOS1P_NaturalGas::Pseudo_Critical_Calc(const Real & g)
 {
   // Rankine scale
   _T_pc  = 120.1 + 425.0 * g - 62.9 * g * g;
@@ -116,7 +116,7 @@ MoskitoEOSNaturalGas::Pseudo_Critical_Calc(const Real & g)
 }
 
 Real
-MoskitoEOSNaturalGas::z_factor(const Real & pressure, const Real & temperature) const
+MoskitoEOS1P_NaturalGas::z_factor(const Real & pressure, const Real & temperature) const
 {
   Real T_pr, P_pr, t, z, y, A, B, C, D, E, F, G;
 

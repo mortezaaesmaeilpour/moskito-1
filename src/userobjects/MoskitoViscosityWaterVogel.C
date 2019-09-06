@@ -21,36 +21,37 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>  */
 /**************************************************************************/
 
-#include "MoskitoTemperatureToEnthalpy1P.h"
+#include "MoskitoViscosityWaterVogel.h"
 
-registerMooseObject("MoskitoApp", MoskitoTemperatureToEnthalpy1P);
+registerMooseObject("MoskitoApp", MoskitoViscosityWaterVogel);
 
 template <>
 InputParameters
-validParams<MoskitoTemperatureToEnthalpy1P>()
+validParams<MoskitoViscosityWaterVogel>()
 {
-  InputParameters params = validParams<NodalBC>();
-  params.addRequiredParam<UserObjectName>("eos_uo",
-        "The name of the userobject for EOS");
-  params.addRequiredParam<Real>("temperature", "Temperature value of the BC");
-  params.addRequiredCoupledVar("pressure", "Pressure nonlinear variable (Pa)");
-  params.declareControllable("temperature");
-  params.addClassDescription("Implements a NodalBC (Dirichlet) which calculates "
-                            "specific enthalpy using temperature based on EOS "
-                            " for 1 phase flow");
+  InputParameters params = validParams<MoskitoViscosity1P>();
+
+  /* The viscosity is based on Vogel viscosity equation */
+
   return params;
 }
 
-MoskitoTemperatureToEnthalpy1P::MoskitoTemperatureToEnthalpy1P(const InputParameters & parameters)
-  : NodalBC(parameters),
-    _T(getParam<Real>("temperature")),
-    _p(coupledValue("pressure")),
-    _eos_uo(getUserObject<MoskitoEOS1P>("eos_uo"))
+MoskitoViscosityWaterVogel::MoskitoViscosityWaterVogel(const InputParameters & parameters)
+  : MoskitoViscosity1P(parameters)
 {
 }
 
 Real
-MoskitoTemperatureToEnthalpy1P::computeQpResidual()
+MoskitoViscosityWaterVogel::mu(Real /* pressure */, Real temperature) const
 {
-  return _u[_qp] - _eos_uo.T_to_h(_p[_qp], _T);
+  return 1e-3*exp(-3.7188+578.919/(-137.546+temperature));
+}
+
+void
+MoskitoViscosityWaterVogel::dmu_dpT(
+    Real pressure, Real temperature, Real & mu, Real & dmu_dp, Real & dmu_dT) const
+{
+  mu = this->mu(pressure, temperature);
+  dmu_dp = 0.0;
+  dmu_dT = mu*-578.919/std::pow(-137.546+temperature,2.0);
 }

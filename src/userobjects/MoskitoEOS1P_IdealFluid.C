@@ -21,19 +21,19 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>  */
 /**************************************************************************/
 
-#include "MoskitoEOSIdealFluid.h"
+#include "MoskitoEOS1P_IdealFluid.h"
 
-registerMooseObject("MoskitoApp", MoskitoEOSIdealFluid);
+registerMooseObject("MoskitoApp", MoskitoEOS1P_IdealFluid);
 
 template <>
 InputParameters
-validParams<MoskitoEOSIdealFluid>()
+validParams<MoskitoEOS1P_IdealFluid>()
 {
   InputParameters params = validParams<MoskitoEOS1P>();
   params.addParam<Real>("thermal_expansion_0", 4.0E-4,
         "Constant coefficient of thermal expansion (1/K)");
   params.addParam<Real>("thermal_expansion_1", 0.0,
-        "Constant coefficient of thermal expansion (1/K)");
+        "Constant coefficient of thermal expansion (1/K^2)");
   params.addParam<Real>("reference_density", 998.29,
         "Density at the reference pressure and temperature (kg/m^3)");
   params.addParam<Real>("reference_temperature", 293.15,
@@ -52,7 +52,7 @@ validParams<MoskitoEOSIdealFluid>()
   return params;
 }
 
-MoskitoEOSIdealFluid::MoskitoEOSIdealFluid(const InputParameters & parameters)
+MoskitoEOS1P_IdealFluid::MoskitoEOS1P_IdealFluid(const InputParameters & parameters)
   : MoskitoEOS1P(parameters),
     _rho_ref(getParam<Real>("reference_density")),
     _T_ref(getParam<Real>("reference_temperature")),
@@ -67,40 +67,41 @@ MoskitoEOSIdealFluid::MoskitoEOSIdealFluid(const InputParameters & parameters)
 }
 
 Real
-MoskitoEOSIdealFluid::rho_from_p_T(const Real & pressure, const Real & temperature, const Real & enthalpy) const
+MoskitoEOS1P_IdealFluid::rho_from_p_T(const Real & pressure, const Real & temperature) const
 {
-  return _rho_ref * std::exp((pressure-_P_ref) / _bulk_modulus - _thermal_expansion_0 * (temperature - _T_ref) - 0.5 * _thermal_expansion_1 * (temperature * temperature - _T_ref * _T_ref));
+  return _rho_ref * std::exp((pressure-_P_ref) / _bulk_modulus - _thermal_expansion_0 *
+          (temperature - _T_ref) - 0.5 * _thermal_expansion_1 * (temperature * temperature - _T_ref * _T_ref));
 }
 
 void
-MoskitoEOSIdealFluid::rho_from_p_T(const Real & pressure, const Real & temperature, const Real & enthalpy,
+MoskitoEOS1P_IdealFluid::rho_from_p_T(const Real & pressure, const Real & temperature,
                               Real & rho, Real & drho_dp, Real & drho_dT) const
 {
-  rho = this->rho_from_p_T(pressure, temperature, enthalpy);
+  rho = this->rho_from_p_T(pressure, temperature);
   drho_dp = rho / _bulk_modulus;
   drho_dT = (-_thermal_expansion_0 - _thermal_expansion_1 * temperature) * rho;
 }
 
 Real
-MoskitoEOSIdealFluid::h_to_T(const Real & enthalpy, const Real & pressure) const
+MoskitoEOS1P_IdealFluid::h_to_T(const Real & pressure, const Real & enthalpy) const
 {
   return (enthalpy - _h_ref) / _cp + _T_ref;
 }
 
 Real
-MoskitoEOSIdealFluid::T_to_h(const Real & temperature, const Real & pressure) const
+MoskitoEOS1P_IdealFluid::T_to_h(const Real & pressure, const Real & temperature) const
 {
-  return cp(temperature, pressure) * (temperature - _T_ref) + _h_ref;
+  return cp(pressure, temperature) * (temperature - _T_ref) + _h_ref;
 }
 
 Real
-MoskitoEOSIdealFluid::cp(const Real & temperature, const Real & pressure) const
+MoskitoEOS1P_IdealFluid::cp(const Real & pressure, const Real & temperature) const
 {
   return _cp;
 }
 
 Real
-MoskitoEOSIdealFluid::lambda(const Real & pressure, const Real & temperature) const
+MoskitoEOS1P_IdealFluid::lambda(const Real & pressure, const Real & temperature) const
 {
   return _lambda;
 }

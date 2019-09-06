@@ -21,36 +21,46 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>  */
 /**************************************************************************/
 
-#include "MoskitoTemperatureToEnthalpy1P.h"
+#pragma once
 
-registerMooseObject("MoskitoApp", MoskitoTemperatureToEnthalpy1P);
+#include "MoskitoEOS1P.h"
+
+class MoskitoEOS1P_NaturalGas;
 
 template <>
-InputParameters
-validParams<MoskitoTemperatureToEnthalpy1P>()
-{
-  InputParameters params = validParams<NodalBC>();
-  params.addRequiredParam<UserObjectName>("eos_uo",
-        "The name of the userobject for EOS");
-  params.addRequiredParam<Real>("temperature", "Temperature value of the BC");
-  params.addRequiredCoupledVar("pressure", "Pressure nonlinear variable (Pa)");
-  params.declareControllable("temperature");
-  params.addClassDescription("Implements a NodalBC (Dirichlet) which calculates "
-                            "specific enthalpy using temperature based on EOS "
-                            " for 1 phase flow");
-  return params;
-}
+InputParameters validParams<MoskitoEOS1P_NaturalGas>();
 
-MoskitoTemperatureToEnthalpy1P::MoskitoTemperatureToEnthalpy1P(const InputParameters & parameters)
-  : NodalBC(parameters),
-    _T(getParam<Real>("temperature")),
-    _p(coupledValue("pressure")),
-    _eos_uo(getUserObject<MoskitoEOS1P>("eos_uo"))
+class MoskitoEOS1P_NaturalGas : public MoskitoEOS1P
 {
-}
+public:
+  MoskitoEOS1P_NaturalGas(const InputParameters & parameters);
 
-Real
-MoskitoTemperatureToEnthalpy1P::computeQpResidual()
-{
-  return _u[_qp] - _eos_uo.T_to_h(_p[_qp], _T);
-}
+  virtual Real rho_from_p_T(const Real & pressure, const Real & temperature) const override;
+  virtual void rho_from_p_T(const Real & pressure, const Real & temperature,
+                        Real & rho, Real & drho_dp, Real & drho_dT) const override;
+  virtual Real T_to_h(const Real & pressure, const Real & temperature) const override;
+  virtual Real h_to_T(const Real & pressure, const Real & enthalpy) const override;
+  virtual Real cp(const Real & pressure, const Real & temperature) const override;
+  virtual Real lambda(const Real & pressure, const Real & temperature) const override;
+
+protected:
+  void Pseudo_Critical_Calc(const Real & g);
+  Real z_factor(const Real & pressure, const Real & temperature) const;
+  // Molar mass of gas
+  const Real _molar_mass;
+  // Specific gravity
+  const Real _gamma_g;
+  // Universal Gas constant (J/mol.K)
+  const Real _R;
+  // Pseudo critical properties
+  Real _P_pc;
+  Real _T_pc;
+  const Real _cp;
+  const Real _lambda;
+
+  // constants for z factor calculation based on Kareem et al 2016
+  const std::array<Real, 20> a{
+    {0.0 , 0.317842, 0.382216, -7.768354, 14.290531, 0.000002, -0.004693,
+    0.096254, 0.166720, 0.966910, 0.063069, -1.966847, 21.0581, -27.0246,
+    16.23, 207.783, -488.161, 176.29, 1.88453, 3.05921 }};
+};

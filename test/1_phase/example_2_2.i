@@ -10,7 +10,7 @@
 
 [UserObjects]
   [./eos]
-    type = MoskitoEOSIdealFluid
+    type = MoskitoEOS1P_IdealFluid
     bulk_modulus = 2e+012
     reference_density = 883
   [../]

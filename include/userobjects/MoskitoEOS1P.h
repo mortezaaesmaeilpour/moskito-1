@@ -21,8 +21,7 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>  */
 /**************************************************************************/
 
-#ifndef MOSKITOEOS1P_H
-#define MOSKITOEOS1P_H
+#pragma once
 
 #include "GeneralUserObject.h"
 
@@ -42,23 +41,21 @@ public:
   virtual void finalize() final {}
 
   // Density from pressure and temperature (kg/m^3)
-  virtual Real rho_from_p_T(const Real & pressure, const Real & temperature, const Real & enthalpy) const = 0;
+  virtual Real rho_from_p_T(const Real & pressure, const Real & temperature) const = 0;
 
   // Density from pressure and temperature and its derivatives wrt pressure and temperature
-  virtual void rho_from_p_T(const Real & pressure, const Real & temperature, const Real & enthalpy,
+  virtual void rho_from_p_T(const Real & pressure, const Real & temperature,
                         Real & rho, Real & drho_dp, Real & drho_dT) const = 0;
 
   // The conversion function from temperature to specific enthalpy
-  virtual Real T_to_h(const Real & temperature, const Real & pressure) const = 0;
+  virtual Real T_to_h(const Real & pressure, const Real & temperature) const = 0;
 
   // The conversion function from specific enthalpy to temperature
-  virtual Real h_to_T(const Real & enthalpy, const Real & pressure) const = 0;
+  virtual Real h_to_T(const Real & pressure, const Real & enthalpy) const = 0;
 
   // specific heat at constant pressure from temperature
-  virtual Real cp(const Real & temperature, const Real & pressure) const = 0;
+  virtual Real cp(const Real & pressure, const Real & temperature) const = 0;
 
   // thermal conductivity from pressure and temperature
   virtual Real lambda(const Real & pressure, const Real & temperature) const = 0;
 };
-
-#endif /* MOSKITOEOS1P_H */
