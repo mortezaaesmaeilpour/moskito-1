@@ -21,21 +21,20 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>  */
 /**************************************************************************/
 
-#ifndef MOSKITOPUREWATER1P_H
-#define MOSKITOPUREWATER1P_H
+#pragma once
 
 #include "MoskitoEOS1P.h"
-#include "MoskitoWater97FluidProperties.h"
+#include "SinglePhaseFluidProperties.h"
 
-class MoskitoPureWater1P;
+class MoskitoEOS1P_FPModule;
 
 template <>
-InputParameters validParams<MoskitoPureWater1P>();
+InputParameters validParams<MoskitoEOS1P_FPModule>();
 
-class MoskitoPureWater1P : public MoskitoEOS1P
+class MoskitoEOS1P_FPModule : public MoskitoEOS1P
 {
 public:
-  MoskitoPureWater1P(const InputParameters & parameters);
+  MoskitoEOS1P_FPModule(const InputParameters & parameters);
 
   virtual Real rho_from_p_T(const Real & pressure, const Real & temperature) const override;
   virtual void rho_from_p_T(const Real & pressure, const Real & temperature,
@@ -46,9 +45,5 @@ public:
   virtual Real lambda(const Real & pressure, const Real & temperature) const override;
 
 protected:
-  MoskitoWater97FluidProperties * _eos_1P;
-
-  const Real _lambda;
+  const SinglePhaseFluidProperties & _fp_eos;
 };
-
-#endif /* MOSKITOPUREWATER2P_H */

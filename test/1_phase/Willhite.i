@@ -13,7 +13,7 @@
 
 [UserObjects]
   [./eos]
-    type = MoskitoPureWater1P
+    type = MoskitoEOS1P_PureWater
   [../]
   [./viscosity]
     type = MoskitoViscosityWaterSmith
