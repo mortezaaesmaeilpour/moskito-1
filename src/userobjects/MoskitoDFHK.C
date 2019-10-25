@@ -56,32 +56,14 @@ MoskitoDFHK::DFMCalculator(MoskitoDFGVar & input) const
 
   MoskitoHKLVar tmp;
 
-  if (input._mfrac == 0.0)
-  {
-    input._FlowPat = 0;
-    input._C0 = 1.0;
-    input._vd  = 0.0;
-    input._vfrac = 0.0;
-  }
-  else if (input._mfrac == 1.0)
-  {
-    input._FlowPat = 0;
-    input._C0 = 1.0;
-    input._vd  = 0.0;
-    input._vfrac = 1.0;
-  }
+  //check constraints of Hasan Kabir approach
+  if (input._angle < 0.25 * PI)
+    mooseError(name(), ": Angle > 45°, violating Hasan & Kabir limitations");
 
-  else
-  {
-    //check constraints of Hasan Kabir approach
-    if (input._angle < 0.25 * PI)
-      mooseError(name(), ": Angle > 45°, violating Hasan & Kabir limitations");
-
-    HKinitialisation(input, tmp);
-    HKcalculator(input, tmp);
-    HKvfrac(input, tmp);
-  }
-
+  HKinitialisation(input, tmp);
+  HKcalculator(input, tmp);
+  HKvfrac(input, tmp);
+  
   // conversion back to SI
   input._vd /= m_to_ft;
 }

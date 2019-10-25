@@ -79,14 +79,14 @@ void
 MoskitoFluidWell2P::computeQpProperties()
 {
   // calculate required properties based on the given EOS
-  eos_uo.VMFrac_T_from_p_h(_P[_qp], _h[_qp], _vmfrac[_qp], _T[_qp], _phase[_qp]);
-  eos_uo.rho_m_by_p(_P[_qp], _h[_qp], _rho_m[_qp], _drho_m_dp[_qp], _drho_m_dp_2[_qp]);
-  eos_uo.rho_m_by_h(_P[_qp], _h[_qp], _rho_m[_qp], _drho_m_dh[_qp], _drho_m_dh_2[_qp]);
-  _rho_l[_qp] = eos_uo.rho_l_from_p_T(_P[_qp], _T[_qp], _phase[_qp]);
-  _rho_g[_qp] = eos_uo.rho_g_from_p_T(_P[_qp], _T[_qp], _phase[_qp]);
+  eos_uo.VMFrac_T_from_p_h(fabs(_P[_qp]), _h[_qp], _vmfrac[_qp], _T[_qp], _phase[_qp]);
+  eos_uo.rho_m_by_p(fabs(_P[_qp]), _h[_qp], _rho_m[_qp], _drho_m_dp[_qp], _drho_m_dp_2[_qp]);
+  eos_uo.rho_m_by_h(fabs(_P[_qp]), _h[_qp], _rho_m[_qp], _drho_m_dh[_qp], _drho_m_dh_2[_qp]);
+  _rho_l[_qp] = eos_uo.rho_l_from_p_T(fabs(_P[_qp]), _T[_qp], _phase[_qp]);
+  _rho_g[_qp] = eos_uo.rho_g_from_p_T(fabs(_P[_qp]), _T[_qp], _phase[_qp]);
   _vfrac[_qp]  = (_rho_m[_qp] - _rho_l[_qp]) / (_rho_g[_qp] - _rho_l[_qp]);
   _rho_pam[_qp] = _rho_g[_qp] * _c0[_qp]  * _vfrac[_qp] + (1.0 - _vfrac[_qp] * _c0[_qp]) * _rho_l[_qp];
-  _cp_m[_qp]  = eos_uo.cp_m_from_p_T(_P[_qp], _T[_qp], _vmfrac[_qp], _phase[_qp]);
+  _cp_m[_qp]  = eos_uo.cp_m_from_p_T(fabs(_P[_qp]), _T[_qp], _vmfrac[_qp], _phase[_qp]);
 
   _dia[_qp] = _d;
   _area[_qp] = PI * _d * _d / 4.0;
@@ -96,12 +96,21 @@ MoskitoFluidWell2P::computeQpProperties()
   MoskitoFluidWellGeneral::computeQpProperties();
 
   // drift-flux calculator section
+  if ( _vmfrac[_qp] == 0.0 || _vmfrac[_qp] == 1.0)
+    {
+      _flow_pat[_qp] = 0;
+      _c0[_qp] = 1.0;
+      _u_d[_qp] = 0.0;
+    }
+
+  else
+  {
   Real temp;   // bypass vfrac calculation of drift flux model
   MoskitoDFGVar DFinp(_u[_qp], _rho_g[_qp], _rho_l[_qp], _vmfrac[_qp],
     _dia[_qp], _dir[_qp], _friction[_qp], _gravity[_qp], _well_unit_vect[_qp]);
   dfm_uo.DFMCalculator(DFinp);
-  DFinp.DFMOutput(_flow_pat[_qp], temp, _c0[_qp], _u_d[_qp]);
-
+    DFinp.DFMOutput(_flow_pat[_qp], temp, _c0[_qp], _u_d[_qp]);
+  }
   // based on volume weighted flow rate
   // _u_g[_qp]  = _c0[_qp] * _u[_qp] + _u_d[_qp];
   // _u_l[_qp]  = (1.0 - _vfrac[_qp] * _c0[_qp]) * _u[_qp] - _vfrac[_qp] * _u_d[_qp];
@@ -152,8 +161,8 @@ MoskitoFluidWell2P::DriftFluxMomentumEq()
 {
   Real _drho_g_dp, _drho_g_dT, _drho_l_dp, _drho_l_dT, temp;
 
-  eos_uo.rho_l_from_p_T(_P[_qp], _T[_qp], temp, _drho_l_dp, _drho_l_dT, _phase[_qp]);
-  eos_uo.rho_g_from_p_T(_P[_qp], _T[_qp], temp, _drho_g_dp, _drho_g_dT, _phase[_qp]);
+  eos_uo.rho_l_from_p_T(fabs(_P[_qp]), _T[_qp], temp, _drho_l_dp, _drho_l_dT, _phase[_qp]);
+  eos_uo.rho_g_from_p_T(fabs(_P[_qp]), _T[_qp], temp, _drho_g_dp, _drho_g_dT, _phase[_qp]);
 
   /*
   All required coupled coeffient are derived below for momentum conservation
