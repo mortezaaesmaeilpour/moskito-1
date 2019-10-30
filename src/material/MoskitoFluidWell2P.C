@@ -109,7 +109,7 @@ MoskitoFluidWell2P::computeQpProperties()
   MoskitoDFGVar DFinp(_u[_qp], _rho_g[_qp], _rho_l[_qp], _vmfrac[_qp],
     _dia[_qp], _dir[_qp], _friction[_qp], _gravity[_qp], _well_unit_vect[_qp]);
   dfm_uo.DFMCalculator(DFinp);
-    DFinp.DFMOutput(_flow_pat[_qp], temp, _c0[_qp], _u_d[_qp]);
+    DFinp.DFMOutput(_flow_pat[_qp], _c0[_qp], _u_d[_qp]);
   }
   // based on volume weighted flow rate
   // _u_g[_qp]  = _c0[_qp] * _u[_qp] + _u_d[_qp];
