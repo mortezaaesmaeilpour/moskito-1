@@ -34,12 +34,10 @@ public:
     const Real & dir, const Real & friction, const RealVectorValue & gravity,
     const RealVectorValue & well_dir);
 
-  void DFMOutput(Real & FlowPat, Real & vfrac, Real & C0, Real & vd);
+  void DFMOutput(Real & FlowPat, Real & C0, Real & vd);
 
   // Flow pattern 0 = nothing, 1 = bubbly, 2 = dispersed_bubbly, 3 = slug, 4 = churn, 5 = annular
   Real _FlowPat;
-  // Volumetric fraction of void phase
-  Real _vfrac;
   // Drift Flux parameters
   Real _C0;
   Real _vd;
