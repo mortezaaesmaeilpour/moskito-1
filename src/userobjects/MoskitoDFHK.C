@@ -31,7 +31,7 @@ validParams<MoskitoDFHK>()
 {
   InputParameters params = validParams<MoskitoDriftFlux>();
   params.addRequiredParam<Real>("surface_tension",
-        "Surface tension of the liquid phase (kg/s)");
+        "Surface tension of the liquid phase (kg/s²)");
   return params;
 }
 
