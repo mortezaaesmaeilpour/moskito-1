@@ -62,6 +62,8 @@ MoskitoFluidWell2P::MoskitoFluidWell2P(const InputParameters & parameters)
     _u_d(declareProperty<Real>("drift_velocity")),
     _c0(declareProperty<Real>("flow_type_c0")),
     _flow_pat(declareProperty<Real>("flow_pattern")),
+    _v_sg(declareProperty<Real>("superficial_gas_velocity")),
+    _v_sl(declareProperty<Real>("superficial_liquid_velocity")),
     _dgamma_dz(declareProperty<Real>("dgamma_dz")),
     _dgamma_dz_uj_gphi(declareProperty<Real>("dgamma_dz_uj_gphi")),
     _dgamma_dz_uj_phi(declareProperty<Real>("dgamma_dz_uj_phi")),
@@ -109,7 +111,7 @@ MoskitoFluidWell2P::computeQpProperties()
   MoskitoDFGVar DFinp(_u[_qp], _rho_g[_qp], _rho_l[_qp], _vmfrac[_qp],
     _dia[_qp], _dir[_qp], _friction[_qp], _gravity[_qp], _well_unit_vect[_qp]);
   dfm_uo.DFMCalculator(DFinp);
-    DFinp.DFMOutput(_flow_pat[_qp], _c0[_qp], _u_d[_qp]);
+    DFinp.DFMOutput(_flow_pat[_qp], _v_sg[_qp], _v_sl[_qp], _c0[_qp], _u_d[_qp]);
   }
   // based on volume weighted flow rate
   // _u_g[_qp]  = _c0[_qp] * _u[_qp] + _u_d[_qp];
