@@ -4,6 +4,11 @@
     input = 'Atm_p_WO_HE.i'
     exodiff = 'Atm_p_WO_HE_out.e'
   [../]
+  [./Hasan_Kabir_Validation]
+    type = 'Exodiff'
+    input = 'HK_validation.i'
+    exodiff = 'HK_validation_out.e'
+  [../]
   [./Hasan_Kabir_Drift_Flux_Model]
     type = 'Exodiff'
     input = 'HK_DFM.i'
