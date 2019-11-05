@@ -52,8 +52,6 @@ MoskitoDFHK::DFMCalculator(MoskitoDFGVar & input) const
   input._dia *= m_to_ft;
   input._v_m *= m_to_ft;
 
-  // input._angle = 0.5 * PI - input._angle;
-
   MoskitoHKLVar tmp;
 
   //check constraints of Hasan Kabir approach
@@ -62,6 +60,7 @@ MoskitoDFHK::DFMCalculator(MoskitoDFGVar & input) const
 
   HKinitialisation(input, tmp);
   HKcalculator(input, tmp);
+  // HKvfrac(input, tmp);
 
   // conversion back to SI
   input._vd /= m_to_ft;
@@ -123,11 +122,13 @@ MoskitoDFHK::cal_v_s(MoskitoDFGVar & input, MoskitoHKLVar & LVar) const
 {
   if (input._dir == 1.0 || input._dir == -1.0) // cocurrent flow
     LVar.v_sg =  input._v_m * input._rho_l * input._mfrac  / ( - input._mfrac * input._rho_g + input._rho_l * input._mfrac + input._rho_g);
+    input._v_sg = LVar.v_sg/m_to_ft;
   // else                 // countercurrent
   //   LVar.v_sg =  - input._v_m * input._rho_l * input._mfrac / ( - input._mfrac * input._rho_g  - input._rho_l * input._mfrac + input._rho_g);
 
   if (input._dir == 1.0 || input._dir == -1.0) // cocurrent flow
     LVar.v_sl = input._v_m - LVar.v_sg;
+    input._v_sl = LVar.v_sl/m_to_ft;
   // else          // countercurrent
   //   LVar.v_sl = LVar.v_sg - input._v_m;
 }
@@ -229,3 +230,13 @@ MoskitoDFHK::interpol(const Real & C0_1, const Real & C0_2, const Real & v_denom
 {
   return C0_1 * (1 - std::exp(-0.1 * v_denom / (v_num - v_denom))) +  C0_2 * std::exp(-0.1 * v_denom / (v_num - v_denom));
 }
+
+// Internal calculation of vfrac; not used
+// void
+// MoskitoDFHK::HKvfrac(MoskitoDFGVar & input, MoskitoHKLVar & LVar) const // Add for HK_evaluation ???
+// {
+//   input._vfrac = LVar.v_sg / (input._C0 * fabs(input._v_m) + input._vd * input._dir);
+//
+//   if (input._vfrac < 0.0 || isnan(input._vfrac))
+//     input._vfrac = 0.0;
+// }
