@@ -90,25 +90,25 @@ protected:
   // Radius casing outer respectivly cement
   Real _rcem;
   // Emissivity of inside casing surface
-  Real _eao;
+  Real _Annulus_eao;
   // Emissivity of outside tubin/insulation surface
-  Real _eai;
+  Real _Annulus_eai;
   // Density annulus fluid
-  Real _rhoAnnulus;
+  Real _Annulus_rho;
   // Dyn Viscosity annulus fluid
-  Real _nuAnnulus;
+  Real _Annulus_nu;
   // Thermal conductivity annulus fluid
-  Real _lambdaAnnulus;
+  Real _Annulus_lambda;
   // Heat capacity annulus fluid
-  Real _cpAnnulus;
+  Real _Annulus_cp;
   //  Thermal volumetric expansion coefficient annulus fluid
-  Real _betaAnnulus;
+  Real _Annulus_beta;
   // Annulus fluid thermal diffusivity = Temperaturleitfähigkeit
-  Real _alphaAnnulus;
+  Real _Annulus_alpha;
   // Thermal conductivoty formation (earth)
-  Real _lambdaRock;
+  Real _Rock_lambda;
   // Formation thermal diffusivity
-  Real _alphaRock;
+  Real _Rock_alpha;
   // Thermal wellbore resistivity
   MaterialProperty<Real> & _Uto;
   //  Temperature at wellbore formation interface
