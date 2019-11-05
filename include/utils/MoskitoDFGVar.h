@@ -34,10 +34,13 @@ public:
     const Real & dir, const Real & friction, const RealVectorValue & gravity,
     const RealVectorValue & well_dir);
 
-  void DFMOutput(Real & FlowPat, Real & C0, Real & vd);
+  void DFMOutput(Real & FlowPat, Real & v_sg, Real & v_sl, Real & C0, Real & vd);
 
   // Flow pattern 0 = nothing, 1 = bubbly, 2 = dispersed_bubbly, 3 = slug, 4 = churn, 5 = annular
   Real _FlowPat;
+  // superficial velocities
+  Real _v_sg;
+  Real _v_sl;
   // Drift Flux parameters
   Real _C0;
   Real _vd;
