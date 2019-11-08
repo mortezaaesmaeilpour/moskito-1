@@ -62,8 +62,6 @@ validParams<MoskitoLatHeatIterationXiong>()
           "Thermal diffusivity of the annulus fluid (m²/s)");
     params.addRequiredParam<Real>("conductivity_rock",
           "Thermal conductivity of the formation (W/(m*K))");
-    params.addRequiredParam<Real>("Surface_temperature",
-          "Surface temperature (K); compare with BC");
     params.addRequiredParam<Real>("thermal_diffusivity_rock",
           "Thermal diffusivity of the formation (m²/s)");
     params.addParam<Real>("conductivity_cement",46.5,
@@ -75,18 +73,13 @@ validParams<MoskitoLatHeatIterationXiong>()
     params.addRequiredParam<Real>("conductivity_tubing",
           "Thermal conductivity of the tubing (W/(m*K))");
     params.addRequiredParam<FunctionName>("geothermal_gradient",
-          "a function to define the geothermal gradient (°C/100m)");
+          "csv file containing the Temperatures at depth z vs T");
     MooseEnum hc_model
           ("Dropkin_Sommerscales Raithby_Hollands Churchill");
     params.addParam<MooseEnum>("hc_calucation_model", hc_model,
           "Type of calculation of hc; Methodology: Dropkin & Sommerscales 1965,"
           "Raithby & Holland 1975, Churchill 1983; While DS and RH are similar in the results, Churchill approach differs strongly");
-    MooseEnum time_type
-          ("user_time simulation_time");
-    params.addParam<MooseEnum>("time_model", time_type,
-          "Define time for steady simulations"
-          "user_time, simulation_time");
-    params.addParam<Real>("user_defined_time", 86400,
+    params.addParam<Real>("user_defined_time",-1.0,
           "Time defined by the user for steady state simulation, Default = 1 day");
     params.addParam<Real>("derivative_tolerance", 0.001,
           "Tolerance to calculate derivatives based on numerical differentiation");
@@ -123,7 +116,6 @@ MoskitoLatHeatIterationXiong::MoskitoLatHeatIterationXiong(const InputParameters
     _Rock_alpha(getParam<Real>("thermal_diffusivity_rock")),
     _Uto(declareProperty<Real>("thermal_resistivity_well")),
     _Twb(declareProperty<Real>("temperature_well_formation_interface")),
-    _Tsurf(getParam<Real>("Surface_temperature")),
     _diameter(getMaterialProperty<Real>("well_diameter")),
     _lambdaCem(getParam<Real>("conductivity_cement")),
     _lambdaCas(getParam<Real>("conductivity_casing")),
@@ -132,7 +124,6 @@ MoskitoLatHeatIterationXiong::MoskitoLatHeatIterationXiong(const InputParameters
     _gravity(getMaterialProperty<RealVectorValue>("gravity")),
     _gradT(getFunction("geothermal_gradient")),
     _hc(getParam<MooseEnum>("hc_calucation_model")),
-    _td(getParam<MooseEnum>("time_model")),
     _ut(getParam<Real>("user_defined_time")),
     _Dim_time(getParam<MooseEnum>("DimTime_calculation_model")),
     _tol(getParam<Real>("derivative_tolerance")),
@@ -145,7 +136,7 @@ MoskitoLatHeatIterationXiong::MoskitoLatHeatIterationXiong(const InputParameters
 Real
 MoskitoLatHeatIterationXiong::transienttimefunction(Real Uto)
 {
-  Real Timing = (_td == user_time) ? _ut : _t;
+  Real Timing = (_ut == -1.0) ? _t : _ut;
 
   switch(_Dim_time)
   {
@@ -262,9 +253,9 @@ MoskitoLatHeatIterationXiong::transienttimefunction(Real Uto)
 }
 
 Real
-MoskitoLatHeatIterationXiong::TemperatureFormation(Real _Tsurf)
+MoskitoLatHeatIterationXiong::TemperatureFormation()
 {
-  Real Trock = _Tsurf +  _gradT.value(_t, _q_point[_qp]);
+  Real Trock = _gradT.value(_t, _q_point[_qp]);
   _TRock[_qp] = Trock;
 
   return Trock;
@@ -275,7 +266,7 @@ MoskitoLatHeatIterationXiong::TemperatureWBinterface(Real Uto, Real Temp)
 {
   Real Twb = 0.0;
   Twb += _rto * Uto * transienttimefunction(Uto) * Temp;
-  Twb += _Rock_lambda * TemperatureFormation(_Tsurf);
+  Twb += _Rock_lambda * TemperatureFormation();
   Twb /= _rto * Uto * transienttimefunction(Uto) + _Rock_lambda;
 
   return Twb;

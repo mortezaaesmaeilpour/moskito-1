@@ -58,7 +58,7 @@ protected:
   // Calculate transient time function according to Ramey
   Real transienttimefunction(Real Uto);
   // Calculate deoth dependent formation temperature
-  Real TemperatureFormation(Real _Tsurf);
+  Real TemperatureFormation();
   // Calculate temperature at formation wellbore
   Real TemperatureWBinterface(Real Uto, Real Temp);
   // Calculate temperature at annulus casing boundary
@@ -113,8 +113,6 @@ protected:
   MaterialProperty<Real> & _Uto;
   //  Temperature at wellbore formation interface
   MaterialProperty<Real> & _Twb;
-  // Surface temperature
-  Real _Tsurf;
   // Diameter of the pipe
   const MaterialProperty<Real> & _diameter;
   // Radius tubing inner
@@ -137,8 +135,6 @@ protected:
   // Ramey function parameter
   Real ft;
   // Definition of user time for steady state simulation or transient simulation time
-  MooseEnum _td;
-  enum Zeit {user_time, simulation_time};
   Real Timing;
   Real _ut;
   // Definition of calculation scheme for dimensionless time
