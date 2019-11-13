@@ -75,21 +75,11 @@ protected:
   Real Rayleigh(Real grav,Real Uto, Real Temp);
   // temperature
   const MaterialProperty<Real> & _T;
-  // Radius wellbore
-  Real _rwb;
   // Radius tubing outer
   MaterialProperty<Real> & _RadTubout;
   // Variable to output formation temperature
   MaterialProperty<Real> & _TRock;
-  // Local parameter Radius tubing outer
-  Real _rto;
-  // Radius insulation
-  Real _rins;
-  // Radius casing inner
-  Real _rci;
-  // Radius casing outer respectivly cement
-  Real _rcem;
-  // Emissivity of inside casing surface
+    // Emissivity of inside casing surface
   Real _Annulus_eao;
   // Emissivity of outside tubin/insulation surface
   Real _Annulus_eai;
@@ -115,16 +105,8 @@ protected:
   MaterialProperty<Real> & _Twb;
   // Diameter of the pipe
   const MaterialProperty<Real> & _diameter;
-  // Radius tubing inner
-  Real _rti;
-  // Thermal conductivity of the cement
-  Real _lambdaCem;
-  // Thermal conductivity of the casing
-  Real _lambdaCas;
-  // Thermal conductivity of the insulation
-  Real _lambdaIns;
-  // Thermal conductivity of the tubing
-  Real _lambdaTub;
+  // Conductivity vector
+  std::vector<Real> _conductivity_vector;
   // The gravity acceleration as a vector
   const MaterialProperty<RealVectorValue> & _gravity;
   // Function for geothermal gradient, has to be defined in the Input
@@ -136,18 +118,19 @@ protected:
   Real ft;
   // Definition of user time for steady state simulation or transient simulation time
   Real Timing;
-  Real _ut;
   // Definition of calculation scheme for dimensionless time
   MooseEnum _Dim_time;
   enum Dim_time_case {Ramey_1962, Kutasov_2003_eq15, Kutasov_2003_eq16, Kutasov_2003_eq17, Kutasov_2003_eq18, Kutasov_1987_eq19, Kutun_2015_eq20 };
     // Annulus outer and inner Rasius, is determined within this material
-  Real _rai, _rao;
+  Real _rai = 0.0, _rao = 0.0;
   // Tolerance of finite difference derivation
   const Real _tol;
   // Independent gravity for calculation of Raleigh and Grashof numers in case gravity is set to "0"
   RealVectorValue _independ_gravity;
+  // Combine all diameters in one vector
+  std::vector<Real> _well_assembly;
   // Well direction for correction of gravity vector in terms of deviated well
-  const  MaterialProperty<RealVectorValue> & _well_dir;
+  const MaterialProperty<RealVectorValue> & _well_dir;
   // Stefan Bolzmann Konstante in SI units (W/(m² * K⁴))
   Real Boltz = 0.00000005670367;
   Real PI = 3.141592653589793238462643383279502884197169399375105820974944592308;
