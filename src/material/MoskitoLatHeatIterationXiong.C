@@ -395,7 +395,7 @@ MoskitoLatHeatIterationXiong::computeResidual(const Real trail_value, const Real
 
     if (grav == 0.0)
       grav = _independ_gravity * _well_dir[_qp];
-
+      
     hc = ConvectiveHeatTransferCoefficient(scalar, _T[_qp], grav);
     Aux += 1.0 / (_rai * (hc + hr));
   }
