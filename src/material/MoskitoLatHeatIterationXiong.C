@@ -200,31 +200,32 @@ MoskitoLatHeatIterationXiong::transienttimefunction(Real Uto)
   }
 
   else
-    ft = std::log(2.0 * std::pow(_Rock_alpha * Timing,0.5) / _well_assembly.back()) - 0.29;
+    ft = std::log(2.0 * std::pow(_Rock_alpha * Timing,0.5) / (_well_assembly.back() / 2.0)) - 0.29;
   break;
 
+
   case Dim_time_case::Kutasov_2003_eq15:
-    ft = std::log(1.0 + 1.4986 * std::pow(_Rock_alpha * Timing / (_well_assembly.back() * _well_assembly.back()),0.5));
+    ft = std::log(1.0 + 1.4986 * std::pow(_Rock_alpha * Timing / (_well_assembly.back() / 2.0) * (_well_assembly.back() / 2.0),0.5));
   break;
 
   case Dim_time_case::Kutasov_2003_eq16:
-    ft = std::log(1.0 + (1.781 - 1.0 / (2.701 + std::pow(_Rock_alpha * Timing / (_well_assembly.back() * _well_assembly.back()),0.5)) * std::pow(_Rock_alpha * Timing / (_well_assembly.back() * _well_assembly.back()),0.5)));
+    ft = std::log(1.0 + (1.781 - 1.0 / (2.701 + std::pow(_Rock_alpha * Timing / ((_well_assembly.back() / 2.0) * (_well_assembly.back() / 2.0)),0.5)) * std::pow(_Rock_alpha * Timing / ((_well_assembly.back() / 2.0) * (_well_assembly.back() / 2.0)),0.5)));
   break;
 
   case Dim_time_case::Kutasov_2003_eq17:
-    ft = 2.0 * std::pow(_Rock_alpha * Timing / (_well_assembly.back() * _well_assembly.back()) / PI,0.5);
+    ft = 2.0 * std::pow(_Rock_alpha * Timing / ((_well_assembly.back() / 2.0) * (_well_assembly.back() / 2.0)) / PI,0.5);
   break;
 
   case Dim_time_case::Kutasov_2003_eq18:
-    ft = std::log(1.0 + 1.128 * std::pow(_Rock_alpha * Timing / (_well_assembly.back() * _well_assembly.back()),0.5));
+    ft = std::log(1.0 + 1.128 * std::pow(_Rock_alpha * Timing / ((_well_assembly.back() / 2.0) * (_well_assembly.back() / 2.0)),0.5));
   break;
 
   case Dim_time_case::Kutasov_1987_eq19:
-    ft = std::log(1.0 + (1.571 - 1.0 / (4.959 + std::pow(_Rock_alpha * Timing / (_well_assembly.back() * _well_assembly.back()),0.5)) * std::pow(_Rock_alpha * Timing / (_well_assembly.back() * _well_assembly.back()),0.5)));
+    ft = std::log(1.0 + (1.571 - 1.0 / (4.959 + std::pow(_Rock_alpha * Timing / ((_well_assembly.back() / 2.0) * (_well_assembly.back() / 2.0)),0.5)) * std::pow(_Rock_alpha * Timing / ((_well_assembly.back() / 2.0) * (_well_assembly.back() / 2.0)),0.5)));
   break;
 
   case Dim_time_case::Kutun_2015_eq20:
-    ft = std::log(1.0 + 1.7 * std::pow(_Rock_alpha * Timing / (_well_assembly.back() * _well_assembly.back()),0.5));
+    ft = std::log(1.0 + 1.7 * std::pow(_Rock_alpha * Timing / ((_well_assembly.back() / 2.0) * (_well_assembly.back() / 2.0)),0.5));
   break;
   }
 
@@ -236,7 +237,7 @@ MoskitoLatHeatIterationXiong::TemperatureFormation()
 {
   Real Trock = _gradT.value(_t, _q_point[_qp]);
   _TRock[_qp] = Trock;
-
+std::cout<<"Trock"<<Trock<<std::endl;
   return Trock;
 }
 
@@ -244,10 +245,10 @@ Real
 MoskitoLatHeatIterationXiong::TemperatureWBinterface(Real Uto, Real Temp)
 {
   Real Twb = 0.0;
-  Twb += _well_assembly[1] / 2.0 * Uto * transienttimefunction(Uto) * Temp;
+  Twb += (_well_assembly[1] / 2.0) * Uto * transienttimefunction(Uto) * Temp;
   Twb += _Rock_lambda * TemperatureFormation();
-  Twb /= _well_assembly[1] / 2.0 * Uto * transienttimefunction(Uto) + _Rock_lambda;
-
+  Twb /= (_well_assembly[1] / 2.0) * Uto * transienttimefunction(Uto) + _Rock_lambda;
+std::cout<<"Twb"<<Twb<<std::endl;
   return Twb;
 }
 
@@ -265,9 +266,9 @@ MoskitoLatHeatIterationXiong::TemperatureCasingAnnulusInterface(Real Uto, Real T
       Tci += std::log(_well_assembly[size-1] / _well_assembly[size-2]) / _conductivity_vector[j-2];
   }
 
-  Tci *= _well_assembly[1] / 2.0 * Uto * (Temp - TemperatureWBinterface(Uto, Temp));
+  Tci *= (_well_assembly[1] / 2.0) * Uto * (Temp - TemperatureWBinterface(Uto, Temp));
   Tci += TemperatureWBinterface(Uto, Temp);
-
+std::cout<<"Tci"<<Tci<<std::endl;
   return Tci;
 }
 
@@ -276,7 +277,7 @@ MoskitoLatHeatIterationXiong::TemperatureTubingOuter(Real Uto, Real Temp)
 {
   Real Tto;
   Tto = std::log(_well_assembly[1] / _well_assembly[0]) / _conductivity_vector[0];
-  Tto *= - _well_assembly[1] / 2.0 * Uto * (Temp - TemperatureWBinterface(Uto, Temp));
+  Tto *= - (_well_assembly[1] / 2.0) * Uto * (Temp - TemperatureWBinterface(Uto, Temp));
   Tto += Temp;
 
   return Tto;
@@ -287,14 +288,14 @@ MoskitoLatHeatIterationXiong::RadialHeatTransferCoefficient(Real Uto, Real Temp)
 {
   Real OverFtci = 0.0;
   OverFtci += 1.0 / _Annulus_eao - 1.0;
-  OverFtci *= _well_assembly[1] / 2.0 / _rao;
+  OverFtci *= (_well_assembly[1] / 2.0) / _rao;
   OverFtci += 1.0 / _Annulus_eai;
-
+  std::cout<<"OverFtci"<<OverFtci<<std::endl;
   Real hr;
   hr = Boltz / OverFtci;
   hr *= TemperatureTubingOuter(Uto, Temp) + TemperatureCasingAnnulusInterface(Uto, Temp);
   hr *= TemperatureTubingOuter(Uto, Temp) * TemperatureTubingOuter(Uto, Temp) + TemperatureCasingAnnulusInterface(Uto, Temp) * TemperatureCasingAnnulusInterface(Uto, Temp);
-
+  std::cout<<"hr"<<hr<<std::endl;
   return hr;
 }
 
@@ -336,7 +337,7 @@ MoskitoLatHeatIterationXiong::ConvectiveHeatTransferCoefficient(Real Uto, Real T
   hc = Nu * _Annulus_lambda / (2.0 * _rao);
   break;
   }
-
+  std::cout<<"hc"<<hc<<std::endl;
   return hc;
 }
 
@@ -395,13 +396,13 @@ MoskitoLatHeatIterationXiong::computeResidual(const Real trail_value, const Real
 
     if (grav == 0.0)
       grav = _independ_gravity * _well_dir[_qp];
-      
+
     hc = ConvectiveHeatTransferCoefficient(scalar, _T[_qp], grav);
     Aux += 1.0 / (_rai * (hc + hr));
   }
 
-  Uto = 1.0 / (Aux * _well_assembly[1] / 2.0);
-
+  Uto = 1.0 / (Aux * (_well_assembly[1] / 2.0));
+  std::cout<<"Uto"<<Uto<<std::endl;
   return Uto - scalar;
 }
 
