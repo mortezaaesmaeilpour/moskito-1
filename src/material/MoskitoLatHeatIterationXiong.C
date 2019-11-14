@@ -237,7 +237,7 @@ MoskitoLatHeatIterationXiong::TemperatureFormation()
 {
   Real Trock = _gradT.value(_t, _q_point[_qp]);
   _TRock[_qp] = Trock;
-std::cout<<"Trock"<<Trock<<std::endl;
+std::cout<<"Trock "<<Trock<<std::endl;
   return Trock;
 }
 
@@ -248,7 +248,7 @@ MoskitoLatHeatIterationXiong::TemperatureWBinterface(Real Uto, Real Temp)
   Twb += (_well_assembly[1] / 2.0) * Uto * transienttimefunction(Uto) * Temp;
   Twb += _Rock_lambda * TemperatureFormation();
   Twb /= (_well_assembly[1] / 2.0) * Uto * transienttimefunction(Uto) + _Rock_lambda;
-std::cout<<"Twb"<<Twb<<std::endl;
+std::cout<<"Twb "<<Twb<<std::endl;
   return Twb;
 }
 
@@ -268,7 +268,7 @@ MoskitoLatHeatIterationXiong::TemperatureCasingAnnulusInterface(Real Uto, Real T
 
   Tci *= (_well_assembly[1] / 2.0) * Uto * (Temp - TemperatureWBinterface(Uto, Temp));
   Tci += TemperatureWBinterface(Uto, Temp);
-std::cout<<"Tci"<<Tci<<std::endl;
+std::cout<<"Tci "<<Tci<<std::endl;
   return Tci;
 }
 
@@ -290,12 +290,12 @@ MoskitoLatHeatIterationXiong::RadialHeatTransferCoefficient(Real Uto, Real Temp)
   OverFtci += 1.0 / _Annulus_eao - 1.0;
   OverFtci *= (_well_assembly[1] / 2.0) / _rao;
   OverFtci += 1.0 / _Annulus_eai;
-  std::cout<<"OverFtci"<<OverFtci<<std::endl;
+  std::cout<<"OverFtci "<<OverFtci<<std::endl;
   Real hr;
   hr = Boltz / OverFtci;
   hr *= TemperatureTubingOuter(Uto, Temp) + TemperatureCasingAnnulusInterface(Uto, Temp);
   hr *= TemperatureTubingOuter(Uto, Temp) * TemperatureTubingOuter(Uto, Temp) + TemperatureCasingAnnulusInterface(Uto, Temp) * TemperatureCasingAnnulusInterface(Uto, Temp);
-  std::cout<<"hr"<<hr<<std::endl;
+  std::cout<<"hr "<<hr<<std::endl;
   return hr;
 }
 
@@ -337,7 +337,7 @@ MoskitoLatHeatIterationXiong::ConvectiveHeatTransferCoefficient(Real Uto, Real T
   hc = Nu * _Annulus_lambda / (2.0 * _rao);
   break;
   }
-  std::cout<<"hc"<<hc<<std::endl;
+  std::cout<<"hc "<<hc<<std::endl;
   return hc;
 }
 
@@ -402,7 +402,7 @@ MoskitoLatHeatIterationXiong::computeResidual(const Real trail_value, const Real
   }
 
   Uto = 1.0 / (Aux * (_well_assembly[1] / 2.0));
-  std::cout<<"Uto"<<Uto<<std::endl;
+  std::cout<<"Uto "<<Uto<<std::endl;
   return Uto - scalar;
 }
 
