@@ -61,7 +61,7 @@
   [./q]
     [./InitialCondition]
       type = FunctionIC
-      variable = h
+      variable = q
       function = 'if(x<100,1e-2*x,(x-99)*2)*3.85e-3'
     [../]
   [../]
