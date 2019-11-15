@@ -46,7 +46,7 @@
     type = MoskitoLatHeatIterationXiong
      # Geometry of the well. As the example did not contain any tubing radius, which is required for teh material it was artificially set to a small radius
      well_diameter_vector = '0.0890016 0.089001602 0.216408 0.24384 0.3048'
-     vector_conductivities = '80.42534006 0.0 80.42534006 0.346146923'
+     conductivities_vector = '80.42534006 0.0 80.42534006 0.346146923'
      # Rock parameters
      thermal_diffusivity_rock = 0.000000738063
      conductivity_rock = 1.7307346

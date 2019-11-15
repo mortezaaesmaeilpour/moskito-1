@@ -20,7 +20,11 @@
 [Functions]
   [./grad_func]
     type = ParsedFunction
-    value = '0.09 * x'
+    value = '293.15 + 0.09 * x'
+    # type =  PiecewiseLinear
+    # data_file = Temp.csv
+    # format = columns
+    # axis = x
   [../]
 []
 
@@ -41,17 +45,14 @@
   [../]
   [./Lateral]
     type = MoskitoLatHeatIterationXiong
-     radius_wellbore = 0.150000000002
-     radius_tubbing_outer = 0.150000000001
-     conductivity_tubing = 40
+     well_diameter_vector = '0.3 0.300000000002 0.300000000004'
+     conductivities_vector = '40.0 0.0'
      # Rock parameters
-     Surface_temperature = 293.15
      thermal_diffusivity_rock = 1.102e-6
      conductivity_rock = 2.92
      # Configuration of material
      geothermal_gradient = grad_func
      hc_calucation_model = Dropkin_Sommerscales
-     time_model = user_time
      # user_defined_time = 8640
      user_defined_time = 2592000
      DimTime_calculation_model = Ramey_1962
