@@ -21,34 +21,21 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>  */
 /**************************************************************************/
 
-#ifndef MOSKITOTEMPERATURETOENTHALPY1P_H
-#define MOSKITOTEMPERATURETOENTHALPY1P_H
+#pragma once
 
-#include "NodalBC.h"
-#include "MoskitoEOS1P.h"
-#include "Function.h"
+#include "Kernel.h"
 
-class MoskitoTemperatureToEnthalpy1P;
+// Forward Declarations
+class MoskitoCoaxialWellLateralHeat;
 
 template <>
-InputParameters validParams<MoskitoTemperatureToEnthalpy1P>();
+InputParameters validParams<MoskitoCoaxialWellLateralHeat>();
 
-class MoskitoTemperatureToEnthalpy1P : public NodalBC
+class MoskitoCoaxialWellLateralHeat : public Kernel
 {
 public:
-  MoskitoTemperatureToEnthalpy1P(const InputParameters & parameters);
+  MoskitoCoaxialWellLateralHeat(const InputParameters & parameters);
 
 protected:
   virtual Real computeQpResidual() override;
-
-  // presure value
-  const VariableValue & _p;
-
-  // Userobject to equation of state
-  const MoskitoEOS1P & _eos_uo;
-
-  // temperature function
-  const Function & _T;
 };
-
-#endif // MOSKITOTEMPERATURETOENTHALPY1P_H

@@ -32,9 +32,9 @@ validParams<MoskitoTemperatureToEnthalpy1P>()
   InputParameters params = validParams<NodalBC>();
   params.addRequiredParam<UserObjectName>("eos_uo",
         "The name of the userobject for EOS");
-  params.addRequiredParam<Real>("temperature", "Temperature value of the BC");
+  params.addRequiredParam<FunctionName>("temperature",
+        "a time function to define the temperature");
   params.addRequiredCoupledVar("pressure", "Pressure nonlinear variable (Pa)");
-  params.declareControllable("temperature");
   params.addClassDescription("Implements a NodalBC (Dirichlet) which calculates "
                             "specific enthalpy using temperature based on EOS "
                             " for 1 phase flow");
@@ -43,14 +43,14 @@ validParams<MoskitoTemperatureToEnthalpy1P>()
 
 MoskitoTemperatureToEnthalpy1P::MoskitoTemperatureToEnthalpy1P(const InputParameters & parameters)
   : NodalBC(parameters),
-    _T(getParam<Real>("temperature")),
     _p(coupledValue("pressure")),
-    _eos_uo(getUserObject<MoskitoEOS1P>("eos_uo"))
+    _eos_uo(getUserObject<MoskitoEOS1P>("eos_uo")),
+    _T(getFunction("temperature"))
 {
 }
 
 Real
 MoskitoTemperatureToEnthalpy1P::computeQpResidual()
 {
-  return _u[_qp] - _eos_uo.T_to_h(_p[_qp], _T);
+  return _u[_qp] - _eos_uo.T_to_h(_p[_qp], _T.value(_t, Point()));
 }

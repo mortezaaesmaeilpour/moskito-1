@@ -21,34 +21,29 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>  */
 /**************************************************************************/
 
-#ifndef MOSKITOTEMPERATURETOENTHALPY1P_H
-#define MOSKITOTEMPERATURETOENTHALPY1P_H
+#include "MoskitoCoaxialWellLateralHeat.h"
 
-#include "NodalBC.h"
-#include "MoskitoEOS1P.h"
-#include "Function.h"
-
-class MoskitoTemperatureToEnthalpy1P;
+registerMooseObject("MooseApp", MoskitoCoaxialWellLateralHeat);
 
 template <>
-InputParameters validParams<MoskitoTemperatureToEnthalpy1P>();
-
-class MoskitoTemperatureToEnthalpy1P : public NodalBC
+InputParameters
+validParams<MoskitoCoaxialWellLateralHeat>()
 {
-public:
-  MoskitoTemperatureToEnthalpy1P(const InputParameters & parameters);
+  InputParameters params = validParams<Kernel>();
+  params.addClassDescription("Source term based on the Fourier Law for coaxial "
+                             "well for injection/production in the inner and "
+                             "outer string.");
+  return params;
+}
 
-protected:
-  virtual Real computeQpResidual() override;
+MoskitoCoaxialWellLateralHeat::MoskitoCoaxialWellLateralHeat(const InputParameters & parameters)
+  : Kernel(parameters),
+{
+}
 
-  // presure value
-  const VariableValue & _p;
-
-  // Userobject to equation of state
-  const MoskitoEOS1P & _eos_uo;
-
-  // temperature function
-  const Function & _T;
-};
-
-#endif // MOSKITOTEMPERATURETOENTHALPY1P_H
+Real
+MoskitoCoaxialWellLateralHeat::computeQpResidual()
+{
+  Real factor = _scale * _postprocessor * _function.value(_t, _q_point[_qp]);
+  return _test[_i][_qp] * -factor;
+}

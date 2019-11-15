@@ -85,7 +85,7 @@ MoskitoFluidWell2P::computeQpProperties()
   _rho_l[_qp] = eos_uo.rho_l_from_p_T(_P[_qp], _T[_qp], _phase[_qp]);
   _rho_g[_qp] = eos_uo.rho_g_from_p_T(_P[_qp], _T[_qp], _phase[_qp]);
   _vfrac[_qp]  = (_rho_m[_qp] - _rho_l[_qp]) / (_rho_g[_qp] - _rho_l[_qp]);
-  _rho_pam[_qp] = _rho_g[_qp] * _c0[_qp]  * _vfrac[_qp] + (1.0 - _vfrac[_qp] * _c0[_qp]) * _rho_l[_qp];
+  _rho_pam[_qp] = _c0[_qp]  * _rho_m[_qp];
   _cp_m[_qp]  = eos_uo.cp_m_from_p_T(_P[_qp], _T[_qp], _vmfrac[_qp], _phase[_qp]);
 
   _dia[_qp] = _d;
@@ -102,15 +102,15 @@ MoskitoFluidWell2P::computeQpProperties()
   dfm_uo.DFMCalculator(DFinp);
   DFinp.DFMOutput(_flow_pat[_qp], temp, _c0[_qp], _u_d[_qp]);
 
-  // based on volume weighted flow rate
-  // _u_g[_qp]  = _c0[_qp] * _u[_qp] + _u_d[_qp];
-  // _u_l[_qp]  = (1.0 - _vfrac[_qp] * _c0[_qp]) * _u[_qp] - _vfrac[_qp] * _u_d[_qp];
-  // _u_l[_qp] /= 1.0 - _vfrac[_qp];
-
-  // based on mass weighted flow rate
-  // momentum eq is valid only by mass mixing flow rate
   if (_phase[_qp] == 2.0)
   {
+    // based on volume weighted flow rate
+    // _u_g[_qp]  = _c0[_qp] * _u[_qp] + _u_d[_qp];
+    // _u_l[_qp]  = (1.0 - _vfrac[_qp] * _c0[_qp]) * _u[_qp] - _vfrac[_qp] * _u_d[_qp];
+    // _u_l[_qp] /= 1.0 - _vfrac[_qp];
+
+    // based on mass weighted flow rate
+    // momentum eq is valid only by mass mixing flow rate
     _u_g[_qp]  = _c0[_qp] * _rho_m[_qp] * _u[_qp] + _rho_l[_qp] * _u_d[_qp];
     _u_g[_qp] /= _rho_pam[_qp];
     _u_l[_qp]  = (1.0 - _vfrac[_qp] * _c0[_qp]) * _rho_m[_qp]  * _u[_qp] - _rho_g[_qp] * _vfrac[_qp] * _u_d[_qp];

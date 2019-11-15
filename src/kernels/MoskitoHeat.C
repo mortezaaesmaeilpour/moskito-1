@@ -50,7 +50,7 @@ Real
 MoskitoHeat::computeQpResidual()
 {
   Real r = 0.0;
-  r =  2.0 * PI * _rto[_qp] * _Uto[_qp];
+  r =  -2.0 * PI * _rto[_qp] * _Uto[_qp];
   r *= ((_T[_qp]) - _Twb[_qp]);
   r /=  PI * _diameter_liquid[_qp] * _diameter_liquid[_qp] / 4.0;
   r *= _test[_i][_qp];
