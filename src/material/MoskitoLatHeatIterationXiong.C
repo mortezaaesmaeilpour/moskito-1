@@ -67,7 +67,7 @@ validParams<MoskitoLatHeatIterationXiong>()
           "Tolerance to calculate derivatives based on numerical differentiation");
     params.addParam<RealVectorValue>("Ind_grav", RealVectorValue(9.8,0.0,0.0),
           "Independent gravity to calculate Grashof or Rayleigh number in case overall gravity is set to zero");
-    params.addRequiredParam<std::vector<Real>>("vector_conductivities",
+    params.addRequiredParam<std::vector<Real>>("conductivities_vector",
           "Vector containing conductivity values of full well completion (W/(m*K));"
           "Annulus value should be set to 0.0");
     params.addRequiredParam<std::vector<Real>>("well_diameter_vector",
@@ -100,7 +100,7 @@ MoskitoLatHeatIterationXiong::MoskitoLatHeatIterationXiong(const InputParameters
     _Uto(declareProperty<Real>("thermal_resistivity_well")),
     _Twb(declareProperty<Real>("temperature_well_formation_interface")),
     _diameter(getMaterialProperty<Real>("well_diameter")),
-    _conductivity_vector(getParam<std::vector<Real>>("vector_conductivities")),
+    _conductivity_vector(getParam<std::vector<Real>>("conductivities_vector")),
     _gravity(getMaterialProperty<RealVectorValue>("gravity")),
     _gradT(getFunction("geothermal_gradient")),
     _hc(getParam<MooseEnum>("hc_calucation_model")),
