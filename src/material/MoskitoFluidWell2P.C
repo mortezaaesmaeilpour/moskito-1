@@ -108,7 +108,7 @@ MoskitoFluidWell2P::computeQpProperties()
   else
   {
   Real temp;   // bypass vfrac calculation of drift flux model
-  MoskitoDFGVar DFinp(_u[_qp], _rho_g[_qp], _rho_l[_qp], _vmfrac[_qp],
+  MoskitoDFGVar DFinp(_u[_qp], _rho_g[_qp], _rho_l[_qp], _vmfrac[_qp], _vfrac[_qp],
     _dia[_qp], _dir[_qp], _friction[_qp], _gravity[_qp], _well_unit_vect[_qp]);
   dfm_uo.DFMCalculator(DFinp);
     DFinp.DFMOutput(_flow_pat[_qp], _v_sg[_qp], _v_sl[_qp], _c0[_qp], _u_d[_qp]);
