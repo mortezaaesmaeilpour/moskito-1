@@ -37,7 +37,7 @@ class MoskitoMassFlowRateCoupled : public NodalBC
 public:
   MoskitoMassFlowRateCoupled(const InputParameters & parameters);
   virtual Real computeQpResidual() override;
-  virtual Real computeQpOffDiagJacobian(unsigned int jvar) override;
+  // virtual Real computeQpOffDiagJacobian(unsigned int jvar) override;
 
 protected:
   // Userobject to equation of state
@@ -47,9 +47,6 @@ protected:
   // Reading of coupled parameters
   const VariableValue & _h;
   const VariableValue & _p;
-  // The id of the coupled variable
-  unsigned int _h_var_number;
-  unsigned int _p_var_number;
 
 };
 
